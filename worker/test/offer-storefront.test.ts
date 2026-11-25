@@ -63,3 +63,36 @@ it('returns409 when configuration revision changes during awaited context lookup
  vi.stubGlobal('fetch',vi.fn(async()=>{await bindings.DB.prepare('UPDATE quantity_breaks_campaigns SET revision=revision+1 WHERE shop_handle=?').bind(shop).run();return Response.json({markets:[]})}));
  expect((await request('campaign',{countryCode:'CA'})).status).toBe(409);
 });
+
+async function previewRequest() {
+ const encode=(value:unknown)=>btoa(JSON.stringify(value)).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
+ const head=encode({alg:'HS256',typ:'JWT'}),payload=encode({handle:shop,aud:bindings.SHOPLINE_APP_KEY,exp:Math.floor(Date.now()/1000)+3600});
+ const signature=await hmacHex(btoa(bindings.SHOPLINE_APP_SECRET),`${head}.${payload}`);
+ const signed=btoa(String.fromCharCode(...signature.match(/.{2}/g)!.map(part=>parseInt(part,16)))).replaceAll('+','-').replaceAll('/','_').replaceAll('=','');
+ return worker.fetch(new Request('https://example.com/api/quantity-breaks/offer-preview',{method:'POST',headers:{Authorization:`Bearer ${head}.${payload}.${signed}`,'Content-Type':'application/json'},body:JSON.stringify({selection:[{productId:'gift-product',variantIds:['900719925474099312345']}],marketId:'primary',currencyCode:'USD',revision:'draft-rate'})}),bindings,createExecutionContext());
+}
+// Losing either error type or recovery boundary must not turn upstream throttling into 200/422.
+it.each(['reference','currency','market','variant'])('preserves preview 429 and Retry-After from the %s phase',async phase=>{
+ vi.stubGlobal('fetch',vi.fn(async(url:RequestInfo|URL)=>{
+  const path=String(url),current=path.includes('/products/products.json')?'reference':path.includes('/currency/')?'currency':path.includes('/markets.json')?'market':'variant';
+  if(current===phase)return new Response('',{status:429,headers:{'Retry-After':'7'}});
+  if(current==='reference')return Response.json({products:[{id:'gift-product',handle:'gift',variants:[{id:'900719925474099312345',product_id:'gift-product'}]}]});
+  if(current==='currency')return Response.json({currencies:[{currency:'USD',enabled:true}]});
+  return Response.json({markets:[{id:'primary',primary:true,enabled:true}]});
+ }));
+ const response=await previewRequest();expect(response.status).toBe(429);expect(response.headers.get('Retry-After')).toBe('7');
+ const body=await response.json() as any;expect(body).toMatchObject({version:2,revision:'draft-rate',retryAfter:7});
+ expect(body.products.every((product:any)=>product.available===false&&product.variants.every((variant:any)=>variant.price===null))).toBe(true);
+});
+it.each(['reference','currency','market','variant'])('bounds preview retry delays consistently in the %s phase',async phase=>{
+ for(const [header,expected] of [['0',1],['999999',3600],['invalid',1],[new Date(Date.now()+120_000).toUTCString(),'date']] as const){
+  vi.stubGlobal('fetch',vi.fn(async(url:RequestInfo|URL)=>{
+   const path=String(url),current=path.includes('/products/products.json')?'reference':path.includes('/currency/')?'currency':path.includes('/markets.json')?'market':'variant';
+   if(current===phase)return new Response('',{status:429,headers:{'Retry-After':header}});
+   if(current==='reference')return Response.json({products:[{id:'gift-product',handle:'gift',variants:[{id:'900719925474099312345',product_id:'gift-product'}]}]});
+   if(current==='currency')return Response.json({currencies:[{currency:'USD',enabled:true}]});
+   return Response.json({markets:[{id:'primary',primary:true,enabled:true}]});
+  }));
+  const response=await previewRequest();expect(response.status).toBe(429);const body=await response.json() as any;if(expected==='date'){expect(Number(response.headers.get('Retry-After'))).toBeGreaterThanOrEqual(119);expect(Number(response.headers.get('Retry-After'))).toBeLessThanOrEqual(120);expect(body.retryAfter).toBe(Number(response.headers.get('Retry-After')));}else{expect(response.headers.get('Retry-After')).toBe(String(expected));expect(body).toMatchObject({retryAfter:expected});}
+ }
+});

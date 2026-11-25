@@ -13,3 +13,10 @@ export function shoplineAdminHeaders(accessToken: string, initialHeaders?: Heade
   headers.set('User-Agent', SHOPLINE_ADMIN_USER_AGENT);
   return headers;
 }
+
+/** Retry-After seconds or HTTP date, bounded for callers that expose a retry delay. */
+export function shoplineAdminRetryAfter(header: string | null): number {
+  const value = header?.trim();
+  const seconds = value && /^\d+$/.test(value) ? Number(value) : value ? (Date.parse(value) - Date.now()) / 1000 : 1;
+  return Number.isFinite(seconds) ? Math.max(1, Math.min(3600, Math.ceil(seconds))) : 1;
+}

@@ -1,7 +1,7 @@
 import type { AuthContext } from '../auth/session';
 import { CampaignConflictError } from '../db/campaigns';
 import type { Campaign } from '../domain/campaign';
-import { shoplineAdminHeaders } from './shopline-admin-request-headers';
+import { shoplineAdminHeaders, shoplineAdminRetryAfter } from './shopline-admin-request-headers';
 import { DiscountUncertainError, type ShoplineRequestMetadata } from './discounts';
 import { diagnosticResponseBody } from '../observability/diagnostic-response';
 import { COLLECTION_VARIABLE_KEY, COLLECTION_VARIABLE_NAMESPACE, ensureCollectionMetafieldDefinition } from './collection-metafield-definition';
@@ -9,7 +9,7 @@ import { COLLECTION_VARIABLE_KEY, COLLECTION_VARIABLE_NAMESPACE, ensureCollectio
 const VERSION = 'v20260901';
 
 export class ShoplineAdminApiError extends Error {
-  constructor(readonly path: string, readonly status: number) {
+  constructor(readonly path: string, readonly status: number, readonly retryAfter?: number) {
     super(`SHOPLINE Admin API ${path} returned ${status}.`);
     this.name = 'ShoplineAdminApiError';
   }
@@ -39,7 +39,7 @@ async function request(session: AuthContext, path: string, init: RequestInit = {
     ...init,
     headers: shoplineAdminHeaders(session.accessToken, init.headers),
   });
-  if (!response.ok) throw new ShoplineAdminApiError(path.split('?')[0], response.status);
+  if (!response.ok) throw new ShoplineAdminApiError(path.split('?')[0], response.status, response.status === 429 ? shoplineAdminRetryAfter(response.headers.get('Retry-After')) : undefined);
   return response;
 }
 

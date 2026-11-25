@@ -5,7 +5,7 @@ import { D1SessionStore } from '../db/sessions';
 import type { Env } from '../env';
 import { catalogScope, hasEnabledOffers, offerConfigDigest, offerSelections, type OfferSelection } from './offer-config';
 import { supportedOfferFunction } from './discounts';
-import { shoplineAdminHeaders } from './shopline-admin-request-headers';
+import { shoplineAdminHeaders, shoplineAdminRetryAfter } from './shopline-admin-request-headers';
 export const OFFER_INDEX_NAMESPACE = 'qb_test_offers';
 export const OFFER_INDEX_KEY = 'catalog_v1';
 export type OfferProductRef = { id: string; handle: string; variantIds: string[] };
@@ -17,8 +17,7 @@ async function request(session: AuthContext, path: string, init: RequestInit = {
   if (!/^[a-z0-9][a-z0-9-]{0,127}$/i.test(session.handle) || !session.accessToken) throw new OfferIndexError('Authenticated shop required.');
   const response = await fetch(`https://${session.handle}.myshopline.com/admin/openapi/v20260901${path}`, { ...init, headers: shoplineAdminHeaders(session.accessToken), signal: AbortSignal.timeout(8_000) });
   if (!response.ok) {
-    const seconds = Number(response.headers.get('Retry-After'));
-    throw new OfferIndexError(`Offer catalog Admin request returned ${response.status}.`, response.status === 429 ? Math.max(1, Math.min(3600, Number.isFinite(seconds) ? seconds : 1)) : undefined);
+    throw new OfferIndexError(`Offer catalog Admin request returned ${response.status}.`, response.status === 429 ? shoplineAdminRetryAfter(response.headers.get('Retry-After')) : undefined);
   }
   const payload: unknown = await response.json();
   if (!object(payload) || payload.errors) throw new OfferIndexError('Offer catalog Admin response is incomplete.');
