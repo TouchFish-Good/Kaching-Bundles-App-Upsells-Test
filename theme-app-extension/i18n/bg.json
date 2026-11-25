@@ -20,7 +20,14 @@
       "sold_out": "Разпродадено",
       "no_stock": "Няма достатъчно налични варианти за това количество.",
       "calculated_at_checkout": "Изчислява се при плащане",
-      "add_to_cart_quantity": "Добавете {quantity} в количката"
+      "add_to_cart_quantity": "Добавете {quantity} в количката",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

@@ -20,7 +20,14 @@
       "sold_out": "Uitverkocht",
       "no_stock": "Niet genoeg beschikbare varianten voor dit aantal.",
       "calculated_at_checkout": "Berekend bij afrekenen",
-      "add_to_cart_quantity": "Voeg {quantity} toe aan winkelwagen"
+      "add_to_cart_quantity": "Voeg {quantity} toe aan winkelwagen",
+      "offer_unavailable": "Niet beschikbaar",
+      "offer_included": "Inbegrepen",
+      "offer_quantity": "Aantal",
+      "offer_previous": "Vorige",
+      "offer_next": "Volgende",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

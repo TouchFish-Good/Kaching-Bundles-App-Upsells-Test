@@ -20,7 +20,14 @@
       "sold_out": "Habis",
       "no_stock": "Varian yang tersedia tidak cukup untuk jumlah ini.",
       "calculated_at_checkout": "Dihitung saat checkout",
-      "add_to_cart_quantity": "Tambahkan {quantity} ke keranjang"
+      "add_to_cart_quantity": "Tambahkan {quantity} ke keranjang",
+      "offer_unavailable": "Tidak tersedia",
+      "offer_included": "Disertakan",
+      "offer_quantity": "Jumlah",
+      "offer_previous": "Sebelumnya",
+      "offer_next": "Berikutnya",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

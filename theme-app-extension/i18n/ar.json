@@ -20,7 +20,14 @@
       "sold_out": "نفد المخزون",
       "no_stock": "لا تتوفر خيارات كافية لهذه الكمية.",
       "calculated_at_checkout": "يُحسب عند الدفع",
-      "add_to_cart_quantity": "أضف {quantity} إلى السلة"
+      "add_to_cart_quantity": "أضف {quantity} إلى السلة",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

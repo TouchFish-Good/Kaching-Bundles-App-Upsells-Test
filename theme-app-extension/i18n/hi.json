@@ -20,7 +20,14 @@
       "sold_out": "बिक गया",
       "no_stock": "इस मात्रा के लिए पर्याप्त विकल्प उपलब्ध नहीं हैं।",
       "calculated_at_checkout": "चेकआउट पर गणना की जाएगी",
-      "add_to_cart_quantity": "{quantity} कार्ट में जोड़ें"
+      "add_to_cart_quantity": "{quantity} कार्ट में जोड़ें",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

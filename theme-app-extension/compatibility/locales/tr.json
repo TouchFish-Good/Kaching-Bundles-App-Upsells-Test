@@ -20,7 +20,14 @@
       "sold_out": "Tükendi",
       "no_stock": "Bu adet için yeterli varyant yok.",
       "calculated_at_checkout": "Ödemede hesaplanır",
-      "add_to_cart_quantity": "{quantity} ürünü sepete ekle"
+      "add_to_cart_quantity": "{quantity} ürünü sepete ekle",
+      "offer_unavailable": "Kullanılamıyor",
+      "offer_included": "Dahil",
+      "offer_quantity": "Adet",
+      "offer_previous": "Önceki",
+      "offer_next": "Sonraki",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

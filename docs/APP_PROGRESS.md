@@ -1191,3 +1191,14 @@ Admin REST 服务请求统一改为 `v20260901`，保留原有 SDK OAuth、offli
 - 参考图 `docs/reference/screenshots/gifts-bundles-section-toggle-reference.png` 与实际前后 1440/390/320、容器、开关状态、轮播、翻译截图及浏览器结果保存在 `docs/local/gifts-bundles-task4/`；浏览器本轮无页面/控制台错误。模拟主商品 $64 + 已选捆绑 $30 + 赠品 $0 = $94；实际本地保存保留数量与双开关。
 - 使用认证草稿 `offer-preview`，核验请求版本/修订/locale/market/currency 并拒绝迟到响应；遵守 429 Retry-After（草稿修改亦不绕过等待）。只采信明确可售与可信价格，不使用选品库存推断；缺价/未知上下文保持不可用。未修改焦点伪类、配置、凭证或正式源码；未推送、部署、发布扩展或写商家数据。
 - 以上为本地页面与模拟数据验证，非 SHOPLINE 商品、原生主题、真实购物车或结账验收。下一未验收部分为 Task5 原生主题/购物车及后续联合验证；整个应用仍未标记完成或可上线。
+
+
+## 2026-11-25 测试环境 Task5：原生主题赠品/捆绑与复合加购（本地）
+
+- OS3 与 OS2.1 接入测试专用 `qb_test_offers.catalog_v1` 索引和主题 `all_products` 原生目录，SSR 仅预加载，最终要求 Worker v2 capability、活动/digest/ID 白名单及原生货币/语言/国家上下文一致。无 Storefront transport/token 或新的附件脚本请求；旧版/关闭模块继续主商品流程。
+- 无已文档化 SSR 当前时间时，按商品/集合/全店优先顺序保留相关候选，不以未来/过期高优先活动遮蔽下层候选；OS2.1 去重并最多查询20个 Handle，主题已用额度造成缺失时附件不可用，主商品可加购。
+- 赠品满足条件全部自动加入且不可取消，捆绑支持多选/取消与单选最大实际节省回退。规则/逐件规格保留跨尺寸和修订状态；巨大数量保留原值并标为不可展示，安全整数金额检查避免分配或溢出。
+- 一次平铺 `/cart/add` 提交主商品/赠品/捆绑，使用官方隐藏 properties 数组；超时8秒后只读确认完整身份，禁止自动重试写入。主题事件与通知匹配真实 Product、Handle 和购物车行 key。
+- 本地主题全量一次结果123/124，唯一失败为既有 `unchanged default desktop and mobile configuration renders a usable widget` 的10px/8px旧断言；在 ce738ec 干净文件副本中复现。后续受影响的原生/购物车/两代通知定向检查50/50通过（含新增17项附件测试），未将完整套件记为全绿。SLine 官方 validator 带扩展根目录和 fail-on-error 通过，无关闭诊断；canonical browser core drift、OS2.1 sync/check 通过。
+- 本地 Chromium 实测两代1440/390/320、容器400/600/700对应1/2/3列，动态移除/重挂载与独立区块、轮播键盘/触摸、一次模拟购物车批次；参考/前后截图和 browser-evidence.json 保存在 docs/local/gifts-bundles-task5。无浏览器错误、横向溢出或真实购物车写入。OS2.1 使用本地 Handlebars helper 夹具执行模板；OS3 使用原生DOM夹具与实际JS/CSS，未声称执行真实SHOPLINE模板渲染。
+- 尚待授权的测试店部署验收：实际 shop metafield 权限/可见性、all_products 实店输出、Function SKU/variant及line-total能力、真实购物车/结账。仅本地提交，未推送/部署/发布；整体应用仍未全部验收。

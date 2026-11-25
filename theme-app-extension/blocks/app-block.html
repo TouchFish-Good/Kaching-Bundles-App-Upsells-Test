@@ -3,7 +3,9 @@
 <script src="{{ "app-block.js" | asset_url() }}" defer></script>
 {{#var quantity_breaks_variants = product | get_variants() /}}
 {{#var quantity_breaks_collections = product | get_collection_pagination(100, page=1) /}}
+{{#var qb_offer_collections = "|" /}}
 <div class="quantity-breaks-app-block"
+  data-offer-native="1"
   data-shop="{{ shop.permanent_domain }}"
   data-product-id="{{ product.id }}"
   data-product-available="{{ product.available }}"
@@ -17,16 +19,90 @@
   <div data-product-collections data-collection-count="{{ quantity_breaks_collections.items }}" data-collection-pages="{{ quantity_breaks_collections.pages }}" hidden>
     {{#for collection in quantity_breaks_collections.list}}
     <span data-collection-id="{{ collection.id }}"></span>
+    {{#capture qb_offer_collection_next}}{{ qb_offer_collections }}{{ collection.id }}|{{/capture}}
+    {{#set qb_offer_collections = qb_offer_collection_next /}}
     {{/for}}
     {{#for page in 2 | range(10)}}
       {{#if page <= quantity_breaks_collections.pages}}
         {{#var quantity_breaks_collection_page = product | get_collection_pagination(100, page=page) /}}
         {{#for collection in quantity_breaks_collection_page.list}}
         <span data-collection-id="{{ collection.id }}"></span>
+        {{#capture qb_offer_collection_page_next}}{{ qb_offer_collections }}{{ collection.id }}|{{/capture}}
+        {{#set qb_offer_collections = qb_offer_collection_page_next /}}
         {{/for}}
       {{/if}}
     {{/for}}
   </div>
+  {{#var qb_offer_metafield = shop | get_metafield("qb_test_offers", "catalog_v1") /}}
+  {{#var qb_offer_index = qb_offer_metafield.value /}}
+  {{#var qb_offer_seen = "|" /}}
+  {{#var qb_offer_scope = false /}}
+  {{#var qb_offer_excluded = false /}}
+  {{#var qb_offer_token = "" /}}
+  <div data-offer-native-catalog data-currency="{{ localization.country.currency.iso_code }}" data-locale="{{ localization.language.iso_code }}" data-country-code="{{ localization.country.iso_code }}" hidden>
+  {{#if qb_offer_index.version == 1}}
+    <!-- Preload only; retain schedule candidates until Worker authorization. -->
+    {{#for qb_offer_priority in "products,collections,all" | split(",")}}
+      {{#for qb_offer_entry in qb_offer_index.entries}}
+        {{#if qb_offer_entry.scope.kind == qb_offer_priority}}
+          {{#set qb_offer_scope = false /}}
+          {{#set qb_offer_excluded = false /}}
+          {{#if qb_offer_entry.scope.kind == "all"}}
+            {{#set qb_offer_scope = true /}}
+          {{/if}}
+          {{#if qb_offer_entry.scope.kind == "collections"}}
+            {{#if quantity_breaks_collections != nil && quantity_breaks_collections.items != nil && quantity_breaks_collections.pages != nil && quantity_breaks_collections.items <= 1000 && quantity_breaks_collections.pages <= 10}}
+              {{#for qb_offer_collection in qb_offer_entry.scope.collectionIds}}
+                {{#capture qb_offer_collection_token}}|{{ qb_offer_collection }}|{{/capture}}
+                {{#set qb_offer_token = qb_offer_collection_token /}}
+                {{#if qb_offer_collections | contains(qb_offer_token)}}{{#set qb_offer_scope = true /}}{{/if}}
+              {{/for}}
+            {{#else/}}
+              {{#set qb_offer_scope = true /}}
+            {{/if}}
+          {{/if}}
+          {{#for qb_offer_main in qb_offer_entry.scope.productIds}}
+            {{#if qb_offer_main == product.id}}{{#set qb_offer_scope = true /}}{{/if}}
+          {{/for}}
+          {{#for qb_offer_exclusion in qb_offer_entry.scope.excludedProductIds}}
+            {{#if qb_offer_exclusion == product.id}}{{#set qb_offer_excluded = true /}}{{/if}}
+          {{/for}}
+          {{#if qb_offer_scope && qb_offer_excluded == false}}
+            <div data-offer-entry="{{ qb_offer_entry.campaignId }}" data-digest="{{ qb_offer_entry.digest }}">
+              {{#for qb_offer_ref in qb_offer_entry.products}}
+              <div data-offer-ref="{{ qb_offer_ref.id }}" data-handle="{{ qb_offer_ref.handle }}">
+                {{#for qb_offer_allowed in qb_offer_ref.variantIds}}<i data-offer-allowed="{{ qb_offer_allowed }}"></i>{{/for}}
+              </div>
+              {{#capture qb_offer_handle_token}}|{{ qb_offer_ref.handle }}|{{/capture}}
+              {{#set qb_offer_token = qb_offer_handle_token /}}
+              {{#if (qb_offer_seen | contains(qb_offer_token)) == false}}
+                {{#capture qb_offer_seen_next}}{{ qb_offer_seen }}{{ qb_offer_ref.handle }}|{{/capture}}
+                {{#set qb_offer_seen = qb_offer_seen_next /}}
+                {{#var qb_offer_product = all_products | get(qb_offer_ref.handle) /}}
+                {{#if qb_offer_product != nil}}
+                <div data-offer-product="{{ qb_offer_product.id }}" data-handle="{{ qb_offer_product.handle }}" data-title="{{ qb_offer_product.title }}">
+                  {{#var qb_offer_variants = qb_offer_product | get_variants() /}}
+                  {{#for qb_offer_variant in qb_offer_variants}}
+                  <span data-offer-variant="{{ qb_offer_variant.id }}" data-title="{{ qb_offer_variant.title }}" data-price="{{ qb_offer_variant.price }}" data-available="{{ qb_offer_variant.available }}" data-image="{{ qb_offer_variant.image | image_url(width=160, height=160) }}"></span>
+                  {{/for}}
+                </div>
+                {{/if}}
+              {{/if}}
+              {{/for}}
+            </div>
+          {{/if}}
+        {{/if}}
+      {{/for}}
+    {{/for}}
+  {{/if}}
+  </div>
+  <span data-qb-copy="widget.offer_unavailable" hidden>{{ "app_block.widget.offer_unavailable" | t() }}</span>
+  <span data-qb-copy="widget.offer_included" hidden>{{ "app_block.widget.offer_included" | t() }}</span>
+  <span data-qb-copy="widget.offer_quantity" hidden>{{ "app_block.widget.offer_quantity" | t() }}</span>
+  <span data-qb-copy="widget.offer_previous" hidden>{{ "app_block.widget.offer_previous" | t() }}</span>
+  <span data-qb-copy="widget.offer_next" hidden>{{ "app_block.widget.offer_next" | t() }}</span>
+  <span data-qb-copy="widget.offer_select" hidden>{{ "app_block.widget.offer_select" | t() }}</span>
+  <span data-qb-copy="widget.offer_unlock" hidden>{{ "app_block.widget.offer_unlock" | t() }}</span>
   <span data-qb-copy="widget.title" hidden>{{ "app_block.widget.title" | t() }}</span>
   <span data-qb-copy="widget.tier_savings_badge" hidden>{{ "app_block.widget.tier_savings_badge" | t() }}</span>
   <span data-qb-copy="widget.description" hidden>{{ "app_block.widget.description" | t() }}</span>

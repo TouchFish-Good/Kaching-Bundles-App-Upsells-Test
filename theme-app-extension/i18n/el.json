@@ -20,7 +20,14 @@
       "sold_out": "Εξαντλήθηκε",
       "no_stock": "Δεν υπάρχουν αρκετές διαθέσιμες παραλλαγές για αυτή την ποσότητα.",
       "calculated_at_checkout": "Υπολογίζεται στο ταμείο",
-      "add_to_cart_quantity": "Προσθήκη {quantity} στο καλάθι"
+      "add_to_cart_quantity": "Προσθήκη {quantity} στο καλάθι",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

@@ -20,7 +20,14 @@
       "sold_out": "Hết hàng",
       "no_stock": "Không đủ biến thể cho số lượng này.",
       "calculated_at_checkout": "Tính khi thanh toán",
-      "add_to_cart_quantity": "Thêm {quantity} sản phẩm vào giỏ"
+      "add_to_cart_quantity": "Thêm {quantity} sản phẩm vào giỏ",
+      "offer_unavailable": "Không khả dụng",
+      "offer_included": "Đã bao gồm",
+      "offer_quantity": "Số lượng",
+      "offer_previous": "Trước",
+      "offer_next": "Tiếp",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

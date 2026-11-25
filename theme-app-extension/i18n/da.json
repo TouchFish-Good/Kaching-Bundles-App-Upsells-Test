@@ -20,7 +20,14 @@
       "sold_out": "Udsolgt",
       "no_stock": "Der er ikke nok tilgængelige varianter til denne mængde.",
       "calculated_at_checkout": "Beregnes ved betaling",
-      "add_to_cart_quantity": "Tilføj {quantity} til kurven"
+      "add_to_cart_quantity": "Tilføj {quantity} til kurven",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

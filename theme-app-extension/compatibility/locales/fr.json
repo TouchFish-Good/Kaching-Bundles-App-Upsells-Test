@@ -20,7 +20,14 @@
       "sold_out": "Épuisé",
       "no_stock": "Stock insuffisant pour cette quantité.",
       "calculated_at_checkout": "Calculé au paiement",
-      "add_to_cart_quantity": "Ajouter {quantity} au panier"
+      "add_to_cart_quantity": "Ajouter {quantity} au panier",
+      "offer_unavailable": "Indisponible",
+      "offer_included": "Inclus",
+      "offer_quantity": "Quantité",
+      "offer_previous": "Précédent",
+      "offer_next": "Suivant",
+      "offer_select": "Sélectionner",
+      "offer_unlock": "Débloquer avec {quantity} articles"
     }
   }
 }

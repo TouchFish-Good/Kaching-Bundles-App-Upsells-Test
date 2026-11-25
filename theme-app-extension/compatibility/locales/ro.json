@@ -20,7 +20,14 @@
       "sold_out": "Stoc epuizat",
       "no_stock": "Nu sunt suficiente variante disponibile pentru această cantitate.",
       "calculated_at_checkout": "Calculat la plată",
-      "add_to_cart_quantity": "Adaugă {quantity} în coș"
+      "add_to_cart_quantity": "Adaugă {quantity} în coș",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

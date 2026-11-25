@@ -20,7 +20,14 @@
       "sold_out": "Elfogyott",
       "no_stock": "Nincs elég elérhető változat ehhez a mennyiséghez.",
       "calculated_at_checkout": "Fizetéskor számítjuk ki",
-      "add_to_cart_quantity": "{quantity} kosárba helyezése"
+      "add_to_cart_quantity": "{quantity} kosárba helyezése",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

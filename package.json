@@ -8,8 +8,8 @@
     "dev": "shopline app dev",
     "dev:reset": "shopline app dev --reset",
     "test:theme": "node --test tests/theme-app-extension/*.test.mjs",
-    "theme:sync": "node scripts/sync-theme-compatibility.mjs",
-    "theme:check": "node scripts/sync-theme-compatibility.mjs --check"
+    "theme:sync": "node scripts/sync-theme-offer-core.mjs && node scripts/sync-theme-compatibility.mjs",
+    "theme:check": "node scripts/sync-theme-offer-core.mjs --check && node scripts/sync-theme-compatibility.mjs --check"
   },
   "dependencies": {},
   "author": "SL",

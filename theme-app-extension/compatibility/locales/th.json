@@ -20,7 +20,14 @@
       "sold_out": "สินค้าหมด",
       "no_stock": "ตัวเลือกสินค้าไม่เพียงพอสำหรับจำนวนนี้",
       "calculated_at_checkout": "คำนวณเมื่อชำระเงิน",
-      "add_to_cart_quantity": "เพิ่ม {quantity} รายการลงรถเข็น"
+      "add_to_cart_quantity": "เพิ่ม {quantity} รายการลงรถเข็น",
+      "offer_unavailable": "ไม่พร้อมใช้งาน",
+      "offer_included": "รวมแล้ว",
+      "offer_quantity": "จำนวน",
+      "offer_previous": "ก่อนหน้า",
+      "offer_next": "ถัดไป",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

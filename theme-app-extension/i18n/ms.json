@@ -20,7 +20,14 @@
       "sold_out": "Kehabisan stok",
       "no_stock": "Varian yang tersedia tidak mencukupi untuk kuantiti ini.",
       "calculated_at_checkout": "Dikira semasa pembayaran",
-      "add_to_cart_quantity": "Tambah {quantity} ke troli"
+      "add_to_cart_quantity": "Tambah {quantity} ke troli",
+      "offer_unavailable": "Tidak tersedia",
+      "offer_included": "Disertakan",
+      "offer_quantity": "Kuantiti",
+      "offer_previous": "Sebelumnya",
+      "offer_next": "Seterusnya",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

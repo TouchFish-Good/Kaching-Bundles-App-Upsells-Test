@@ -20,7 +20,14 @@
       "sold_out": "Slutsåld",
       "no_stock": "Det finns inte tillräckligt många varianter för detta antal.",
       "calculated_at_checkout": "Beräknas i kassan",
-      "add_to_cart_quantity": "Lägg {quantity} i varukorgen"
+      "add_to_cart_quantity": "Lägg {quantity} i varukorgen",
+      "offer_unavailable": "Inte tillgänglig",
+      "offer_included": "Ingår",
+      "offer_quantity": "Antal",
+      "offer_previous": "Föregående",
+      "offer_next": "Nästa",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

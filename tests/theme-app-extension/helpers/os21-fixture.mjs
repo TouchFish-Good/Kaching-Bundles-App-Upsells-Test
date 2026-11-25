@@ -21,6 +21,16 @@ export function renderOs21(context = os21Context) {
   hbs.registerHelper('image_url', value => value || '');
   hbs.registerHelper('t', key => key.split('.').reduce((value, part) => value?.[part], copy) ?? key);
   hbs.registerHelper('schema', () => '');
+  // Documented SHOPLINE helpers are modeled only for local template fixtures.
+  // This is not the platform renderer or a claim about merchant permissions.
+  hbs.registerHelper('assign', function(key,value,options) { options.data.root[key]=value; return ''; });
+  hbs.registerHelper('get', (key,object) => object?.[key]);
+  hbs.registerHelper('append', (a,b) => String(a)+String(b));
+  hbs.registerHelper('plus', (a,b) => a+b);
+  hbs.registerHelper('JSONparse', value => JSON.parse(value));
+  hbs.registerHelper('contains', function(collection,value,options) { return (Array.isArray(collection) || typeof collection==='string') && collection.includes(value) ? options.fn(this) : options.inverse(this); });
+  const originalIf=hbs.helpers.if;
+  hbs.registerHelper('if', function(...args) { const options=args.pop(); if(args.length===3) { const [a,op,b]=args; return (op==='=='?a===b:op==='<'?a<b:false) ? options.fn(this) : options.inverse(this); } return originalIf.call(this,args[0],options); });
   const template = readFileSync(new URL('compatibility/blocks/app-block.html', extension), 'utf8');
   return hbs.compile(template, { strict: false })(context);
 }

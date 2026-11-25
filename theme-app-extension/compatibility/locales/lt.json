@@ -20,7 +20,14 @@
       "sold_out": "Išparduota",
       "no_stock": "Šiam kiekiui nepakanka galimų variantų.",
       "calculated_at_checkout": "Apskaičiuojama atsiskaitant",
-      "add_to_cart_quantity": "Pridėti {quantity} į krepšelį"
+      "add_to_cart_quantity": "Pridėti {quantity} į krepšelį",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

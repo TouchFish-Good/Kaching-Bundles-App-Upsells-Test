@@ -20,7 +20,14 @@
       "sold_out": "품절",
       "no_stock": "이 수량에 사용할 수 있는 옵션이 부족합니다.",
       "calculated_at_checkout": "결제 시 계산",
-      "add_to_cart_quantity": "{quantity}개 장바구니에 담기"
+      "add_to_cart_quantity": "{quantity}개 장바구니에 담기",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "선택",
+      "offer_unlock": "{quantity}개로 잠금 해제"
     }
   }
 }

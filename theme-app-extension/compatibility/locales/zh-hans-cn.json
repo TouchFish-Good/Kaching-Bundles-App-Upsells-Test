@@ -20,7 +20,14 @@
       "sold_out": "已售罄",
       "no_stock": "可用规格库存不足，无法购买此数量。",
       "calculated_at_checkout": "结账时计算",
-      "add_to_cart_quantity": "将 {quantity} 件商品加入购物车"
+      "add_to_cart_quantity": "将 {quantity} 件商品加入购物车",
+      "offer_unavailable": "暂不可用",
+      "offer_included": "已包含",
+      "offer_quantity": "数量",
+      "offer_previous": "上一个",
+      "offer_next": "下一个",
+      "offer_select": "选择",
+      "offer_unlock": "购买 {quantity} 件即可解锁"
     }
   }
 }

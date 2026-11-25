@@ -112,8 +112,8 @@
         options,
         available: node.dataset.available === 'true',
         // SLine prices use hundredths even for JPY; the pricing helpers take major units.
-        price: Number(node.dataset.price) / 100,
-        compareAtPrice: node.dataset.compareAtPrice === '' || node.dataset.compareAtPrice == null ? null : Number(node.dataset.compareAtPrice) / 100,
+        price: Number(node.dataset.price) / (block.dataset.themeVersion === '2.1' ? 10 ** currencyFractionDigits(block.dataset.currency || block.dataset.shopCurrency || 'USD') : 100),
+        compareAtPrice: node.dataset.compareAtPrice === '' || node.dataset.compareAtPrice == null ? null : Number(node.dataset.compareAtPrice) / (block.dataset.themeVersion === '2.1' ? 10 ** currencyFractionDigits(block.dataset.currency || block.dataset.shopCurrency || 'USD') : 100),
         image: node.dataset.image || '',
       };
     }).filter((variant) => variant.id && Number.isFinite(variant.price) && variant.price >= 0);
@@ -261,7 +261,9 @@
     const chosen = selections.map((id) => catalog.get(String(id))).filter(Boolean);
     if (chosen.length !== selections.length) return null;
     const prices = chosen.map((variant) => normalizePriceMinor(variant.price, currency));
+    if(!prices.every(safeAmount))return null;
     const originalMinor = prices.reduce((sum, price) => sum + price, 0);
+    if(!safeAmount(originalMinor))return null;
     const mode = tier.discountType || 'none';
     const configuredValue = marketOverride?.mode === 'specified_amount' ? Number(marketOverride.amountMinor) : Number(tier.discountValue || 0);
     let lineDiscountedMinor;
@@ -272,6 +274,7 @@
     else if (mode === 'bundle_fixed_price') lineDiscountedMinor = allocateBundleTotal(prices, Math.min(originalMinor, configuredValue));
     else lineDiscountedMinor = [...prices];
     const discountedMinor = lineDiscountedMinor.reduce((sum, value) => sum + value, 0);
+    if(!lineDiscountedMinor.every(safeAmount) || !safeAmount(discountedMinor))return null;
     return { originalMinor, discountedMinor, savingsMinor: Math.max(0, originalMinor - discountedMinor), lineDiscountedMinor };
   }
 
@@ -318,10 +321,10 @@
 
   function cartLineKeys(items, cart) {
     return items.map(item => {
-      // This bundle submits no properties. A full-cart read can also contain
-      // older personalized rows for the same variant; never select those, or
-      // guess between multiple indistinguishable rows.
-      const plain = line => line.properties == null || (typeof line.properties === 'object' && Object.keys(line.properties).length === 0);
+      // Match exact official property identity for composite lines, or plain
+      // legacy rows. Never select older personalized/same-variant gift rows,
+      // or guess between multiple indistinguishable rows.
+      const plain = line => propertyIdentity(line.properties) === propertyIdentity(item.properties) && propertyIdentity(line.properties) !== null;
       const lines = (Array.isArray(cart?.items) ? cart.items : []).filter(line =>
         String(line.variant_id || line.id) === String(item.id) && typeof line.key === 'string' && line.key && plain(line));
       if (lines.length === 1) return lines[0].key;
@@ -490,7 +493,7 @@
       try {
         const keys = await resolveCartLineKeys(items, context, host);
         items.forEach((item, index) => host.themeEventCenter.dispatch(new host.ThemeEvent('variant:added', {
-          detail: { variantId: item.id, quantity: item.quantity, productId: context.productId, productHandle: context.productHandle, ...(keys[index] ? { lineItemKey: keys[index] } : {}) },
+          detail: { variantId: item.id, quantity: item.quantity, productId: item.productId || context.productId, productHandle: item.productHandle || context.productHandle, ...(keys[index] ? { lineItemKey: keys[index] } : {}) },
         })));
         await refreshModernNotification(modernNotification, keys, context, host);
         host.document.dispatchEvent(new host.CustomEvent('quantity-breaks:cart-updated', { detail: { items, productId: context.productId, productHandle: context.productHandle } }));
@@ -511,7 +514,7 @@
       if (host.themeEventCenter?.dispatch && typeof host.ThemeEvent === 'function') {
         const keys = cartLineKeys(items, cartResponse);
         items.forEach((item, index) => host.themeEventCenter.dispatch(new host.ThemeEvent('variant:added', { detail: {
-          variantId: item.id, quantity: item.quantity, productId: context.productId, productHandle: context.productHandle,
+          variantId: item.id, quantity: item.quantity, productId: item.productId || context.productId, productHandle: item.productHandle || context.productHandle,
           ...(keys[index] ? { lineItemKey: keys[index] } : {}),
         } })));
         host.themeEventCenter.dispatch(new host.ThemeEvent('cart:open', { detail: { refresh: true } }));
@@ -527,6 +530,423 @@
     } catch (_) { /* A missing event bridge must not fail a successful add. */ }
   }
 
+  // BEGIN GENERATED OFFERS (scripts/sync-theme-offer-core.mjs)
+  const OfferCore = (() => { const exports = {};
+'use strict';
+
+// Pure application protocol. Catalog prices and availability are never config fields.
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const integer = (value, min = 0, max = Number.MAX_SAFE_INTEGER) => Number.isSafeInteger(value) && value >= min && value <= max;
+const id = value => typeof value === 'string' && value.trim().length > 0;
+const uniqueIds = value => Array.isArray(value) && value.length > 0 && value.every(id) && new Set(value).size === value.length;
+const clone = value => structuredClone(value);
+function keys(raw, allowed, path, errors, optional = []) {
+  if (!object(raw)) { errors.push(`${path} must be an object.`); return false; }
+  for (const key of Object.keys(raw)) if (!allowed.includes(key)) errors.push(`Unknown ${path}.${key}.`);
+  for (const key of allowed) if (!(key in raw) && !optional.includes(key)) errors.push(`${path}.${key} is required.`);
+  return true;
+}
+function device(columns) {
+  return { layout: { mode: 'grid', columns, columnGapPx: 12, rowGapPx: 12 }, image: { sizePx: 96, radiusPx: 6 } };
+}
+function defaultOfferModule(kind) {
+  if (!['gifts', 'bundles'].includes(kind)) throw new Error('Unknown offer module kind.');
+  return { version: 1, enabled: false, selectionMode: kind === 'gifts' ? 'all_eligible' : 'single', quantityMode: 'fixed', quotaScope: 'main_product', items: [], style: { desktop: device(3), mobile: device(1) } };
+}
+function normalizeOfferModule(raw, kind) {
+  const defaults = defaultOfferModule(kind);
+  if (raw === undefined) return defaults;
+  if (!object(raw)) throw new Error(`${kind} must be an object.`);
+  const candidate = { ...defaults, ...clone(raw) };
+  if (raw.style !== undefined && !object(raw.style)) throw new Error(`${kind}.style must be an object.`);
+  candidate.style = { ...defaults.style, ...candidate.style };
+  for (const name of ['desktop', 'mobile']) {
+    const source = candidate.style[name];
+    if (!object(source)) throw new Error(`${kind}.style.${name} must be an object.`);
+    candidate.style[name] = { ...defaults.style[name], ...source,
+      layout: source.layout === undefined ? clone(defaults.style[name].layout) : object(source.layout) ? { ...defaults.style[name].layout, ...source.layout } : source.layout,
+      image: source.image === undefined ? clone(defaults.style[name].image) : object(source.image) ? { ...defaults.style[name].image, ...source.image } : source.image };
+  }
+  const errors = validateOfferModule(candidate, kind);
+  if (errors.length) throw new Error(errors.join(' '));
+  return candidate;
+}
+function validateOfferModule(raw, kind, tiers) {
+  const errors = [];
+  if (raw === undefined) return errors;
+  if (!['gifts', 'bundles'].includes(kind)) return ['Unknown offer module kind.'];
+  if (!keys(raw, ['version','enabled','selectionMode','quantityMode','quotaScope','items','style'], kind, errors)) return errors;
+  if (raw.version !== 1) errors.push(`${kind}.version must be 1.`);
+  if (typeof raw.enabled !== 'boolean') errors.push(`${kind}.enabled must be boolean.`);
+  if (!(kind === 'gifts' ? ['all_eligible'] : ['single','multiple']).includes(raw.selectionMode)) errors.push(`${kind}.selectionMode is invalid.`);
+  if (raw.quantityMode !== 'fixed' || raw.quotaScope !== 'main_product') errors.push(`${kind} requires fixed quantities per main_product.`);
+  if (!Array.isArray(raw.items)) errors.push(`${kind}.items must be an array.`);
+  else {
+    if (raw.enabled && raw.items.length === 0) errors.push(`${kind}.items must not be empty when enabled.`);
+    const ruleIds = new Set(), orders = new Set(), currencies = new Map();
+    for (const [index, rule] of raw.items.entries()) {
+      const path = `${kind}.items[${index}]`;
+      if (!keys(rule, ['ruleId','displayOrder','productId','allowedVariantIds','quantity','label','labelPosition','showImage','discountType','discountValue','marketOverrides','trigger'], path, errors, ['marketOverrides'])) continue;
+      if (!id(rule.ruleId) || ruleIds.has(rule.ruleId)) errors.push(`${path}.ruleId must be unique and nonempty.`);
+      else ruleIds.add(rule.ruleId);
+      if (!integer(rule.displayOrder) || orders.has(rule.displayOrder)) errors.push(`${path}.displayOrder must be a unique safe nonnegative integer.`);
+      else orders.add(rule.displayOrder);
+      if (!id(rule.productId)) errors.push(`${path}.productId must be a nonempty string ID.`);
+      if (!uniqueIds(rule.allowedVariantIds)) errors.push(`${path}.allowedVariantIds must contain unique nonempty string IDs.`);
+      if (!integer(rule.quantity, 1)) errors.push(`${path}.quantity must be a positive safe integer.`);
+      if (typeof rule.label !== 'string') errors.push(`${path}.label must be text.`);
+      if (!['corner','below_title'].includes(rule.labelPosition)) errors.push(`${path}.labelPosition is invalid.`);
+      if (typeof rule.showImage !== 'boolean') errors.push(`${path}.showImage must be boolean.`);
+      if (!['fixed_amount','fixed_price','percentage'].includes(rule.discountType) || !integer(rule.discountValue) || (rule.discountType === 'percentage' && rule.discountValue > 10000)) errors.push(`${path} has an invalid discount.`);
+      if (kind === 'gifts' && (rule.discountType !== 'fixed_price' || rule.discountValue !== 0)) errors.push(`${path} gifts must be free (fixed_price 0).`);
+      if (rule.marketOverrides !== undefined) {
+        if (!object(rule.marketOverrides)) errors.push(`${path}.marketOverrides must be an object.`);
+        else for (const [market, override] of Object.entries(rule.marketOverrides)) {
+          if (!id(market) || !object(override)) { errors.push(`${path} invalid market override.`); continue; }
+          if (override.mode === 'auto_convert') keys(override, ['mode'], `${path}.marketOverrides.${market}`, errors);
+          else if (override.mode === 'specified_amount') {
+            keys(override, ['mode','currencyCode','amountMinor'], `${path}.marketOverrides.${market}`, errors);
+            if (!['fixed_amount','fixed_price'].includes(rule.discountType) || !integer(override.amountMinor) || typeof override.currencyCode !== 'string' || !/^[A-Z]{3}$/.test(override.currencyCode)) errors.push(`${path} invalid specified market amount.`);
+            if (kind === 'gifts' && override.amountMinor !== 0) errors.push(`${path} gifts must be free in every market.`);
+            if (currencies.has(market) && currencies.get(market) !== override.currencyCode) errors.push(`${path} market currency must be consistent.`);
+            currencies.set(market, override.currencyCode);
+          } else errors.push(`${path} invalid market mode.`);
+        }
+      }
+      if (!object(rule.trigger)) errors.push(`${path}.trigger must be an object.`);
+      else if (rule.trigger.type === 'tiers') {
+        keys(rule.trigger, ['type','tierIds'], `${path}.trigger`, errors);
+        if (!uniqueIds(rule.trigger.tierIds) || (Array.isArray(tiers) && rule.trigger.tierIds.some(tierId => !tiers.some(t => t?.tierId === tierId && integer(t.quantity, 1))))) errors.push(`${path}.trigger contains invalid tier IDs.`);
+      } else if (rule.trigger.type === 'quantity') {
+        keys(rule.trigger, ['type','operator','quantity'], `${path}.trigger`, errors);
+        if (!['gt','gte','eq'].includes(rule.trigger.operator) || !integer(rule.trigger.quantity, 1)) errors.push(`${path}.trigger quantity is invalid.`);
+      } else errors.push(`${path}.trigger type is invalid.`);
+      if (Array.isArray(tiers) && !offerUnlockTier(rule, tiers)) errors.push(`${path}.trigger is unreachable from configured tiers.`);
+    }
+  }
+  if (keys(raw.style, ['desktop','mobile'], `${kind}.style`, errors)) for (const name of ['desktop','mobile']) {
+    const style = raw.style[name], path = `${kind}.style.${name}`;
+    if (!keys(style, ['layout','image','colors','typography'], path, errors, ['colors','typography'])) continue;
+    if (keys(style.layout, ['mode','columns','columnGapPx','rowGapPx'], `${path}.layout`, errors)) {
+      if (!['grid','carousel'].includes(style.layout.mode) || ![1,2,3].includes(style.layout.columns)) errors.push(`${path} invalid layout.`);
+      for (const key of ['columnGapPx','rowGapPx']) if (!integer(style.layout[key], 0, 128)) errors.push(`${path}.${key} must be 0–128px.`);
+    }
+    if (keys(style.image, ['sizePx','radiusPx'], `${path}.image`, errors)) {
+      if (!integer(style.image.sizePx, 1, 1024) || !integer(style.image.radiusPx, 0, 1024)) errors.push(`${path} invalid image dimensions.`);
+    }
+    if (style.colors !== undefined) {
+      if (!object(style.colors)) errors.push(`${path}.colors must be an object.`);
+      else for (const value of Object.values(style.colors)) if (typeof value !== 'string' || !/^#[\da-f]{6}([\da-f]{2})?$/i.test(value)) errors.push(`${path} colors must be #RRGGBB or #RRGGBBAA.`);
+    }
+    if (style.typography !== undefined) {
+      if (!object(style.typography)) errors.push(`${path}.typography must be an object.`);
+      else for (const [key, font] of Object.entries(style.typography)) {
+        if (keys(font, ['sizePx','weight'], `${path}.typography.${key}`, errors) && (!integer(font.sizePx, 1) || !integer(font.weight, 100, 900) || font.weight % 100)) errors.push(`${path} invalid font.`);
+      }
+    }
+  }
+  return errors;
+}
+function offerEligible(rule, tiers, mainQuantity) {
+  if (!object(rule?.trigger) || !integer(mainQuantity, 1)) return false;
+  const trigger = rule.trigger;
+  if (trigger.type === 'quantity' && integer(trigger.quantity, 1)) {
+    return trigger.operator === 'gt' ? mainQuantity > trigger.quantity : trigger.operator === 'gte' ? mainQuantity >= trigger.quantity : trigger.operator === 'eq' && mainQuantity === trigger.quantity;
+  }
+  if (trigger.type !== 'tiers' || !uniqueIds(trigger.tierIds) || !Array.isArray(tiers)) return false;
+  const reached = tiers.filter(tier => id(tier?.tierId) && integer(tier.quantity, 1) && tier.quantity <= mainQuantity).sort((a,b) => b.quantity - a.quantity)[0];
+  return !!reached && trigger.tierIds.includes(reached.tierId);
+}
+function offerUnlockTier(rule, tiers) {
+  if (!Array.isArray(tiers)) return undefined;
+  return [...tiers].filter(tier => id(tier?.tierId) && integer(tier.quantity, 1) && offerEligible(rule, tiers, tier.quantity)).sort((a,b) => a.quantity - b.quantity || (a.displayOrder ?? 0) - (b.displayOrder ?? 0) || a.tierId.localeCompare(b.tierId))[0];
+}
+function offerQuota(rule, tiers, mainProducts) {
+  if (!integer(rule?.quantity, 1) || !Array.isArray(mainProducts)) return 0;
+  const quantities = new Map();
+  for (const item of mainProducts) {
+    if (!id(item?.productId) || item.productId === rule.productId) continue;
+    // Dropping a malformed row can falsely satisfy eq or highest-tier triggers.
+    if (!integer(item.quantity, 1)) return 0;
+    const total = (quantities.get(item.productId) ?? 0) + item.quantity;
+    if (!integer(total, 1)) return 0;
+    quantities.set(item.productId, total);
+  }
+  const count = [...quantities.values()].filter(quantity => offerEligible(rule, tiers, quantity)).length;
+  const quota = count * rule.quantity;
+  return integer(quota) ? quota : 0;
+}
+// Returns per-unit savings, not the resulting price. auto_convert requires the caller
+// to supply a trusted converted specified_amount; this pure core does no FX lookup.
+function offerDiscountMinor(unitPrice, rule, override) {
+  if (!integer(unitPrice) || !integer(rule?.discountValue)) return 0;
+  if (override !== undefined && (!object(override) || override.mode !== 'specified_amount' || !integer(override.amountMinor) || !/^[A-Z]{3}$/.test(override.currencyCode))) return 0;
+  const value = override?.amountMinor ?? rule.discountValue;
+  if (rule.discountType === 'fixed_amount') return Math.min(unitPrice, value);
+  if (rule.discountType === 'fixed_price') return Math.max(0, unitPrice - value);
+  if (rule.discountType !== 'percentage' || override !== undefined || value > 10000) return 0;
+  const finalPrice = (BigInt(unitPrice) * BigInt(10000 - value) + 5000n) / 10000n;
+  return unitPrice - Number(finalPrice);
+}
+function effectiveOfferColumns(width, layout) {
+  if (!Number.isFinite(width) || width <= 0 || !object(layout) || ![1,2,3].includes(layout.columns) || !integer(layout.columnGapPx)) return 1;
+  return Math.max(1, Math.min(layout.columns, Math.floor((width + layout.columnGapPx) / (220 + layout.columnGapPx))));
+}
+exports.defaultOfferModule = defaultOfferModule;
+exports.normalizeOfferModule = normalizeOfferModule;
+exports.validateOfferModule = validateOfferModule;
+exports.offerEligible = offerEligible;
+exports.offerUnlockTier = offerUnlockTier;
+exports.offerQuota = offerQuota;
+exports.offerDiscountMinor = offerDiscountMinor;
+exports.effectiveOfferColumns = effectiveOfferColumns;
+
+return exports; })();
+  // Included in the existing app-block asset. No accessory asset/network request
+  // is introduced for legacy or disabled modules. Business math comes from core.
+  const offerBlockState = new WeakMap();
+  const campaignRequests = new Map();
+  const offerId = value => typeof value === 'string' && /^[a-z0-9][a-z0-9_-]{0,127}$/i.test(value);
+  const safeAmount = value => Number.isSafeInteger(value) && value >= 0;
+  const propertyNames = ['_qb_protocol','_qb_campaign','_qb_role','_qb_rule','_qb_source_product','_qb_context'];
+  function propertyIdentity(properties) {
+    if (properties == null || (Array.isArray(properties) && properties.length === 0) || (!Array.isArray(properties) && typeof properties === 'object' && Object.keys(properties).length === 0)) return '';
+    if (!Array.isArray(properties)) return null;
+    const values = new Map();
+    for (const p of properties) {
+      if (!p || typeof p.name !== 'string' || typeof p.value !== 'string' || values.has(p.name)) return null;
+      // Identity includes exact official visibility/type metadata and any extra
+      // personalization properties. A normal variant cannot confirm a gift.
+      values.set(p.name, [p.value,p.type,p.show,p.roleVisibility]);
+    }
+    return JSON.stringify([...values].sort(([a],[b]) => a.localeCompare(b)));
+  }
+  function cartIdentity(line) {
+    const id = line.variant_id || line.id;
+    const properties = propertyIdentity(line.properties);
+    return typeof id === 'string' && properties !== null ? JSON.stringify([id, properties]) : null;
+  }
+  function compositeQuantities(cart) {
+    if (!Array.isArray(cart?.items)) return null;
+    const result = new Map();
+    for (const line of cart.items) {
+      const key = cartIdentity(line);
+      if (!key || !safeAmount(line.quantity)) return null;
+      const total = (result.get(key) || 0) + line.quantity;
+      if (!safeAmount(total)) return null;
+      result.set(key,total);
+    }
+    return result;
+  }
+  function buildCompositeItems(main, accessories, context) {
+    if (!offerId(context.campaignId) || !offerId(context.productId) || !offerId(context.context)) throw Error('Invalid composite context');
+    const all = [...main.map(item => ({...item,role:'main',productId:context.productId,handle:context.productHandle})), ...accessories];
+    const grouped = new Map();
+    for (const item of all) {
+      if (!offerId(item.id) || !offerId(item.productId) || !['main','gift','bundle'].includes(item.role) || !Number.isSafeInteger(item.quantity) || item.quantity <= 0 || (item.role !== 'main' && (!offerId(item.ruleId) || item.productId === context.productId))) throw Error('Invalid composite item');
+      const data = { _qb_protocol:'gift-bundles-v1', _qb_campaign:context.campaignId, _qb_role:item.role, ...(item.role !== 'main' ? {_qb_rule:item.ruleId} : {}), _qb_source_product:context.productId, _qb_context:context.context };
+      const properties = propertyNames.filter(name => name in data).map(name => ({name,value:data[name],type:'text',show:false,roleVisibility:'none'}));
+      const line = { id:item.id,quantity:item.quantity,properties,productId:item.productId,productHandle:item.handle || '' };
+      const key = cartIdentity(line), prior = grouped.get(key);
+      if (prior) { prior.quantity += item.quantity; if (!Number.isSafeInteger(prior.quantity)) throw Error('Unsafe quantity'); }
+      else grouped.set(key,line);
+    }
+    // An actual Product/variant cannot simultaneously act as main/accessory.
+    const mainIds = new Set(all.filter(i => i.role === 'main').map(i => i.id));
+    if (all.some(i => i.role !== 'main' && mainIds.has(i.id))) throw Error('Conflicting roles');
+    return [...grouped.values()];
+  }
+  async function addComposite(items, fetcher, cartReader) {
+    const expected = compositeQuantities({items});
+    if (!expected || !items.length) return {status:'invalid'};
+    const read = cartReader || (async signal => {
+      const response = await fetcher('/api/carts/ajax-cart',{method:'GET',credentials:'same-origin',headers:{Accept:'application/json'},...(signal?{signal}:{})});
+      return response.ok ? response.json() : null;
+    });
+    async function bounded(work) {
+      const controller=typeof scope.AbortController==='function'?new scope.AbortController():null;
+      let timer;
+      const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller?.abort();reject(Error('Cart deadline'));},8000);});
+      try{return await Promise.race([work(controller?.signal),deadline]);}
+      finally{clearTimeout(timer);}
+    }
+    let before = null;
+    try { before = compositeQuantities(await bounded(read)); } catch (_) { /* unknown pre-write state */ }
+    async function confirm() {
+      let cart = null;
+      try { cart = await bounded(read); } catch (_) { /* read only, never retry writes */ }
+      const after = compositeQuantities(cart);
+      const confirmed = before && after && [...expected].every(([key,q]) => (after.get(key)||0) - (before.get(key)||0) >= q);
+      return confirmed ? {status:'added',cartResponse:cart} : {status:'uncertain'};
+    }
+    try {
+      const {response,body}=await bounded(async signal=>{
+        const response=await fetcher('/cart/add',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',Accept:'application/json'},...(signal?{signal}:{}),body:JSON.stringify({items:items.map(({id,quantity,properties})=>({id,quantity,properties}))})});
+        let body=null;
+        try{body=await response.json();}catch(_){ /* unreadable write result */ }
+        return {response,body};
+      });
+      if (!response.ok && response.status >= 400 && response.status < 500) return {status:'failed',httpStatus:response.status};
+      const actual = compositeQuantities(body);
+      return response.ok && actual && [...expected].every(([key,q]) => (actual.get(key)||0) >= q)
+        ? {status:'added',cartResponse:body} : confirm();
+    } catch (_) { return confirm(); }
+  }
+  function nativePriceMinor(text, currency, themeVersion) {
+    if (typeof text !== 'string' || !/^\d+(?:\.\d+)?$/.test(text)) return null;
+    let decimals;
+    try {
+      if (!Intl.supportedValuesOf('currency').includes(currency)) return null;
+      decimals = currencyFractionDigits(currency);
+    } catch (_) { return null; }
+    // OS3 price is hundredths of major units; Handlebars price is the
+    // currency subunit. Exact rational arithmetic rejects lossy conversion.
+    const [whole,fraction=''] = text.split('.');
+    const numerator = BigInt(whole + fraction) * (themeVersion === '2.1' ? 1n : 10n ** BigInt(decimals));
+    const denominator = 10n ** BigInt(fraction.length) * (themeVersion === '2.1' ? 1n : 100n);
+    if (numerator % denominator) return null;
+    const result = Number(numerator / denominator);
+    return safeAmount(result) ? result : null;
+  }
+  function readNativeOffers(block) {
+    const root = block.querySelector('[data-offer-native-catalog]');
+    if (!root) return null;
+    const products = new Map(), entries = [], owners = new Map();
+    for (const node of root.querySelectorAll('[data-offer-product]')) {
+      const id = node.dataset.offerProduct;
+      if (!offerId(id) || products.has(id)) return null;
+      const variants = [], seen = new Set();
+      for (const v of node.querySelectorAll('[data-offer-variant]')) {
+        const variantId = v.dataset.offerVariant;
+        if (!offerId(variantId) || seen.has(variantId)) return null;
+        if(owners.has(variantId) && owners.get(variantId)!==id)return null;
+        owners.set(variantId,id);
+        seen.add(variantId);
+        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true',priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:v.dataset.image || ''});
+      }
+      products.set(id,{id,handle:node.dataset.handle,title:node.dataset.title || node.dataset.handle,variants});
+    }
+    for (const node of root.querySelectorAll('[data-offer-entry]')) entries.push({id:node.dataset.offerEntry,digest:node.dataset.digest,refs:Array.from(node.querySelectorAll('[data-offer-ref]'),r=>({id:r.dataset.offerRef,handle:r.dataset.handle,variantIds:Array.from(r.querySelectorAll('[data-offer-allowed]'),v=>v.dataset.offerAllowed)}))});
+    return {currency:root.dataset.currency,locale:root.dataset.locale,country:root.dataset.countryCode || '',products,entries};
+  }
+  function offerContext(block) {
+    return JSON.stringify([block.dataset.shop,block.dataset.shopId,block.dataset.productId,block.dataset.currency,block.dataset.shopCurrency,block.dataset.countryCode,normalizeLocale(block.dataset.locale)]);
+  }
+  function createOffers(block,campaign,envelope,native,state,doc,copy,currency,shopCurrency,locale,mediaQuery,chooseTier,rerender) {
+    const container = element(doc,'div','qb-offers');
+    const descriptor = campaign.catalogIndex;
+    const matches = native?.entries.filter(entry=>entry.id===campaign.id && entry.digest===descriptor?.digest) || [];
+    const trusted = offerId(campaign.id) && envelope?.version===2 && envelope.clientFeatures==='gift-bundles-v1' && Number.isSafeInteger(campaign.revision) && campaign.revision>=0 && campaign.catalogSource==='theme' && descriptor?.namespace==='qb_test_offers' && descriptor.key==='catalog_v1' && descriptor.version===1 && /^[a-f0-9]{64}$/.test(descriptor.digest) && campaign.offerCapability?.protocol==='gift-bundles-v1' && campaign.offerCapability.functionVerified===true && matches.length===1 && native.currency===currency && normalizeLocale(native.locale)===locale && native.country===(block.dataset.countryCode || '');
+    const entry = matches[0];
+    const groups = [];
+    for (const kind of ['gifts','bundles']) {
+      if (!campaign[kind]?.enabled) continue;
+      try { groups.push({kind,module:OfferCore.normalizeOfferModule(campaign[kind],kind)}); } catch (_) { /* malformed extras cannot break main */ }
+    }
+    const validRules = new Set(groups.flatMap(g=>g.module.items.map(r=>r.ruleId)));
+    for (const key of state.choices.keys()) if (!validRules.has(key)) state.choices.delete(key);
+    const sellable = v=>v?.available===true && safeAmount(v.priceMinor);
+    let quote={lines:[],original:0,savings:0,discounted:0,quantity:0,safe:true};
+    function invalidate() {
+      for(const card of container.querySelectorAll('[data-included="true"]')) {
+        card.dataset.included='false';
+        const label=card.querySelector('.qb-offer-state');
+        if(label)label.textContent=copy('widget.offer_unavailable','Unavailable');
+      }
+      quote={lines:[],original:0,savings:0,discounted:0,quantity:0,safe:false};
+      return quote;
+    }
+    function render(quantity) {
+      container.replaceChildren();
+      const allCards=[];
+      for (const {kind,module} of groups) {
+        const section=element(doc,'section','qb-offer-section'); section.dataset.offerModule=kind;
+        const title=campaign.offerTitles?.[kind];
+        if (typeof title==='string' && title) section.append(element(doc,'h4','qb-offer-heading',title));
+        const device=module.style[mediaQuery.matches?'mobile':'desktop'];
+        const grid=element(doc,'div',`qb-offer-grid${device.layout.mode==='carousel'?' qb-offer-carousel':''}`);
+        const width=block.getBoundingClientRect?.().width || (mediaQuery.matches?332:700);
+        grid.style.setProperty('--qb-offer-background',device.colors?.background || '#ffffff');
+        grid.style.setProperty('--qb-offer-text',device.colors?.text || '#171717');
+        grid.style.setProperty('--qb-offer-title-size',`${device.typography?.title?.sizePx || 14}px`);
+        grid.style.setProperty('--qb-offer-title-weight',String(device.typography?.title?.weight || 600));
+        grid.style.setProperty('--qb-offer-columns',String(OfferCore.effectiveOfferColumns(width,device.layout)));
+        grid.style.setProperty('--qb-offer-column-gap',`${device.layout.columnGapPx}px`);grid.style.setProperty('--qb-offer-row-gap',`${device.layout.rowGapPx}px`);
+        grid.style.setProperty('--qb-offer-image-size',`${device.image.sizePx}px`);grid.style.setProperty('--qb-offer-image-radius',`${device.image.radiusPx}px`);
+        const cards=module.items.slice().sort((a,b)=>a.displayOrder-b.displayOrder).map(rule=>{
+          const ref=trusted && entry.refs.find(r=>r.id===rule.productId);
+          const actual=ref && native.products.get(rule.productId);
+          const product=actual && actual.handle===ref.handle && ref.variantIds.length===new Set(ref.variantIds).size && rule.allowedVariantIds.every(id=>ref.variantIds.includes(id)) ? actual : null;
+          const eligible=OfferCore.offerEligible(rule,campaign.tiers,quantity) && rule.productId!==block.dataset.productId;
+          const choice=state.choices.get(rule.ruleId) || {selected:false,quantity:rule.quantity,slots:[]}; state.choices.set(rule.ruleId,choice);
+          if(choice.productId && choice.productId!==rule.productId)choice.slots=[];
+          choice.productId=rule.productId;
+          // Revisions can remove a configured variant. Preserve every still
+          // whitelisted slot, reset only those whose identity became invalid.
+          choice.slots=choice.slots.map(id=>rule.allowedVariantIds.includes(id)?id:undefined);
+          const count=kind==='gifts'?rule.quantity:choice.quantity;
+          const options=product?.variants.filter(v=>rule.allowedVariantIds.includes(v.id)) || [];
+          const renderable=Number.isSafeInteger(count) && count>0 && count<=100;
+          const selected=renderable?Array.from({length:count},(_,i)=>{
+            const saved=choice.slots[i], v=saved?options.find(v=>v.id===saved):options.find(sellable);
+            if(v)choice.slots[i]=v.id;
+            return v;
+          }):[];
+          const override=campaign.marketId?rule.marketOverrides?.[campaign.marketId]:undefined;
+          const converted=!override ? currency===shopCurrency || rule.discountType==='percentage' || (kind==='gifts' && rule.discountValue===0) : override.mode==='specified_amount' && override.currencyCode===currency;
+          let ready=!!product && renderable && selected.every(sellable) && converted;
+          const cap=OfferCore.offerQuota(rule,campaign.tiers,[{productId:block.dataset.productId,quantity}]);
+          const original=ready?selected.reduce((sum,v)=>sum+v.priceMinor,0):0;
+          const savings=ready && eligible?selected.reduce((sum,v,i)=>sum+(i<cap?OfferCore.offerDiscountMinor(v.priceMinor,rule,override):0),0):0;
+          ready=ready && safeAmount(original) && safeAmount(savings) && safeAmount(original-savings);
+          return {kind,module,rule,product,eligible,choice,count,options,selected,ready,original,savings,included:ready && eligible && (kind==='gifts' || choice.selected)};
+        });
+        if(kind==='bundles' && module.selectionMode==='single') {
+          const eligible=cards.filter(c=>c.ready && c.eligible);
+          const picked=eligible.find(c=>c.choice.selected) || (state.singleCanceled?null:eligible.sort((a,b)=>b.savings-a.savings || a.rule.displayOrder-b.rule.displayOrder)[0]);
+          cards.forEach(c=>{c.included=c===picked;});
+        }
+        for(const c of cards) {
+          const {rule,choice}=c;
+          const card=element(doc,'article','qb-offer-card');card.dataset.offerRule=rule.ruleId;card.dataset.offerRole=kind==='gifts'?'gift':'bundle';card.dataset.included=String(c.included);
+          if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-offer-label',rule.label));
+          const image=c.selected.find(v=>v?.image)?.image;
+          if(rule.showImage && image && /^(https?:|data:image\/)/.test(image)){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
+          card.append(element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable')));
+          if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-offer-label-below',rule.label));
+          if(!c.eligible) {
+            const tier=OfferCore.offerUnlockTier(rule,campaign.tiers);
+            if(tier){const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.addEventListener('click',()=>{if(kind==='bundles')choice.selected=true;chooseTier(tier);});card.append(unlock);}
+          } else if(kind==='gifts') card.append(element(doc,'span','qb-offer-state',c.ready?copy('widget.offer_included','Included'):copy('widget.offer_unavailable','Unavailable')));
+          else {
+            const toggle=element(doc,'button','qb-offer-select',c.included?copy('widget.offer_included','Included'):copy('widget.offer_select','Select'));toggle.type='button';toggle.dataset.offerSelect='';toggle.setAttribute('aria-pressed',String(c.included));toggle.disabled=!c.ready;
+            toggle.addEventListener('click',()=>{if(module.selectionMode==='single'){state.singleCanceled=c.included;cards.forEach(other=>other.choice.selected=false);}choice.selected=!c.included;rerender();});card.append(toggle);
+            const label=element(doc,'label','qb-offer-quantity',copy('widget.offer_quantity','Quantity'));
+            const input=element(doc,'input');input.type='number';input.min='1';input.step='1';input.value=String(choice.quantity);input.setAttribute('aria-label',copy('widget.offer_quantity','Quantity'));
+            input.addEventListener('change',()=>{choice.quantity=Number(input.value);rerender();});label.append(input);card.append(label);
+          }
+          if(c.ready){
+            const prices=element(doc,'div','qb-offer-prices');prices.append(element(doc,'b','',moneyMinor(c.original-c.savings,currency,locale)));if(c.savings>0)prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));card.append(prices);
+          } else if(c.eligible)card.append(element(doc,'span','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));
+          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-offer-variant');select.dataset.offerSlot=String(i);select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
+          grid.append(card);
+        }
+        grid.tabIndex=0;grid.addEventListener('keydown',event=>{if(device.layout.mode==='carousel' && ['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();grid.scrollBy?.({left:(event.key==='ArrowRight'?1:-1)*Math.max(220,width),behavior:'smooth'});}});
+        if(device.layout.mode==='carousel'){const nav=element(doc,'div','qb-offer-nav');for(const [label,direction] of [[copy('widget.offer_previous','Previous'),-1],[copy('widget.offer_next','Next'),1]]){const b=element(doc,'button','',label);b.type='button';b.addEventListener('click',()=>grid.scrollBy?.({left:direction*Math.max(220,width),behavior:'smooth'}));nav.append(b);}section.append(nav);}
+        section.append(grid);container.append(section);allCards.push(...cards);
+      }
+      const included=allCards.filter(c=>c.included);
+      const original=included.reduce((n,c)=>n+c.original,0),savings=included.reduce((n,c)=>n+c.savings,0),count=included.reduce((n,c)=>n+c.count,0);
+      const safe=[original,savings,count,original-savings].every(safeAmount);
+      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,[{productId:block.dataset.productId,quantity}])?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
+      if(!safe){invalidate();container.append(element(doc,'p','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));}
+      return quote;
+    }
+    return {container,render,invalidate,get quote(){return quote;},hasModules:groups.length>0,enabled:groups.length>0 && trusted};
+  }
+
+  // END GENERATED OFFERS
+
   async function mountBlock(block, fetcher = scope.fetch, lifecycle = {}) {
     const hideBlock = () => { if (lifecycle.disposed) return; block.replaceChildren(); block.setAttribute('hidden', ''); };
     if (block.dataset.productAvailable === 'false') { hideBlock(); return; }
@@ -539,10 +959,15 @@
       if (origin.pathname !== '/' || origin.search || origin.hash) return;
     } catch (_) { return; }
     if ((!/^[a-z0-9][a-z0-9-]{0,127}$/i.test(shop) && !/^\d{1,64}$/.test(shopId)) || !/^[a-z0-9][a-z0-9_-]{0,127}$/i.test(productId)) return;
-    const catalog = readCatalog(block);
+    let saved = offerBlockState.get(block);
+    if (!saved) { saved = { catalog:readCatalog(block), collections:readCollections(block), native:readNativeOffers(block), copy:Object.fromEntries(Array.from(block.querySelectorAll('[data-qb-copy]'), node=>[node.dataset.qbCopy,node.textContent?.trim() || ''])), choices:new Map(), context:null, generation:0 }; offerBlockState.set(block,saved); }
+    const contextKey = offerContext(block), generation = ++saved.generation;
+    if (saved.context && saved.context !== contextKey) { saved.choices.clear(); saved.native = null; }
+    saved.context = contextKey;
+    const catalog = saved.catalog;
     if (!catalog.variants.length) return;
     const locale = normalizeLocale(block.dataset.locale);
-    let campaign;
+    let campaign, envelope;
     try {
       const url = new URL('/public/quantity-breaks/campaign', origin);
       if (shopId) {
@@ -551,9 +976,10 @@
       } else url.searchParams.set('shop', shop);
       url.searchParams.set('productId', productId);
       url.searchParams.set('locale', locale);
+      if (block.dataset.offerNative === '1') url.searchParams.set('clientFeatures','gift-bundles-v1');
       const countryCode = String(block.dataset.countryCode || '').trim().toUpperCase();
       if (/^[A-Z]{2}$/.test(countryCode)) url.searchParams.set('countryCode', countryCode);
-      const collections = readCollections(block);
+      const collections = saved.collections;
       const init = { method: 'GET', headers: { Accept: 'application/json' }, credentials: 'omit' };
       if (collections) {
         // A simple CORS form POST avoids long URLs and extra preflight round trips.
@@ -565,12 +991,16 @@
         init.body = url.searchParams.toString();
         url.search = '';
       }
-      const response = await fetcher(url.href, init);
-      if (!response.ok) { hideBlock(); return; }
-      campaign = (await response.json()).campaign;
+      const requestKey = contextKey + url.href + (init.body || '');
+      let pending = campaignRequests.get(requestKey);
+      if (!pending) { pending = (async()=>{const response=await fetcher(url.href,init); return response.ok ? response.json() : null;})(); campaignRequests.set(requestKey,pending); pending.finally(()=>{if(campaignRequests.get(requestKey)===pending)campaignRequests.delete(requestKey);}).catch(()=>{}); }
+      envelope = await pending;
+      if (saved.generation !== generation || offerContext(block) !== contextKey || lifecycle.disposed) return;
+      campaign = envelope?.campaign;
       if (!campaign || !Array.isArray(campaign.tiers) || !campaign.tiers.length) { hideBlock(); return; }
-    } catch (_) { hideBlock(); return; }
+    } catch (_) { if(saved.generation===generation && offerContext(block)===contextKey)hideBlock(); return; }
     if (lifecycle.disposed) return;
+    saved.cleanup?.();
     const doc = block.ownerDocument;
     const firstAvailable = catalog.variants.find(isSellableVariant) || catalog.variants[0];
     const currency = block.dataset.currency || block.dataset.shopCurrency || 'USD';
@@ -581,17 +1011,21 @@
       ? scope.matchMedia('(max-width: 750px)')
       : { matches: false, addEventListener() {}, addListener() {} };
     const activeConfig = () => mediaQuery.matches ? mobileConfig : desktopConfig;
-    const staticCopy = Object.fromEntries(Array.from(block.querySelectorAll('[data-qb-copy]'), (node) => [node.dataset.qbCopy, node.textContent?.trim() || '']));
+    const staticCopy = saved.copy;
     const copy = (key, fallback, variables = {}) => {
       const translated = campaign.copy?.[key];
       const template = typeof translated === 'string' && translated.trim() ? translated : staticCopy[key] || fallback;
       return template.replace(/\{([a-z_]+)\}/g, (match, name) => Object.prototype.hasOwnProperty.call(variables, name) ? String(variables[name]) : match);
     };
-    const selections = [];
+    const selections = saved.selections || []; saved.selections=selections;
     let adding = false;
-    let selectedTier = campaign.tiers.find((tier) => tier.recommended) || campaign.tiers[0];
-    const maxQuantity = Math.max(...campaign.tiers.map((tier) => tier.quantity));
-    for (let index = 0; index < maxQuantity; index++) selections[index] = activeConfig().variants?.defaultSelection === 'none' ? null : firstAvailable.id;
+    campaign.tiers=campaign.tiers.filter(tier=>Number.isSafeInteger(tier.quantity) && tier.quantity>0);
+    if (!campaign.tiers.length) { hideBlock(); return; }
+    let selectedTier = campaign.tiers.find(tier=>tier.tierId===saved.tierId) || campaign.tiers.find((tier) => tier.recommended) || campaign.tiers[0];
+    // A presentation capacity, not a campaign/checkout quantity cap. Huge tiers
+    // stay visible at their exact quantity and unavailable until representable.
+    const maxQuantity = Math.min(100, Math.max(...campaign.tiers.map((tier) => tier.quantity)));
+    for (let index = selections.length; index < maxQuantity; index++) selections[index] = activeConfig().variants?.defaultSelection === 'none' ? null : firstAvailable.id;
     block.replaceChildren();
     block.removeAttribute('hidden');
     applyWidgetTokens(block, desktopConfig, mobileConfig);
@@ -637,7 +1071,8 @@
     checkoutNote.hidden = true;
     summary.append(checkoutNote);
     if (heading) block.append(heading);
-    block.append(choices, summary, button, status);
+    const offers=createOffers(block,campaign,envelope,saved.native,saved,doc,copy,currency,shopCurrency,locale,mediaQuery,tier=>{selectedTier=tier;render();},()=>render());
+    block.append(choices, ...(offers.hasModules?[offers.container]:[]), summary, button, status);
 
     function availableForOption(index, name, value) {
       const selected = catalog.variants.find((variant) => variant.id === selections[index]);
@@ -718,10 +1153,13 @@
       slot.append(row);
     }
     function render() {
+      if(lifecycle.disposed || saved.generation!==generation)return;
       choices.replaceChildren();
       const quantity = selectedTier.quantity;
+      saved.tierId=selectedTier.tierId;
+      let accessory=offers.render(quantity);
       const visible = visibleSelections(selections, quantity);
-      const validity = validateSelections(visible, catalog.variants);
+      const validity = quantity>100 ? {reason:'unrenderable'} : validateSelections(visible, catalog.variants);
       const unavailable = !catalog.variants.some(isSellableVariant) || validity.reason === 'unavailable';
       const marketOverride = campaign.marketId ? selectedTier.marketOverrides?.[campaign.marketId] : undefined;
       const preview = validity.reason ? null : discountTotal(selectedTier, visible, catalog.variants, currency, shopCurrency, marketOverride);
@@ -735,7 +1173,7 @@
         header.setAttribute('aria-pressed', String(tier.tierId === selectedTier.tierId));
         const tierSelections = visibleSelections(selections, tier.quantity);
         const tierMarketOverride = campaign.marketId ? tier.marketOverrides?.[campaign.marketId] : undefined;
-        const tierPreview = validateSelections(tierSelections, catalog.variants).reason ? null : discountTotal(tier, tierSelections, catalog.variants, currency, shopCurrency, tierMarketOverride);
+        const tierPreview = tier.quantity>100 || validateSelections(tierSelections, catalog.variants).reason ? null : discountTotal(tier, tierSelections, catalog.variants, currency, shopCurrency, tierMarketOverride);
         const tierPricing = tierPreview?.total == null ? null : calculateSummary(tier, tierSelections, catalog.variants, tierMarketOverride, currency);
         const titleRow = element(doc, 'span', 'qb-tier-title-row');
         titleRow.append(element(doc, 'strong', '', tier.label || copy('widget.tier_items', '{quantity} items', { quantity: tier.quantity })));
@@ -752,7 +1190,7 @@
         if (tier.tag) header.append(element(doc, 'span', 'qb-badge', tier.tag));
         header.addEventListener('click', () => { selectedTier = tier; status.textContent = ''; render(); });
         card.append(header);
-        if (tier.tierId === selectedTier.tierId && activeConfig().variants?.showSelectors !== false && catalog.optionNames.length > 0) {
+        if (quantity<=100 && tier.tierId === selectedTier.tierId && activeConfig().variants?.showSelectors !== false && catalog.optionNames.length > 0) {
           const slots = element(doc, 'div', 'qb-slots');
           for (let index = 0; index < quantity; index++) {
             const slot = element(doc, 'fieldset', 'qb-slot');
@@ -782,23 +1220,27 @@
         }, []);
         const discountedMinor = selectedIndexes.reduce((sum, index) => sum + (summaryPricing?.lineDiscountedMinor?.[index] ?? normalizePriceMinor(variant.price, currency)), 0);
         const prices = element(doc, 'span', 'qb-product-prices');
-        prices.append(element(doc, 'b', 'qb-product-price', moneyMinor(discountedMinor, currency, locale)));
-        if (originalMinor > discountedMinor) prices.append(element(doc, 'del', 'qb-product-original', moneyMinor(originalMinor, currency, locale)));
+        prices.append(element(doc, 'b', 'qb-product-price', safeAmount(discountedMinor)?moneyMinor(discountedMinor, currency, locale):copy('widget.calculated_at_checkout','Calculated at checkout')));
+        if (safeAmount(originalMinor) && safeAmount(discountedMinor) && originalMinor > discountedMinor) prices.append(element(doc, 'del', 'qb-product-original', moneyMinor(originalMinor, currency, locale)));
         row.append(element(doc, 'span', '', `${label}${rowUnavailable ? ` (${copy('widget.sold_out', 'Sold out')})` : ''} × ${quantityForId}`), prices);
         lineItems.append(row);
       }
       originalRow.hidden = unavailable;
       savingsRow.hidden = unavailable;
       totalRow.hidden = unavailable;
-      originalAmount.textContent = summaryPricing ? moneyMinor(summaryPricing.original, currency, locale) : copy('widget.calculated_at_checkout', 'Calculated at checkout');
-      savingsAmount.textContent = summaryPricing && preview?.total != null ? `-${moneyMinor(summaryPricing.savings, currency, locale)}` : copy('widget.calculated_at_checkout', 'Calculated at checkout');
-      total.textContent = preview?.total == null || !summaryPricing ? copy('widget.calculated_at_checkout', 'Calculated at checkout') : moneyMinor(summaryPricing.discounted, currency, locale);
+      const safeComposite=summaryPricing && [summaryPricing.original+accessory.original,summaryPricing.discounted+accessory.discounted,summaryPricing.savings+accessory.savings,quantity+accessory.quantity].every(safeAmount);
+      const accessoryActive=accessory.safe && safeComposite;
+      if(!accessoryActive && accessory.quantity>0)accessory=offers.invalidate();
+      for(const line of accessoryActive?accessory.lines:[]) { const row=element(doc,'div','qb-summary-row qb-offer-receipt');row.dataset.offerRole=line.role;row.append(element(doc,'span','',`${line.title} / ${line.variantTitle} × ${line.quantity}`),element(doc,'b','',moneyMinor(line.discountedMinor,currency,locale)));lineItems.append(row); }
+      originalAmount.textContent = summaryPricing ? moneyMinor(summaryPricing.original+(accessoryActive?accessory.original:0), currency, locale) : copy('widget.calculated_at_checkout', 'Calculated at checkout');
+      savingsAmount.textContent = summaryPricing && preview?.total != null ? `-${moneyMinor(summaryPricing.savings+(accessoryActive?accessory.savings:0), currency, locale)}` : copy('widget.calculated_at_checkout', 'Calculated at checkout');
+      total.textContent = preview?.total == null || !summaryPricing ? copy('widget.calculated_at_checkout', 'Calculated at checkout') : moneyMinor(summaryPricing.discounted+(accessoryActive?accessory.discounted:0), currency, locale);
       const requiresCheckoutNote = !unavailable && (preview?.total == null || !summaryPricing);
       checkoutNote.hidden = !requiresCheckoutNote;
       checkoutNote.textContent = requiresCheckoutNote ? copy('widget.calculated_at_checkout', 'Calculated at checkout') : '';
       buttonLabel.textContent = unavailable
         ? copy('widget.sold_out', 'Sold out')
-        : copy('widget.add_to_cart', 'Add {quantity} to cart · {price}', { quantity, price: total.textContent });
+        : copy('widget.add_to_cart', 'Add {quantity} to cart · {price}', { quantity:quantity+(accessoryActive?accessory.quantity:0), price: total.textContent });
       buttonLabel.hidden = adding;
       rotator.hidden = !adding;
       button.setAttribute('aria-label', buttonLabel.textContent);
@@ -806,13 +1248,18 @@
       button.disabled = adding || unavailable || Boolean(validity.reason);
     }
     const onViewportChange = () => render();
+    const resizeObserver=typeof scope.ResizeObserver==='function'?new scope.ResizeObserver(()=>render()):null;
+    resizeObserver?.observe(block);
     if (typeof mediaQuery.addEventListener === 'function') mediaQuery.addEventListener('change', onViewportChange);
     else if (typeof mediaQuery.addListener === 'function') mediaQuery.addListener(onViewportChange);
     lifecycle.cleanup = () => {
+      resizeObserver?.disconnect();
       if (typeof mediaQuery.removeEventListener === 'function') mediaQuery.removeEventListener('change', onViewportChange);
       else if (typeof mediaQuery.removeListener === 'function') mediaQuery.removeListener(onViewportChange);
     };
+    saved.cleanup=lifecycle.cleanup;
     lifecycle.resume = () => {
+      resizeObserver?.observe(block);
       if (typeof mediaQuery.addEventListener === 'function') mediaQuery.addEventListener('change', onViewportChange);
       else if (typeof mediaQuery.addListener === 'function') mediaQuery.addListener(onViewportChange);
       render();
@@ -824,14 +1271,21 @@
       render();
       const quantity = selectedTier.quantity;
       const selectedItems = visibleSelections(selections, quantity);
-      const result = await addBundle(selectedItems, catalog.variants, fetcher);
-      const addedItems = result.status === 'added' ? buildCartItems(selectedItems, catalog.variants) : [];
+      const mainItems=buildCartItems(selectedItems,catalog.variants);
+      const accessory=offers.quote;
+      const summaryPricing=calculateSummary(selectedTier,selectedItems,catalog.variants,campaign.marketId?selectedTier.marketOverrides?.[campaign.marketId]:undefined,currency);
+      const safeComposite=summaryPricing && [summaryPricing.original+accessory.original,summaryPricing.discounted+accessory.discounted,quantity+accessory.quantity].every(safeAmount);
+      const useComposite=offers.enabled;
+      const context = scope.crypto?.randomUUID?.() || `qb-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const items=useComposite?buildCompositeItems(mainItems,accessory.safe && safeComposite?accessory.lines:[],{campaignId:campaign.id,productId,productHandle:block.dataset.productHandle || '',context}):mainItems;
+      const result = useComposite?await addComposite(items,fetcher):await addBundle(selectedItems,catalog.variants,fetcher);
+      const addedItems=result.status==='added'?items:[];
       if (result.status === 'added') await notifyThemeCartUpdated(addedItems, {
         productId, productHandle: block.dataset.productHandle || '', themeVersion: block.dataset.themeVersion,
         cartResponse: result.cartResponse, fetcher,
       }, scope).catch(() => { /* Optional theme integration cannot change a confirmed cart result. */ });
       adding = false;
-      status.textContent = result.status === 'added' ? copy('widget.cart_success', '{quantity} items were added as {lines} cart lines.', { quantity, lines: addedItems.length }) : result.status === 'uncertain'
+      status.textContent = result.status === 'added' ? copy('widget.cart_success', '{quantity} items were added as {lines} cart lines.', { quantity:addedItems.reduce((n,item)=>n+item.quantity,0), lines: addedItems.length }) : result.status === 'uncertain'
         ? copy('widget.cart_uncertain', 'We could not confirm your cart. Check it before trying again.') : result.status === 'invalid'
           ? copy('widget.no_stock', 'Not enough available variants for this quantity.') : copy('widget.cart_failure', 'Bundle could not be added. Your selections have been kept so you can retry.');
       render();
@@ -894,6 +1348,10 @@
     visibleSelections,
     validateSelections,
     buildCartItems,
+    buildCompositeItems,
+    addComposite,
+    nativePriceMinor,
+    readNativeOffers,
     addBundle,
     readCatalog,
     discountTotal,

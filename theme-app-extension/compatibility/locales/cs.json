@@ -20,7 +20,14 @@
       "sold_out": "Vyprodáno",
       "no_stock": "Pro toto množství není dostatek variant.",
       "calculated_at_checkout": "Vypočítá se při placení",
-      "add_to_cart_quantity": "Přidat {quantity} do košíku"
+      "add_to_cart_quantity": "Přidat {quantity} do košíku",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

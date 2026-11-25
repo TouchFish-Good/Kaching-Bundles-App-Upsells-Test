@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="{{ asset_url 'app-block.css' }}">
 <script src="{{ asset_url 'app-block.js' }}" defer></script>
 <div class="quantity-breaks-app-block"
+  data-offer-native="1"
   data-shop-id="{{ shop.id }}"
   data-theme-version="2.1"
   data-product-id="{{ product.id }}"
@@ -13,6 +14,58 @@
   data-shop-currency="{{ shop.currency.iso_code }}"
   data-locale="{{ localization.language.iso_code }}"
   hidden>
+  {{ assign 'qb_offer_seen' '|' }}
+  {{ assign 'qb_offer_count' 0 }}
+  <div data-offer-native-catalog data-currency="{{ localization.country.currency.iso_code }}" data-locale="{{ localization.language.iso_code }}" data-country-code="{{ localization.country.iso_code }}" hidden>
+  {{#if shop.metafields.qb_test_offers.catalog_v1.value.version '==' 1}}
+    {{!-- Preload only; missing clock/complete collection context must not hide a real Worker winner. --}}
+    {{#each (JSONparse '["products","collections","all"]') as |priority|}}
+      {{#each @root.shop.metafields.qb_test_offers.catalog_v1.value.entries as |entry|}}
+        {{#if entry.scope.kind '==' priority}}
+          {{ assign 'qb_offer_scope' false }}
+          {{ assign 'qb_offer_excluded' false }}
+          {{#if entry.scope.kind '==' 'all'}}{{ assign 'qb_offer_scope' true }}{{/if}}
+          {{#if entry.scope.kind '==' 'collections'}}{{ assign 'qb_offer_scope' true }}{{/if}}
+          {{#contains entry.scope.productIds @root.product.id}}{{ assign 'qb_offer_scope' true }}{{/contains}}
+          {{#contains entry.scope.excludedProductIds @root.product.id}}{{ assign 'qb_offer_excluded' true }}{{/contains}}
+          {{#if @root.qb_offer_scope}}
+            {{#unless @root.qb_offer_excluded}}
+            <div data-offer-entry="{{ entry.campaignId }}" data-digest="{{ entry.digest }}">
+              {{#each entry.products as |ref|}}
+              <div data-offer-ref="{{ ref.id }}" data-handle="{{ ref.handle }}">
+                {{#each ref.variantIds as |allowed|}}<i data-offer-allowed="{{ allowed }}"></i>{{/each}}
+              </div>
+              {{#contains @root.qb_offer_seen (append (append '|' ref.handle) '|')}}
+              {{else}}
+                {{#if @root.qb_offer_count '<' 20}}
+                  {{ assign 'qb_offer_seen' (append (append @root.qb_offer_seen ref.handle) '|') }}
+                  {{ assign 'qb_offer_count' (plus @root.qb_offer_count 1) }}
+                  {{ assign 'qb_offer_product' (get ref.handle @root.all_products) }}
+                  {{#if @root.qb_offer_product}}
+                  <div data-offer-product="{{ @root.qb_offer_product.id }}" data-handle="{{ @root.qb_offer_product.handle }}" data-title="{{ @root.qb_offer_product.title }}">
+                    {{#each @root.qb_offer_product.variants as |variant|}}
+                    <span data-offer-variant="{{ variant.id }}" data-title="{{ variant.title }}" data-price="{{ variant.price }}" data-available="{{ variant.available }}" data-image="{{ image_url variant.image width=160 height=160 }}"></span>
+                    {{/each}}
+                  </div>
+                  {{/if}}
+                {{/if}}
+              {{/contains}}
+              {{/each}}
+            </div>
+            {{/unless}}
+          {{/if}}
+        {{/if}}
+      {{/each}}
+    {{/each}}
+  {{/if}}
+  </div>
+  <span data-qb-copy="widget.offer_unavailable" hidden>{{ t 'app_block.widget.offer_unavailable' }}</span>
+  <span data-qb-copy="widget.offer_included" hidden>{{ t 'app_block.widget.offer_included' }}</span>
+  <span data-qb-copy="widget.offer_quantity" hidden>{{ t 'app_block.widget.offer_quantity' }}</span>
+  <span data-qb-copy="widget.offer_previous" hidden>{{ t 'app_block.widget.offer_previous' }}</span>
+  <span data-qb-copy="widget.offer_next" hidden>{{ t 'app_block.widget.offer_next' }}</span>
+  <span data-qb-copy="widget.offer_select" hidden>{{ t 'app_block.widget.offer_select' }}</span>
+  <span data-qb-copy="widget.offer_unlock" hidden>{{ t 'app_block.widget.offer_unlock' }}</span>
   <span data-qb-copy="widget.title" hidden>{{ t 'app_block.widget.title' }}</span>
   <span data-qb-copy="widget.tier_savings_badge" hidden>{{ t 'app_block.widget.tier_savings_badge' }}</span>
   <span data-qb-copy="widget.description" hidden>{{ t 'app_block.widget.description' }}</span>
@@ -76,7 +129,14 @@
           "sold_out": "نفد المخزون",
           "no_stock": "لا تتوفر خيارات كافية لهذه الكمية.",
           "calculated_at_checkout": "يُحسب عند الدفع",
-          "add_to_cart_quantity": "أضف {quantity} إلى السلة"
+          "add_to_cart_quantity": "أضف {quantity} إلى السلة",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -102,7 +162,14 @@
           "sold_out": "Разпродадено",
           "no_stock": "Няма достатъчно налични варианти за това количество.",
           "calculated_at_checkout": "Изчислява се при плащане",
-          "add_to_cart_quantity": "Добавете {quantity} в количката"
+          "add_to_cart_quantity": "Добавете {quantity} в количката",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -128,7 +195,14 @@
           "sold_out": "Vyprodáno",
           "no_stock": "Pro toto množství není dostatek variant.",
           "calculated_at_checkout": "Vypočítá se při placení",
-          "add_to_cart_quantity": "Přidat {quantity} do košíku"
+          "add_to_cart_quantity": "Přidat {quantity} do košíku",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -154,7 +228,14 @@
           "sold_out": "Udsolgt",
           "no_stock": "Der er ikke nok tilgængelige varianter til denne mængde.",
           "calculated_at_checkout": "Beregnes ved betaling",
-          "add_to_cart_quantity": "Tilføj {quantity} til kurven"
+          "add_to_cart_quantity": "Tilføj {quantity} til kurven",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -180,7 +261,14 @@
           "sold_out": "Ausverkauft",
           "no_stock": "Für diese Menge sind nicht genügend Varianten verfügbar.",
           "calculated_at_checkout": "Wird beim Checkout berechnet",
-          "add_to_cart_quantity": "{quantity} zum Warenkorb hinzufügen"
+          "add_to_cart_quantity": "{quantity} zum Warenkorb hinzufügen",
+          "offer_unavailable": "Nicht verfügbar",
+          "offer_included": "Enthalten",
+          "offer_quantity": "Menge",
+          "offer_previous": "Zurück",
+          "offer_next": "Weiter",
+          "offer_select": "Auswählen",
+          "offer_unlock": "Mit {quantity} Artikeln freischalten"
         }
       }
     },
@@ -206,7 +294,14 @@
           "sold_out": "Εξαντλήθηκε",
           "no_stock": "Δεν υπάρχουν αρκετές διαθέσιμες παραλλαγές για αυτή την ποσότητα.",
           "calculated_at_checkout": "Υπολογίζεται στο ταμείο",
-          "add_to_cart_quantity": "Προσθήκη {quantity} στο καλάθι"
+          "add_to_cart_quantity": "Προσθήκη {quantity} στο καλάθι",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -232,7 +327,14 @@
           "sold_out": "Sold out",
           "no_stock": "Not enough available variants for this quantity.",
           "calculated_at_checkout": "Calculated at checkout",
-          "add_to_cart_quantity": "Add {quantity} To Cart"
+          "add_to_cart_quantity": "Add {quantity} To Cart",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -258,7 +360,14 @@
           "sold_out": "Agotado",
           "no_stock": "No hay suficientes variantes disponibles para esta cantidad.",
           "calculated_at_checkout": "Se calcula al pagar",
-          "add_to_cart_quantity": "Añadir {quantity} al carrito"
+          "add_to_cart_quantity": "Añadir {quantity} al carrito",
+          "offer_unavailable": "No disponible",
+          "offer_included": "Incluido",
+          "offer_quantity": "Cantidad",
+          "offer_previous": "Anterior",
+          "offer_next": "Siguiente",
+          "offer_select": "Seleccionar",
+          "offer_unlock": "Desbloquear con {quantity} artículos"
         }
       }
     },
@@ -284,7 +393,14 @@
           "sold_out": "Läbi müüdud",
           "no_stock": "Selle koguse jaoks pole piisavalt variante.",
           "calculated_at_checkout": "Arvutatakse kassas",
-          "add_to_cart_quantity": "Lisa {quantity} ostukorvi"
+          "add_to_cart_quantity": "Lisa {quantity} ostukorvi",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -310,7 +426,14 @@
           "sold_out": "Loppuunmyyty",
           "no_stock": "Tälle määrälle ei ole riittävästi vaihtoehtoja.",
           "calculated_at_checkout": "Lasketaan kassalla",
-          "add_to_cart_quantity": "Lisää {quantity} ostoskoriin"
+          "add_to_cart_quantity": "Lisää {quantity} ostoskoriin",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -336,7 +459,14 @@
           "sold_out": "Épuisé",
           "no_stock": "Stock insuffisant pour cette quantité.",
           "calculated_at_checkout": "Calculé au paiement",
-          "add_to_cart_quantity": "Ajouter {quantity} au panier"
+          "add_to_cart_quantity": "Ajouter {quantity} au panier",
+          "offer_unavailable": "Indisponible",
+          "offer_included": "Inclus",
+          "offer_quantity": "Quantité",
+          "offer_previous": "Précédent",
+          "offer_next": "Suivant",
+          "offer_select": "Sélectionner",
+          "offer_unlock": "Débloquer avec {quantity} articles"
         }
       }
     },
@@ -362,7 +492,14 @@
           "sold_out": "बिक गया",
           "no_stock": "इस मात्रा के लिए पर्याप्त विकल्प उपलब्ध नहीं हैं।",
           "calculated_at_checkout": "चेकआउट पर गणना की जाएगी",
-          "add_to_cart_quantity": "{quantity} कार्ट में जोड़ें"
+          "add_to_cart_quantity": "{quantity} कार्ट में जोड़ें",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -388,7 +525,14 @@
           "sold_out": "Rasprodano",
           "no_stock": "Nema dovoljno dostupnih varijanti za ovu količinu.",
           "calculated_at_checkout": "Izračunava se pri naplati",
-          "add_to_cart_quantity": "Dodajte {quantity} u košaricu"
+          "add_to_cart_quantity": "Dodajte {quantity} u košaricu",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -414,7 +558,14 @@
           "sold_out": "Elfogyott",
           "no_stock": "Nincs elég elérhető változat ehhez a mennyiséghez.",
           "calculated_at_checkout": "Fizetéskor számítjuk ki",
-          "add_to_cart_quantity": "{quantity} kosárba helyezése"
+          "add_to_cart_quantity": "{quantity} kosárba helyezése",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -440,7 +591,14 @@
           "sold_out": "Habis",
           "no_stock": "Varian yang tersedia tidak cukup untuk jumlah ini.",
           "calculated_at_checkout": "Dihitung saat checkout",
-          "add_to_cart_quantity": "Tambahkan {quantity} ke keranjang"
+          "add_to_cart_quantity": "Tambahkan {quantity} ke keranjang",
+          "offer_unavailable": "Tidak tersedia",
+          "offer_included": "Disertakan",
+          "offer_quantity": "Jumlah",
+          "offer_previous": "Sebelumnya",
+          "offer_next": "Berikutnya",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -466,7 +624,14 @@
           "sold_out": "Esaurito",
           "no_stock": "Varianti disponibili insufficienti per questa quantità.",
           "calculated_at_checkout": "Calcolato al pagamento",
-          "add_to_cart_quantity": "Aggiungi {quantity} al carrello"
+          "add_to_cart_quantity": "Aggiungi {quantity} al carrello",
+          "offer_unavailable": "Non disponibile",
+          "offer_included": "Incluso",
+          "offer_quantity": "Quantità",
+          "offer_previous": "Precedente",
+          "offer_next": "Successivo",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -492,7 +657,14 @@
           "sold_out": "売り切れ",
           "no_stock": "この数量に必要なバリエーションが不足しています。",
           "calculated_at_checkout": "チェックアウト時に計算",
-          "add_to_cart_quantity": "{quantity}個をカートに追加"
+          "add_to_cart_quantity": "{quantity}個をカートに追加",
+          "offer_unavailable": "利用不可",
+          "offer_included": "含まれています",
+          "offer_quantity": "数量",
+          "offer_previous": "前へ",
+          "offer_next": "次へ",
+          "offer_select": "選択",
+          "offer_unlock": "{quantity} 点でアンロック"
         }
       }
     },
@@ -518,7 +690,14 @@
           "sold_out": "품절",
           "no_stock": "이 수량에 사용할 수 있는 옵션이 부족합니다.",
           "calculated_at_checkout": "결제 시 계산",
-          "add_to_cart_quantity": "{quantity}개 장바구니에 담기"
+          "add_to_cart_quantity": "{quantity}개 장바구니에 담기",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "선택",
+          "offer_unlock": "{quantity}개로 잠금 해제"
         }
       }
     },
@@ -544,7 +723,14 @@
           "sold_out": "Išparduota",
           "no_stock": "Šiam kiekiui nepakanka galimų variantų.",
           "calculated_at_checkout": "Apskaičiuojama atsiskaitant",
-          "add_to_cart_quantity": "Pridėti {quantity} į krepšelį"
+          "add_to_cart_quantity": "Pridėti {quantity} į krepšelį",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -570,7 +756,14 @@
           "sold_out": "Izpārdots",
           "no_stock": "Šim daudzumam nav pietiekami daudz pieejamu variantu.",
           "calculated_at_checkout": "Aprēķina norēķinoties",
-          "add_to_cart_quantity": "Pievienot {quantity} grozam"
+          "add_to_cart_quantity": "Pievienot {quantity} grozam",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -596,7 +789,14 @@
           "sold_out": "Kehabisan stok",
           "no_stock": "Varian yang tersedia tidak mencukupi untuk kuantiti ini.",
           "calculated_at_checkout": "Dikira semasa pembayaran",
-          "add_to_cart_quantity": "Tambah {quantity} ke troli"
+          "add_to_cart_quantity": "Tambah {quantity} ke troli",
+          "offer_unavailable": "Tidak tersedia",
+          "offer_included": "Disertakan",
+          "offer_quantity": "Kuantiti",
+          "offer_previous": "Sebelumnya",
+          "offer_next": "Seterusnya",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -622,7 +822,14 @@
           "sold_out": "Utsolgt",
           "no_stock": "Ikke nok tilgjengelige varianter for dette antallet.",
           "calculated_at_checkout": "Beregnes i kassen",
-          "add_to_cart_quantity": "Legg {quantity} i handlekurven"
+          "add_to_cart_quantity": "Legg {quantity} i handlekurven",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -648,7 +855,14 @@
           "sold_out": "Uitverkocht",
           "no_stock": "Niet genoeg beschikbare varianten voor dit aantal.",
           "calculated_at_checkout": "Berekend bij afrekenen",
-          "add_to_cart_quantity": "Voeg {quantity} toe aan winkelwagen"
+          "add_to_cart_quantity": "Voeg {quantity} toe aan winkelwagen",
+          "offer_unavailable": "Niet beschikbaar",
+          "offer_included": "Inbegrepen",
+          "offer_quantity": "Aantal",
+          "offer_previous": "Vorige",
+          "offer_next": "Volgende",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -674,7 +888,14 @@
           "sold_out": "Wyprzedane",
           "no_stock": "Za mało dostępnych wariantów dla tej ilości.",
           "calculated_at_checkout": "Obliczane przy płatności",
-          "add_to_cart_quantity": "Dodaj {quantity} do koszyka"
+          "add_to_cart_quantity": "Dodaj {quantity} do koszyka",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -700,7 +921,14 @@
           "sold_out": "Esgotado",
           "no_stock": "Não há variantes suficientes para essa quantidade.",
           "calculated_at_checkout": "Calculado no checkout",
-          "add_to_cart_quantity": "Adicionar {quantity} ao carrinho"
+          "add_to_cart_quantity": "Adicionar {quantity} ao carrinho",
+          "offer_unavailable": "Indisponível",
+          "offer_included": "Incluído",
+          "offer_quantity": "Quantidade",
+          "offer_previous": "Anterior",
+          "offer_next": "Próximo",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -726,7 +954,14 @@
           "sold_out": "Esgotado",
           "no_stock": "Não existem variantes suficientes para esta quantidade.",
           "calculated_at_checkout": "Calculado no checkout",
-          "add_to_cart_quantity": "Adicionar {quantity} ao carrinho"
+          "add_to_cart_quantity": "Adicionar {quantity} ao carrinho",
+          "offer_unavailable": "Indisponível",
+          "offer_included": "Incluído",
+          "offer_quantity": "Quantidade",
+          "offer_previous": "Anterior",
+          "offer_next": "Próximo",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -752,7 +987,14 @@
           "sold_out": "Stoc epuizat",
           "no_stock": "Nu sunt suficiente variante disponibile pentru această cantitate.",
           "calculated_at_checkout": "Calculat la plată",
-          "add_to_cart_quantity": "Adaugă {quantity} în coș"
+          "add_to_cart_quantity": "Adaugă {quantity} în coș",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -778,7 +1020,14 @@
           "sold_out": "Нет в наличии",
           "no_stock": "Для этого количества недостаточно доступных вариантов.",
           "calculated_at_checkout": "Рассчитывается при оформлении",
-          "add_to_cart_quantity": "Добавить {quantity} в корзину"
+          "add_to_cart_quantity": "Добавить {quantity} в корзину",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -804,7 +1053,14 @@
           "sold_out": "Vypredané",
           "no_stock": "Pre toto množstvo nie je dosť dostupných variantov.",
           "calculated_at_checkout": "Vypočíta sa pri platbe",
-          "add_to_cart_quantity": "Pridať {quantity} do košíka"
+          "add_to_cart_quantity": "Pridať {quantity} do košíka",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -830,7 +1086,14 @@
           "sold_out": "Razprodano",
           "no_stock": "Za to količino ni dovolj razpoložljivih različic.",
           "calculated_at_checkout": "Izračuna se ob plačilu",
-          "add_to_cart_quantity": "Dodajte {quantity} v košarico"
+          "add_to_cart_quantity": "Dodajte {quantity} v košarico",
+          "offer_unavailable": "Unavailable",
+          "offer_included": "Included",
+          "offer_quantity": "Quantity",
+          "offer_previous": "Previous",
+          "offer_next": "Next",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -856,7 +1119,14 @@
           "sold_out": "Slutsåld",
           "no_stock": "Det finns inte tillräckligt många varianter för detta antal.",
           "calculated_at_checkout": "Beräknas i kassan",
-          "add_to_cart_quantity": "Lägg {quantity} i varukorgen"
+          "add_to_cart_quantity": "Lägg {quantity} i varukorgen",
+          "offer_unavailable": "Inte tillgänglig",
+          "offer_included": "Ingår",
+          "offer_quantity": "Antal",
+          "offer_previous": "Föregående",
+          "offer_next": "Nästa",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -882,7 +1152,14 @@
           "sold_out": "สินค้าหมด",
           "no_stock": "ตัวเลือกสินค้าไม่เพียงพอสำหรับจำนวนนี้",
           "calculated_at_checkout": "คำนวณเมื่อชำระเงิน",
-          "add_to_cart_quantity": "เพิ่ม {quantity} รายการลงรถเข็น"
+          "add_to_cart_quantity": "เพิ่ม {quantity} รายการลงรถเข็น",
+          "offer_unavailable": "ไม่พร้อมใช้งาน",
+          "offer_included": "รวมแล้ว",
+          "offer_quantity": "จำนวน",
+          "offer_previous": "ก่อนหน้า",
+          "offer_next": "ถัดไป",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -908,7 +1185,14 @@
           "sold_out": "Tükendi",
           "no_stock": "Bu adet için yeterli varyant yok.",
           "calculated_at_checkout": "Ödemede hesaplanır",
-          "add_to_cart_quantity": "{quantity} ürünü sepete ekle"
+          "add_to_cart_quantity": "{quantity} ürünü sepete ekle",
+          "offer_unavailable": "Kullanılamıyor",
+          "offer_included": "Dahil",
+          "offer_quantity": "Adet",
+          "offer_previous": "Önceki",
+          "offer_next": "Sonraki",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -934,7 +1218,14 @@
           "sold_out": "Hết hàng",
           "no_stock": "Không đủ biến thể cho số lượng này.",
           "calculated_at_checkout": "Tính khi thanh toán",
-          "add_to_cart_quantity": "Thêm {quantity} sản phẩm vào giỏ"
+          "add_to_cart_quantity": "Thêm {quantity} sản phẩm vào giỏ",
+          "offer_unavailable": "Không khả dụng",
+          "offer_included": "Đã bao gồm",
+          "offer_quantity": "Số lượng",
+          "offer_previous": "Trước",
+          "offer_next": "Tiếp",
+          "offer_select": "Select",
+          "offer_unlock": "Unlock with {quantity} items"
         }
       }
     },
@@ -960,7 +1251,14 @@
           "sold_out": "已售罄",
           "no_stock": "可用规格库存不足，无法购买此数量。",
           "calculated_at_checkout": "结账时计算",
-          "add_to_cart_quantity": "将 {quantity} 件商品加入购物车"
+          "add_to_cart_quantity": "将 {quantity} 件商品加入购物车",
+          "offer_unavailable": "暂不可用",
+          "offer_included": "已包含",
+          "offer_quantity": "数量",
+          "offer_previous": "上一个",
+          "offer_next": "下一个",
+          "offer_select": "选择",
+          "offer_unlock": "购买 {quantity} 件即可解锁"
         }
       }
     },
@@ -986,7 +1284,14 @@
           "sold_out": "已售罄",
           "no_stock": "可用規格庫存不足，無法購買此數量。",
           "calculated_at_checkout": "結帳時計算",
-          "add_to_cart_quantity": "將 {quantity} 件商品加入購物車"
+          "add_to_cart_quantity": "將 {quantity} 件商品加入購物車",
+          "offer_unavailable": "暫不可用",
+          "offer_included": "已包含",
+          "offer_quantity": "數量",
+          "offer_previous": "上一個",
+          "offer_next": "下一個",
+          "offer_select": "選擇",
+          "offer_unlock": "購買 {quantity} 件即可解鎖"
         }
       }
     }

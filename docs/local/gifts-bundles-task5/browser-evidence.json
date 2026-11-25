@@ -1,0 +1,1581 @@
+{
+  "results": [
+    {
+      "version": "3",
+      "width": 1440,
+      "phase": "before",
+      "file": "before-os3-1440.png",
+      "scrollWidth": 1440,
+      "total": "$40.00",
+      "gifts": 0,
+      "bundles": 0,
+      "columns": null,
+      "errors": []
+    },
+    {
+      "version": "3",
+      "width": 1440,
+      "phase": "after",
+      "file": "after-os3-1440.png",
+      "scrollWidth": 1440,
+      "total": "$60.00",
+      "gifts": 2,
+      "bundles": 2,
+      "columns": "225.328px 225.328px 225.328px",
+      "errors": [],
+      "cart": [
+        [
+          {
+            "id": "v-main",
+            "quantity": 4,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "6d645877-e938-4c77-ab21-8fbf41a3c524",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-a",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "a",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "6d645877-e938-4c77-ab21-8fbf41a3c524",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-b",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "b",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "6d645877-e938-4c77-ab21-8fbf41a3c524",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-c",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "c",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "6d645877-e938-4c77-ab21-8fbf41a3c524",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-d",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "d",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "6d645877-e938-4c77-ab21-8fbf41a3c524",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "version": "3",
+      "width": 390,
+      "phase": "before",
+      "file": "before-os3-390.png",
+      "scrollWidth": 390,
+      "total": "$40.00",
+      "gifts": 0,
+      "bundles": 0,
+      "columns": null,
+      "errors": []
+    },
+    {
+      "version": "3",
+      "width": 390,
+      "phase": "after",
+      "file": "after-os3-390.png",
+      "scrollWidth": 390,
+      "total": "$60.00",
+      "gifts": 2,
+      "bundles": 2,
+      "columns": "354px",
+      "errors": [],
+      "cart": [
+        [
+          {
+            "id": "v-main",
+            "quantity": 4,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "178d91ae-c7d9-4a58-93ab-af32d870f0c3",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-a",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "a",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "178d91ae-c7d9-4a58-93ab-af32d870f0c3",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-b",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "b",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "178d91ae-c7d9-4a58-93ab-af32d870f0c3",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-c",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "c",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "178d91ae-c7d9-4a58-93ab-af32d870f0c3",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-d",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "d",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "178d91ae-c7d9-4a58-93ab-af32d870f0c3",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "version": "3",
+      "width": 320,
+      "phase": "before",
+      "file": "before-os3-320.png",
+      "scrollWidth": 320,
+      "total": "$40.00",
+      "gifts": 0,
+      "bundles": 0,
+      "columns": null,
+      "errors": []
+    },
+    {
+      "version": "3",
+      "width": 320,
+      "phase": "after",
+      "file": "after-os3-320.png",
+      "scrollWidth": 320,
+      "total": "$60.00",
+      "gifts": 2,
+      "bundles": 2,
+      "columns": "284px",
+      "errors": [],
+      "cart": [
+        [
+          {
+            "id": "v-main",
+            "quantity": 4,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "e7007f9c-61ca-4545-9353-be6953c5bd0f",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-a",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "a",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "e7007f9c-61ca-4545-9353-be6953c5bd0f",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-b",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "b",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "e7007f9c-61ca-4545-9353-be6953c5bd0f",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-c",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "c",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "e7007f9c-61ca-4545-9353-be6953c5bd0f",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-d",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "d",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "e7007f9c-61ca-4545-9353-be6953c5bd0f",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "version": "2.1",
+      "width": 1440,
+      "phase": "before",
+      "file": "before-os2.1-1440.png",
+      "scrollWidth": 1440,
+      "total": "$40.00",
+      "gifts": 0,
+      "bundles": 0,
+      "columns": null,
+      "errors": []
+    },
+    {
+      "version": "2.1",
+      "width": 1440,
+      "phase": "after",
+      "file": "after-os2.1-1440.png",
+      "scrollWidth": 1440,
+      "total": "$60.00",
+      "gifts": 2,
+      "bundles": 2,
+      "columns": "225.328px 225.328px 225.328px",
+      "errors": [],
+      "cart": [
+        [
+          {
+            "id": "v-main",
+            "quantity": 4,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "92b4de8b-be8f-4f21-8e5a-046b20929e44",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-a",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "a",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "92b4de8b-be8f-4f21-8e5a-046b20929e44",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-b",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "b",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "92b4de8b-be8f-4f21-8e5a-046b20929e44",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-c",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "c",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "92b4de8b-be8f-4f21-8e5a-046b20929e44",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-d",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "d",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "92b4de8b-be8f-4f21-8e5a-046b20929e44",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "version": "2.1",
+      "width": 390,
+      "phase": "before",
+      "file": "before-os2.1-390.png",
+      "scrollWidth": 390,
+      "total": "$40.00",
+      "gifts": 0,
+      "bundles": 0,
+      "columns": null,
+      "errors": []
+    },
+    {
+      "version": "2.1",
+      "width": 390,
+      "phase": "after",
+      "file": "after-os2.1-390.png",
+      "scrollWidth": 390,
+      "total": "$60.00",
+      "gifts": 2,
+      "bundles": 2,
+      "columns": "354px",
+      "errors": [],
+      "cart": [
+        [
+          {
+            "id": "v-main",
+            "quantity": 4,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "30e98e82-03eb-4c05-ad4f-82307e3ae6a5",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-a",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "a",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "30e98e82-03eb-4c05-ad4f-82307e3ae6a5",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-b",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "b",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "30e98e82-03eb-4c05-ad4f-82307e3ae6a5",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-c",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "c",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "30e98e82-03eb-4c05-ad4f-82307e3ae6a5",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-d",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "d",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "30e98e82-03eb-4c05-ad4f-82307e3ae6a5",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          }
+        ]
+      ]
+    },
+    {
+      "version": "2.1",
+      "width": 320,
+      "phase": "before",
+      "file": "before-os2.1-320.png",
+      "scrollWidth": 320,
+      "total": "$40.00",
+      "gifts": 0,
+      "bundles": 0,
+      "columns": null,
+      "errors": []
+    },
+    {
+      "version": "2.1",
+      "width": 320,
+      "phase": "after",
+      "file": "after-os2.1-320.png",
+      "scrollWidth": 320,
+      "total": "$60.00",
+      "gifts": 2,
+      "bundles": 2,
+      "columns": "284px",
+      "errors": [],
+      "cart": [
+        [
+          {
+            "id": "v-main",
+            "quantity": 4,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "f34eb3d9-cd71-47e3-ae67-4b6aceba2866",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-a",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "a",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "f34eb3d9-cd71-47e3-ae67-4b6aceba2866",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-b",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "gift",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "b",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "f34eb3d9-cd71-47e3-ae67-4b6aceba2866",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-c",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "c",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "f34eb3d9-cd71-47e3-ae67-4b6aceba2866",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          },
+          {
+            "id": "v-d",
+            "quantity": 1,
+            "properties": [
+              {
+                "name": "_qb_protocol",
+                "value": "gift-bundles-v1",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_campaign",
+                "value": "offers",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_role",
+                "value": "bundle",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_rule",
+                "value": "d",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_source_product",
+                "value": "main",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              },
+              {
+                "name": "_qb_context",
+                "value": "f34eb3d9-cd71-47e3-ae67-4b6aceba2866",
+                "type": "text",
+                "show": false,
+                "roleVisibility": "none"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "dynamic": {
+    "errors": [],
+    "blocks": 2,
+    "selectedBundles": 1,
+    "slot": "v-c-2",
+    "columns400": 1,
+    "columns600": 2,
+    "columns700": 3,
+    "carouselKeyboard": 98,
+    "carouselTouch": 98
+  }
+}

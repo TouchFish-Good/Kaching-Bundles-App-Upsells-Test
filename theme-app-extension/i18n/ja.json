@@ -20,7 +20,14 @@
       "sold_out": "売り切れ",
       "no_stock": "この数量に必要なバリエーションが不足しています。",
       "calculated_at_checkout": "チェックアウト時に計算",
-      "add_to_cart_quantity": "{quantity}個をカートに追加"
+      "add_to_cart_quantity": "{quantity}個をカートに追加",
+      "offer_unavailable": "利用不可",
+      "offer_included": "含まれています",
+      "offer_quantity": "数量",
+      "offer_previous": "前へ",
+      "offer_next": "次へ",
+      "offer_select": "選択",
+      "offer_unlock": "{quantity} 点でアンロック"
     }
   }
 }

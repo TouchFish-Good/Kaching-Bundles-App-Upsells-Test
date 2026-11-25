@@ -20,7 +20,14 @@
       "sold_out": "Razprodano",
       "no_stock": "Za to količino ni dovolj razpoložljivih različic.",
       "calculated_at_checkout": "Izračuna se ob plačilu",
-      "add_to_cart_quantity": "Dodajte {quantity} v košarico"
+      "add_to_cart_quantity": "Dodajte {quantity} v košarico",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

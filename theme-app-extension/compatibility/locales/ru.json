@@ -20,7 +20,14 @@
       "sold_out": "Нет в наличии",
       "no_stock": "Для этого количества недостаточно доступных вариантов.",
       "calculated_at_checkout": "Рассчитывается при оформлении",
-      "add_to_cart_quantity": "Добавить {quantity} в корзину"
+      "add_to_cart_quantity": "Добавить {quantity} в корзину",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

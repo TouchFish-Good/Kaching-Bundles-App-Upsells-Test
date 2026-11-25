@@ -20,7 +20,14 @@
       "sold_out": "Esaurito",
       "no_stock": "Varianti disponibili insufficienti per questa quantità.",
       "calculated_at_checkout": "Calcolato al pagamento",
-      "add_to_cart_quantity": "Aggiungi {quantity} al carrello"
+      "add_to_cart_quantity": "Aggiungi {quantity} al carrello",
+      "offer_unavailable": "Non disponibile",
+      "offer_included": "Incluso",
+      "offer_quantity": "Quantità",
+      "offer_previous": "Precedente",
+      "offer_next": "Successivo",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }

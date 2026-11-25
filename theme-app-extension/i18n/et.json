@@ -20,7 +20,14 @@
       "sold_out": "Läbi müüdud",
       "no_stock": "Selle koguse jaoks pole piisavalt variante.",
       "calculated_at_checkout": "Arvutatakse kassas",
-      "add_to_cart_quantity": "Lisa {quantity} ostukorvi"
+      "add_to_cart_quantity": "Lisa {quantity} ostukorvi",
+      "offer_unavailable": "Unavailable",
+      "offer_included": "Included",
+      "offer_quantity": "Quantity",
+      "offer_previous": "Previous",
+      "offer_next": "Next",
+      "offer_select": "Select",
+      "offer_unlock": "Unlock with {quantity} items"
     }
   }
 }
