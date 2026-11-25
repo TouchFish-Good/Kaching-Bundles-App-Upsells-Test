@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Kup więcej i oszczędzaj",
+    "widget": {
+      "title": "Kup więcej i oszczędzaj",
+      "tier_savings_badge": "Oszczędź {saving_amount}",
+      "description": "Wybierz ilość, a następnie ustaw każdy produkt.",
+      "tier_rule": "Najwyższy poziom dotyczy wszystkich produktów",
+      "original": "Cena pierwotna",
+      "savings": "Szacowana oszczędność",
+      "total": "Suma zestawu",
+      "add_to_cart": "Dodaj {quantity} do koszyka · {price}",
+      "adding": "Dodawanie zestawu...",
+      "cart_failure": "Nie udało się dodać zestawu. Twoje wybory zostały zachowane.",
+      "cart_success": "Dodano {quantity} produktów w {lines} pozycjach koszyka.",
+      "cart_uncertain": "Nie mogliśmy potwierdzić koszyka. Sprawdź go przed kolejną próbą.",
+      "choose_option": "Wybierz opcję",
+      "item_option": "Produkt {index}: {option}",
+      "tier_items": "{quantity} produktów",
+      "sold_out": "Wyprzedane",
+      "no_stock": "Za mało dostępnych wariantów dla tej ilości.",
+      "calculated_at_checkout": "Obliczane przy płatności",
+      "add_to_cart_quantity": "Dodaj {quantity} do koszyka"
+    }
+  }
+}

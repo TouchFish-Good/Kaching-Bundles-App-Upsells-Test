@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Mehr kaufen und sparen",
+    "widget": {
+      "title": "Mehr kaufen und sparen",
+      "tier_savings_badge": "Spare {saving_amount}",
+      "description": "Wähle eine Menge und konfiguriere jeden Artikel.",
+      "tier_rule": "Die höchste Stufe gilt für alle Artikel",
+      "original": "Originalpreis",
+      "savings": "Voraussichtliche Ersparnis",
+      "total": "Gesamtpreis des Sets",
+      "add_to_cart": "{quantity} zum Warenkorb hinzufügen · {price}",
+      "adding": "Set wird hinzugefügt...",
+      "cart_failure": "Das Set konnte nicht hinzugefügt werden. Deine Auswahl bleibt erhalten.",
+      "cart_success": "{quantity} Artikel wurden in {lines} Warenkorbpositionen hinzugefügt.",
+      "cart_uncertain": "Der Warenkorb konnte nicht bestätigt werden. Prüfe ihn vor dem nächsten Versuch.",
+      "choose_option": "Option auswählen",
+      "item_option": "Artikel {index}: {option}",
+      "tier_items": "{quantity} Artikel",
+      "sold_out": "Ausverkauft",
+      "no_stock": "Für diese Menge sind nicht genügend Varianten verfügbar.",
+      "calculated_at_checkout": "Wird beim Checkout berechnet",
+      "add_to_cart_quantity": "{quantity} zum Warenkorb hinzufügen"
+    }
+  }
+}

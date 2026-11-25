@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Diskon Pembelian Banyak Produk",
+    "widget": {
+      "title": "Beli lebih banyak dan hemat",
+      "tier_savings_badge": "Hemat {saving_amount}",
+      "description": "Pilih jumlah, lalu atur setiap item.",
+      "tier_rule": "Tingkat tertinggi berlaku untuk semua item",
+      "original": "Harga asli",
+      "savings": "Perkiraan hemat",
+      "total": "Total paket",
+      "add_to_cart": "Tambahkan {quantity} ke keranjang · {price}",
+      "adding": "Menambahkan paket...",
+      "cart_failure": "Paket tidak dapat ditambahkan. Pilihan Anda disimpan.",
+      "cart_success": "{quantity} item ditambahkan sebagai {lines} baris keranjang.",
+      "cart_uncertain": "Keranjang tidak dapat dikonfirmasi. Periksa sebelum mencoba lagi.",
+      "choose_option": "Pilih opsi",
+      "item_option": "Produk {index}: {option}",
+      "tier_items": "{quantity} item",
+      "sold_out": "Habis",
+      "no_stock": "Varian yang tersedia tidak cukup untuk jumlah ini.",
+      "calculated_at_checkout": "Dihitung saat checkout",
+      "add_to_cart_quantity": "Tambahkan {quantity} ke keranjang"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "layout": "stacked",
+  "badgePosition": "corner",
+  "card": { "radiusPx": 9, "gapPx": 8 },
+  "colors": { "card": "#F7F7F7", "selected": "#FFFFFF", "cardBorder": "#D4D4D4", "border": "#171717", "sectionTitle": "#171717", "title": "#171717", "subtitle": "#555555", "price": "#171717", "comparePrice": "#666666", "badgeBackground": "#171717", "badgeText": "#FFFFFF", "variantTitle": "#626262", "variantValue": "#262626", "variantPrice": "#6D6D6D", "variantOriginalPrice": "#8A8A8A", "slotNumber": "#262626", "variantBorder": "#C6C6C6", "variantBackground": "#FFFFFF", "variantSelectedBorder": "#171717", "variantSelectedBackground": "#FFFFFF", "variantSelectedText": "#171717", "status": "#52615C", "addButtonBackground": "#171717", "addButtonText": "#FFFFFF", "addButtonBorder": "#171717", "savingsLabel": "#A13D29", "savingsPrice": "#A13D29", "cartLine": "#52615C", "summaryLabel": "#666666", "summaryAmount": "#171717" },
+  "typography": { "bodyPx": 14, "sectionTitle": { "sizePx": 14, "weight": 700 }, "title": { "sizePx": 14, "weight": 700 }, "subtitle": { "sizePx": 12, "weight": 400 }, "price": { "sizePx": 14, "weight": 700 }, "comparePrice": { "sizePx": 11, "weight": 600 }, "badge": { "sizePx": 12, "weight": 600 }, "addButton": { "sizePx": 14, "weight": 700 }, "variantTitle": { "sizePx": 11, "weight": 700 }, "variantValue": { "sizePx": 12, "weight": 700 }, "variantPrice": { "sizePx": 11, "weight": 700 }, "variantOriginalPrice": { "sizePx": 11, "weight": 600 }, "slotNumber": { "sizePx": 11, "weight": 800 }, "savingsPrice": { "sizePx": 11, "weight": 700 }, "cartLine": { "sizePx": 11, "weight": 400 }, "summaryLabel": { "sizePx": 11, "weight": 400 }, "summaryAmount": { "sizePx": 11, "weight": 700 }, "checkoutNote": { "sizePx": 10, "weight": 400 }, "status": { "sizePx": 12, "weight": 400 } },
+  "variants": { "allowMixedVariants": true, "showSelectors": true, "selectorStyle": "dropdown", "imageSizePx": 48, "imageRadiusPx": 6, "showImageColorValue": true, "defaultSelection": "first_available" },
+  "showCartVariantDetails": true,
+  "showPriceSummary": true,
+  "showTierSavingsBadge": false
+}

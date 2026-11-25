@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Kupite več in prihranite",
+    "widget": {
+      "title": "Kupite več in prihranite",
+      "tier_savings_badge": "Prihranite {saving_amount}",
+      "description": "Izberite količino in nastavite vsak izdelek.",
+      "tier_rule": "Najvišja stopnja velja za vse izdelke",
+      "original": "Izvirna cena",
+      "savings": "Predviden prihranek",
+      "total": "Skupaj za paket",
+      "add_to_cart": "Dodajte {quantity} v košarico · {price}",
+      "adding": "Dodajanje paketa...",
+      "cart_failure": "Paketa ni bilo mogoče dodati. Vaše izbire so shranjene.",
+      "cart_success": "{quantity} izdelkov je dodanih v {lines} vrstic košarice.",
+      "cart_uncertain": "Košarice nismo mogli potrditi. Pred ponovnim poskusom jo preverite.",
+      "choose_option": "Izberite možnost",
+      "item_option": "Izdelek {index}: {option}",
+      "tier_items": "{quantity} izdelkov",
+      "sold_out": "Razprodano",
+      "no_stock": "Za to količino ni dovolj razpoložljivih različic.",
+      "calculated_at_checkout": "Izračuna se ob plačilu",
+      "add_to_cart_quantity": "Dodajte {quantity} v košarico"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE campaign_diagnostic_events ADD COLUMN upstream_response_body TEXT;

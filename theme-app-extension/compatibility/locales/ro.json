@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Cumpără mai mult și economisește",
+    "widget": {
+      "title": "Cumpără mai mult și economisește",
+      "tier_savings_badge": "Economisiți {saving_amount}",
+      "description": "Alege o cantitate, apoi configurează fiecare produs.",
+      "tier_rule": "Nivelul cel mai mare se aplică tuturor produselor",
+      "original": "Preț original",
+      "savings": "Economie estimată",
+      "total": "Total pachet",
+      "add_to_cart": "Adaugă {quantity} în coș · {price}",
+      "adding": "Se adaugă pachetul...",
+      "cart_failure": "Pachetul nu a putut fi adăugat. Alegerile tale au fost păstrate.",
+      "cart_success": "{quantity} produse au fost adăugate în {lines} rânduri din coș.",
+      "cart_uncertain": "Nu am putut confirma coșul. Verifică-l înainte de a încerca din nou.",
+      "choose_option": "Alege o opțiune",
+      "item_option": "Produs {index}: {option}",
+      "tier_items": "{quantity} produse",
+      "sold_out": "Stoc epuizat",
+      "no_stock": "Nu sunt suficiente variante disponibile pentru această cantitate.",
+      "calculated_at_checkout": "Calculat la plată",
+      "add_to_cart_quantity": "Adaugă {quantity} în coș"
+    }
+  }
+}

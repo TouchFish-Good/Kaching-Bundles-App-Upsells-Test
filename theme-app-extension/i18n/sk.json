@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Kúpte viac a ušetrite",
+    "widget": {
+      "title": "Kúpte viac a ušetrite",
+      "tier_savings_badge": "Ušetrite {saving_amount}",
+      "description": "Vyberte množstvo a nastavte každý produkt.",
+      "tier_rule": "Najvyššia úroveň platí pre všetky položky",
+      "original": "Pôvodná cena",
+      "savings": "Odhadovaná úspora",
+      "total": "Celkom za balík",
+      "add_to_cart": "Pridať {quantity} do košíka · {price}",
+      "adding": "Pridávanie balíka...",
+      "cart_failure": "Balík sa nepodarilo pridať. Vaše voľby zostali zachované.",
+      "cart_success": "{quantity} položiek bolo pridaných na {lines} riadkov košíka.",
+      "cart_uncertain": "Košík sa nepodarilo potvrdiť. Pred ďalším pokusom ho skontrolujte.",
+      "choose_option": "Vyberte možnosť",
+      "item_option": "Položka {index}: {option}",
+      "tier_items": "{quantity} položiek",
+      "sold_out": "Vypredané",
+      "no_stock": "Pre toto množstvo nie je dosť dostupných variantov.",
+      "calculated_at_checkout": "Vypočíta sa pri platbe",
+      "add_to_cart_quantity": "Pridať {quantity} do košíka"
+    }
+  }
+}

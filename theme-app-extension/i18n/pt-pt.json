@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Compre mais e poupe",
+    "widget": {
+      "title": "Compre mais e poupe",
+      "tier_savings_badge": "Poupe {saving_amount}",
+      "description": "Escolha uma quantidade e configure cada artigo.",
+      "tier_rule": "O escalão mais alto aplica-se a todos os artigos",
+      "original": "Preço original",
+      "savings": "Poupança estimada",
+      "total": "Total do conjunto",
+      "add_to_cart": "Adicionar {quantity} ao carrinho · {price}",
+      "adding": "A adicionar conjunto...",
+      "cart_failure": "Não foi possível adicionar o conjunto. As suas escolhas foram mantidas.",
+      "cart_success": "Foram adicionados {quantity} artigos em {lines} linhas do carrinho.",
+      "cart_uncertain": "Não foi possível confirmar o carrinho. Verifique-o antes de tentar novamente.",
+      "choose_option": "Escolha uma opção",
+      "item_option": "Artigo {index}: {option}",
+      "tier_items": "{quantity} artigos",
+      "sold_out": "Esgotado",
+      "no_stock": "Não existem variantes suficientes para esta quantidade.",
+      "calculated_at_checkout": "Calculado no checkout",
+      "add_to_cart_quantity": "Adicionar {quantity} ao carrinho"
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{{#if product != nil && product.available}}
+<link rel="stylesheet" href="{{ "app-block.css" | asset_url() }}">
+<script src="{{ "app-block.js" | asset_url() }}" defer></script>
+{{#var quantity_breaks_variants = product | get_variants() /}}
+{{#var quantity_breaks_collections = product | get_collection_pagination(100, page=1) /}}
+<div class="quantity-breaks-app-block"
+  data-shop="{{ shop.permanent_domain }}"
+  data-product-id="{{ product.id }}"
+  data-product-available="{{ product.available }}"
+  data-product-handle="{{ product.handle }}"
+  data-product-title="{{ product.title }}"
+  data-country-code="{{ localization.country.iso_code }}"
+  data-currency="{{ localization.country.currency.iso_code }}"
+  data-shop-currency="{{ shop.currency.iso_code }}"
+  data-locale="{{ localization.language.iso_code }}"
+  hidden>
+  <div data-product-collections data-collection-count="{{ quantity_breaks_collections.items }}" data-collection-pages="{{ quantity_breaks_collections.pages }}" hidden>
+    {{#for collection in quantity_breaks_collections.list}}
+    <span data-collection-id="{{ collection.id }}"></span>
+    {{/for}}
+    {{#for page in 2 | range(10)}}
+      {{#if page <= quantity_breaks_collections.pages}}
+        {{#var quantity_breaks_collection_page = product | get_collection_pagination(100, page=page) /}}
+        {{#for collection in quantity_breaks_collection_page.list}}
+        <span data-collection-id="{{ collection.id }}"></span>
+        {{/for}}
+      {{/if}}
+    {{/for}}
+  </div>
+  <span data-qb-copy="widget.title" hidden>{{ "app_block.widget.title" | t() }}</span>
+  <span data-qb-copy="widget.tier_savings_badge" hidden>{{ "app_block.widget.tier_savings_badge" | t() }}</span>
+  <span data-qb-copy="widget.description" hidden>{{ "app_block.widget.description" | t() }}</span>
+  <span data-qb-copy="widget.tier_rule" hidden>{{ "app_block.widget.tier_rule" | t() }}</span>
+  <span data-qb-copy="widget.original" hidden>{{ "app_block.widget.original" | t() }}</span>
+  <span data-qb-copy="widget.savings" hidden>{{ "app_block.widget.savings" | t() }}</span>
+  <span data-qb-copy="widget.total" hidden>{{ "app_block.widget.total" | t() }}</span>
+  <span data-qb-copy="widget.add_to_cart" hidden>{{ "app_block.widget.add_to_cart" | t() }}</span>
+  <span data-qb-copy="widget.add_to_cart_quantity" hidden>{{ "app_block.widget.add_to_cart_quantity" | t() }}</span>
+  <span data-qb-copy="widget.cart_failure" hidden>{{ "app_block.widget.cart_failure" | t() }}</span>
+  <span data-qb-copy="widget.cart_success" hidden>{{ "app_block.widget.cart_success" | t() }}</span>
+  <span data-qb-copy="widget.cart_uncertain" hidden>{{ "app_block.widget.cart_uncertain" | t() }}</span>
+  <span data-qb-copy="widget.choose_option" hidden>{{ "app_block.widget.choose_option" | t() }}</span>
+  <span data-qb-copy="widget.item_option" hidden>{{ "app_block.widget.item_option" | t() }}</span>
+  <span data-qb-copy="widget.tier_items" hidden>{{ "app_block.widget.tier_items" | t() }}</span>
+  <span data-qb-copy="widget.sold_out" hidden>{{ "app_block.widget.sold_out" | t() }}</span>
+  <span data-qb-copy="widget.no_stock" hidden>{{ "app_block.widget.no_stock" | t() }}</span>
+  <span data-qb-copy="widget.calculated_at_checkout" hidden>{{ "app_block.widget.calculated_at_checkout" | t() }}</span>
+  {{#for option in product.options}}
+  <span data-product-option="{{ option }}" hidden></span>
+  {{/for}}
+  {{#for variant in quantity_breaks_variants}}
+  <span data-variant-id="{{ variant.id }}" data-variant-title="{{ variant.title }}"
+    data-option1="{{ variant.option1 }}" data-option2="{{ variant.option2 }}"
+    data-option3="{{ variant.option3 }}" data-option4="{{ variant.option4 }}"
+    data-option5="{{ variant.option5 }}" data-price="{{ variant.price }}" data-compare-at-price="{{ variant.compare_at_price }}"
+    data-available="{{ variant.available }}"
+    data-image="{{ variant.image | image_url(width=100, height=100) }}" hidden></span>
+  {{/for}}
+</div>
+{{/if}}
+
+{{#schema}}
+{
+  "name": "t:appBlock.block.name",
+  "target": "section",
+  "templates": ["product"]
+}
+{{/schema}}

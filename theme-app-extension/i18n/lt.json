@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Pirkite daugiau ir sutaupykite",
+    "widget": {
+      "title": "Pirkite daugiau ir sutaupykite",
+      "tier_savings_badge": "Sutaupykite {saving_amount}",
+      "description": "Pasirinkite kiekį ir nustatykite kiekvieną prekę.",
+      "tier_rule": "Aukščiausias lygis taikomas visoms prekėms",
+      "original": "Pradinė kaina",
+      "savings": "Numatomas sutaupymas",
+      "total": "Rinkinio suma",
+      "add_to_cart": "Pridėti {quantity} į krepšelį · {price}",
+      "adding": "Pridedamas rinkinys...",
+      "cart_failure": "Nepavyko pridėti rinkinio. Jūsų pasirinkimai išsaugoti.",
+      "cart_success": "{quantity} prekės pridėtos į {lines} krepšelio eilutes.",
+      "cart_uncertain": "Nepavyko patvirtinti krepšelio. Prieš bandydami vėl jį patikrinkite.",
+      "choose_option": "Pasirinkite parinktį",
+      "item_option": "Prekė {index}: {option}",
+      "tier_items": "{quantity} prekės",
+      "sold_out": "Išparduota",
+      "no_stock": "Šiam kiekiui nepakanka galimų variantų.",
+      "calculated_at_checkout": "Apskaičiuojama atsiskaitant",
+      "add_to_cart_quantity": "Pridėti {quantity} į krepšelį"
+    }
+  }
+}

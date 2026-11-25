@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "अधिक खरीदें और बचत करें",
+    "widget": {
+      "title": "अधिक खरीदें और बचत करें",
+      "tier_savings_badge": "{saving_amount} बचाएं",
+      "description": "मात्रा चुनें, फिर हर आइटम की सेटिंग चुनें।",
+      "tier_rule": "सबसे ऊंचा स्तर सभी आइटम पर लागू होता है",
+      "original": "मूल कीमत",
+      "savings": "अनुमानित बचत",
+      "total": "बंडल कुल",
+      "add_to_cart": "{quantity} कार्ट में जोड़ें · {price}",
+      "adding": "बंडल जोड़ा जा रहा है...",
+      "cart_failure": "बंडल जोड़ा नहीं जा सका। आपके चयन सुरक्षित रखे गए हैं।",
+      "cart_success": "{quantity} आइटम {lines} कार्ट पंक्तियों में जोड़े गए।",
+      "cart_uncertain": "हम आपके कार्ट की पुष्टि नहीं कर सके। दोबारा प्रयास से पहले जांचें।",
+      "choose_option": "विकल्प चुनें",
+      "item_option": "आइटम {index}: {option}",
+      "tier_items": "{quantity} आइटम",
+      "sold_out": "बिक गया",
+      "no_stock": "इस मात्रा के लिए पर्याप्त विकल्प उपलब्ध नहीं हैं।",
+      "calculated_at_checkout": "चेकआउट पर गणना की जाएगी",
+      "add_to_cart_quantity": "{quantity} कार्ट में जोड़ें"
+    }
+  }
+}

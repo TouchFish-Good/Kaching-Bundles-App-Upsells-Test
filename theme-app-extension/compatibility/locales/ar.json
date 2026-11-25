@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "اشترِ المزيد ووفر",
+    "widget": {
+      "title": "اشترِ المزيد ووفر",
+      "tier_savings_badge": "وفّر {saving_amount}",
+      "description": "اختر الكمية ثم حدّد مواصفات كل منتج.",
+      "tier_rule": "ينطبق أعلى مستوى خصم على جميع المنتجات",
+      "original": "السعر الأصلي",
+      "savings": "الوفورات المتوقعة",
+      "total": "إجمالي الحزمة",
+      "add_to_cart": "أضف {quantity} إلى السلة · {price}",
+      "adding": "جارٍ إضافة الحزمة...",
+      "cart_failure": "تعذرت إضافة الحزمة. احتفظنا بخياراتك لإعادة المحاولة.",
+      "cart_success": "تمت إضافة {quantity} منتجات ضمن {lines} عناصر في السلة.",
+      "cart_uncertain": "تعذر تأكيد سلة التسوق. تحقق منها قبل إعادة المحاولة.",
+      "choose_option": "اختر خيارًا",
+      "item_option": "العنصر {index}: {option}",
+      "tier_items": "{quantity} عناصر",
+      "sold_out": "نفد المخزون",
+      "no_stock": "لا تتوفر خيارات كافية لهذه الكمية.",
+      "calculated_at_checkout": "يُحسب عند الدفع",
+      "add_to_cart_quantity": "أضف {quantity} إلى السلة"
+    }
+  }
+}

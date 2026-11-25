@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "複数購入割引",
+    "widget": {
+      "title": "まとめ買いでお得",
+      "tier_savings_badge": "{saving_amount} お得",
+      "description": "数量を選び、各商品の内容を設定してください。",
+      "tier_rule": "すべての商品に最高数量ティアが適用されます",
+      "original": "通常価格",
+      "savings": "見積もり節約額",
+      "total": "セット合計",
+      "add_to_cart": "{quantity}個をカートに追加 · {price}",
+      "adding": "セットを追加中...",
+      "cart_failure": "セットを追加できませんでした。選択内容は保持されています。",
+      "cart_success": "{quantity}個の商品を{lines}行のカートに追加しました。",
+      "cart_uncertain": "カートを確認できませんでした。再試行前に確認してください。",
+      "choose_option": "オプションを選択",
+      "item_option": "商品 {index}: {option}",
+      "tier_items": "{quantity}個",
+      "sold_out": "売り切れ",
+      "no_stock": "この数量に必要なバリエーションが不足しています。",
+      "calculated_at_checkout": "チェックアウト時に計算",
+      "add_to_cart_quantity": "{quantity}個をカートに追加"
+    }
+  }
+}

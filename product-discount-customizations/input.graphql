@@ -1,0 +1,25 @@
+query Input($inCollections: [String]) {
+    cart(inCollections: $inCollections) {
+        lines {
+            id
+            quantity
+            merchandise {
+                productVariant {
+                    product {
+                        id
+                        inCollections { collectionId isMember }
+                    }
+                    priceSet {
+                        shopMoney { amount currencyCode }
+                        presentmentMoney { amount currencyCode }
+                    }
+                }
+            }
+        }
+    }
+    discountNodes {
+        priceRuleId
+        metafields { key namespace type value }
+    }
+    localization { marketId }
+}

@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Giảm giá khi mua nhiều sản phẩm",
+    "widget": {
+      "title": "Mua nhiều, tiết kiệm hơn",
+      "tier_savings_badge": "Tiết kiệm {saving_amount}",
+      "description": "Chọn số lượng, sau đó thiết lập từng sản phẩm.",
+      "tier_rule": "Mức cao nhất áp dụng cho tất cả sản phẩm",
+      "original": "Giá gốc",
+      "savings": "Khoản tiết kiệm ước tính",
+      "total": "Tổng gói",
+      "add_to_cart": "Thêm {quantity} sản phẩm vào giỏ · {price}",
+      "adding": "Đang thêm gói...",
+      "cart_failure": "Không thể thêm gói. Lựa chọn của bạn đã được giữ lại.",
+      "cart_success": "Đã thêm {quantity} sản phẩm vào {lines} dòng giỏ hàng.",
+      "cart_uncertain": "Không thể xác nhận giỏ hàng. Hãy kiểm tra trước khi thử lại.",
+      "choose_option": "Chọn tùy chọn",
+      "item_option": "Sản phẩm {index}: {option}",
+      "tier_items": "{quantity} sản phẩm",
+      "sold_out": "Hết hàng",
+      "no_stock": "Không đủ biến thể cho số lượng này.",
+      "calculated_at_checkout": "Tính khi thanh toán",
+      "add_to_cart_quantity": "Thêm {quantity} sản phẩm vào giỏ"
+    }
+  }
+}

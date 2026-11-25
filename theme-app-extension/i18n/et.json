@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Osta rohkem ja säästa",
+    "widget": {
+      "title": "Osta rohkem ja säästa",
+      "tier_savings_badge": "Säästke {saving_amount}",
+      "description": "Vali kogus ja seadista iga toode.",
+      "tier_rule": "Kõrgeim tase kehtib kõigile toodetele",
+      "original": "Alghind",
+      "savings": "Hinnanguline sääst",
+      "total": "Komplekti kogusumma",
+      "add_to_cart": "Lisa {quantity} ostukorvi · {price}",
+      "adding": "Komplekti lisamine...",
+      "cart_failure": "Komplekti ei saanud lisada. Sinu valikud on alles.",
+      "cart_success": "{quantity} toodet lisati ostukorvi {lines} real.",
+      "cart_uncertain": "Ostukorvi ei saanud kinnitada. Kontrolli seda enne uut katset.",
+      "choose_option": "Vali valik",
+      "item_option": "Toode {index}: {option}",
+      "tier_items": "{quantity} toodet",
+      "sold_out": "Läbi müüdud",
+      "no_stock": "Selle koguse jaoks pole piisavalt variante.",
+      "calculated_at_checkout": "Arvutatakse kassas",
+      "add_to_cart_quantity": "Lisa {quantity} ostukorvi"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "ส่วนลดเมื่อซื้อหลายชิ้น",
+    "widget": {
+      "title": "ซื้อเพิ่มประหยัดเพิ่ม",
+      "tier_savings_badge": "ประหยัด {saving_amount}",
+      "description": "เลือกจำนวน แล้วกำหนดรายละเอียดของแต่ละรายการ",
+      "tier_rule": "ใช้ระดับสูงสุดกับสินค้าทั้งหมด",
+      "original": "ราคาเดิม",
+      "savings": "ยอดประหยัดโดยประมาณ",
+      "total": "ราคารวมชุด",
+      "add_to_cart": "เพิ่ม {quantity} รายการลงรถเข็น · {price}",
+      "adding": "กำลังเพิ่มชุด...",
+      "cart_failure": "ไม่สามารถเพิ่มชุดได้ ระบบเก็บตัวเลือกของคุณไว้แล้ว",
+      "cart_success": "เพิ่มสินค้า {quantity} รายการเป็น {lines} รายการในรถเข็นแล้ว",
+      "cart_uncertain": "ยืนยันรถเข็นไม่ได้ โปรดตรวจสอบก่อนลองอีกครั้ง",
+      "choose_option": "เลือกตัวเลือก",
+      "item_option": "รายการที่ {index}: {option}",
+      "tier_items": "{quantity} รายการ",
+      "sold_out": "สินค้าหมด",
+      "no_stock": "ตัวเลือกสินค้าไม่เพียงพอสำหรับจำนวนนี้",
+      "calculated_at_checkout": "คำนวณเมื่อชำระเงิน",
+      "add_to_cart_quantity": "เพิ่ม {quantity} รายการลงรถเข็น"
+    }
+  }
+}

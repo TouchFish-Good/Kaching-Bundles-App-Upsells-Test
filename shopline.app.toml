@@ -1,0 +1,13 @@
+
+appName = "多件折扣-测试环境"
+appKey = "26e3fa9b0b6deb7313e7f6a9e06163eaab66d54d"
+appUrl = "https://raised-stability-gaps-html.trycloudflare.com"
+appCallbackUrlList = [
+  "https://raised-stability-gaps-html.trycloudflare.com/api/auth/callback"
+]
+isNewWindow = false
+subPathPrefix = "apps"
+proxyUrl = ""
+
+[access_scopes]
+scopes = "read_products,write_products,read_discounts,write_discounts,read_store_information,read_markets,read_translation,read_orders"

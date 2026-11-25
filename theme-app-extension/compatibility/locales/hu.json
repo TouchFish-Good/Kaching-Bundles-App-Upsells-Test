@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Vásároljon többet és takarítson meg",
+    "widget": {
+      "title": "Vásároljon többet és takarítson meg",
+      "tier_savings_badge": "Takarítson meg {saving_amount}",
+      "description": "Válasszon mennyiséget, majd állítsa be az egyes termékeket.",
+      "tier_rule": "A legmagasabb szint minden termékre érvényes",
+      "original": "Eredeti ár",
+      "savings": "Becsült megtakarítás",
+      "total": "Csomag összesen",
+      "add_to_cart": "{quantity} kosárba helyezése · {price}",
+      "adding": "Csomag hozzáadása...",
+      "cart_failure": "A csomagot nem sikerült hozzáadni. Választásai megmaradtak.",
+      "cart_success": "{quantity} termék {lines} kosársoron lett hozzáadva.",
+      "cart_uncertain": "Nem tudtuk megerősíteni a kosarat. Ellenőrizze újrapróbálás előtt.",
+      "choose_option": "Válasszon egy lehetőséget",
+      "item_option": "Termék {index}: {option}",
+      "tier_items": "{quantity} termék",
+      "sold_out": "Elfogyott",
+      "no_stock": "Nincs elég elérhető változat ehhez a mennyiséghez.",
+      "calculated_at_checkout": "Fizetéskor számítjuk ki",
+      "add_to_cart_quantity": "{quantity} kosárba helyezése"
+    }
+  }
+}

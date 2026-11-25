@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Compre mais e economize",
+    "widget": {
+      "title": "Compre mais e economize",
+      "tier_savings_badge": "Economize {saving_amount}",
+      "description": "Escolha uma quantidade e configure cada item.",
+      "tier_rule": "A maior faixa se aplica a todos os itens",
+      "original": "Preço original",
+      "savings": "Economia estimada",
+      "total": "Total do conjunto",
+      "add_to_cart": "Adicionar {quantity} ao carrinho · {price}",
+      "adding": "Adicionando conjunto...",
+      "cart_failure": "Não foi possível adicionar o conjunto. Suas escolhas foram mantidas.",
+      "cart_success": "{quantity} itens foram adicionados em {lines} linhas do carrinho.",
+      "cart_uncertain": "Não foi possível confirmar o carrinho. Verifique antes de tentar novamente.",
+      "choose_option": "Escolha uma opção",
+      "item_option": "Produto {index}: {option}",
+      "tier_items": "{quantity} itens",
+      "sold_out": "Esgotado",
+      "no_stock": "Não há variantes suficientes para essa quantidade.",
+      "calculated_at_checkout": "Calculado no checkout",
+      "add_to_cart_quantity": "Adicionar {quantity} ao carrinho"
+    }
+  }
+}

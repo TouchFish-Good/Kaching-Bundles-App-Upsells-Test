@@ -1,0 +1,995 @@
+{{#if product.available}}
+<link rel="stylesheet" href="{{ asset_url 'app-block.css' }}">
+<script src="{{ asset_url 'app-block.js' }}" defer></script>
+<div class="quantity-breaks-app-block"
+  data-shop-id="{{ shop.id }}"
+  data-theme-version="2.1"
+  data-product-id="{{ product.id }}"
+  data-product-available="{{ product.available }}"
+  data-product-handle="{{ product.handle }}"
+  data-product-title="{{ product.title }}"
+  data-country-code="{{ localization.country.iso_code }}"
+  data-currency="{{ localization.country.currency.iso_code }}"
+  data-shop-currency="{{ shop.currency.iso_code }}"
+  data-locale="{{ localization.language.iso_code }}"
+  hidden>
+  <span data-qb-copy="widget.title" hidden>{{ t 'app_block.widget.title' }}</span>
+  <span data-qb-copy="widget.tier_savings_badge" hidden>{{ t 'app_block.widget.tier_savings_badge' }}</span>
+  <span data-qb-copy="widget.description" hidden>{{ t 'app_block.widget.description' }}</span>
+  <span data-qb-copy="widget.tier_rule" hidden>{{ t 'app_block.widget.tier_rule' }}</span>
+  <span data-qb-copy="widget.original" hidden>{{ t 'app_block.widget.original' }}</span>
+  <span data-qb-copy="widget.savings" hidden>{{ t 'app_block.widget.savings' }}</span>
+  <span data-qb-copy="widget.total" hidden>{{ t 'app_block.widget.total' }}</span>
+  <span data-qb-copy="widget.add_to_cart" hidden>{{ t 'app_block.widget.add_to_cart' }}</span>
+  <span data-qb-copy="widget.add_to_cart_quantity" hidden>{{ t 'app_block.widget.add_to_cart_quantity' }}</span>
+  <span data-qb-copy="widget.cart_failure" hidden>{{ t 'app_block.widget.cart_failure' }}</span>
+  <span data-qb-copy="widget.cart_success" hidden>{{ t 'app_block.widget.cart_success' }}</span>
+  <span data-qb-copy="widget.cart_uncertain" hidden>{{ t 'app_block.widget.cart_uncertain' }}</span>
+  <span data-qb-copy="widget.choose_option" hidden>{{ t 'app_block.widget.choose_option' }}</span>
+  <span data-qb-copy="widget.item_option" hidden>{{ t 'app_block.widget.item_option' }}</span>
+  <span data-qb-copy="widget.tier_items" hidden>{{ t 'app_block.widget.tier_items' }}</span>
+  <span data-qb-copy="widget.sold_out" hidden>{{ t 'app_block.widget.sold_out' }}</span>
+  <span data-qb-copy="widget.no_stock" hidden>{{ t 'app_block.widget.no_stock' }}</span>
+  <span data-qb-copy="widget.calculated_at_checkout" hidden>{{ t 'app_block.widget.calculated_at_checkout' }}</span>
+  {{#each product.options as |option|}}
+  <span data-product-option="{{ option }}" hidden></span>
+  {{/each}}
+  {{#each product.variants as |variant|}}
+  <span data-variant-id="{{ variant.id }}" data-variant-title="{{ variant.title }}"
+    data-option1="{{ variant.option1 }}" data-option2="{{ variant.option2 }}"
+    data-option3="{{ variant.option3 }}" data-option4="{{ variant.option4 }}"
+    data-option5="{{ variant.option5 }}" data-price="{{ variant.price }}" data-compare-at-price="{{ variant.compare_at_price }}"
+    data-available="{{ variant.available }}"
+    data-image="{{ image_url variant.image width=100 height=100 }}" hidden></span>
+  {{/each}}
+</div>
+{{/if}}
+
+{{#schema}}
+{
+  "name": "Multi-item Discounts",
+  "target": "section",
+  "templates": [
+    "products/detail"
+  ],
+  "settings": [],
+  "locales": {
+    "ar": {
+      "app_block": {
+        "page_title": "اشترِ المزيد ووفر",
+        "widget": {
+          "title": "اشترِ المزيد ووفر",
+          "tier_savings_badge": "وفّر {saving_amount}",
+          "description": "اختر الكمية ثم حدّد مواصفات كل منتج.",
+          "tier_rule": "ينطبق أعلى مستوى خصم على جميع المنتجات",
+          "original": "السعر الأصلي",
+          "savings": "الوفورات المتوقعة",
+          "total": "إجمالي الحزمة",
+          "add_to_cart": "أضف {quantity} إلى السلة · {price}",
+          "adding": "جارٍ إضافة الحزمة...",
+          "cart_failure": "تعذرت إضافة الحزمة. احتفظنا بخياراتك لإعادة المحاولة.",
+          "cart_success": "تمت إضافة {quantity} منتجات ضمن {lines} عناصر في السلة.",
+          "cart_uncertain": "تعذر تأكيد سلة التسوق. تحقق منها قبل إعادة المحاولة.",
+          "choose_option": "اختر خيارًا",
+          "item_option": "العنصر {index}: {option}",
+          "tier_items": "{quantity} عناصر",
+          "sold_out": "نفد المخزون",
+          "no_stock": "لا تتوفر خيارات كافية لهذه الكمية.",
+          "calculated_at_checkout": "يُحسب عند الدفع",
+          "add_to_cart_quantity": "أضف {quantity} إلى السلة"
+        }
+      }
+    },
+    "bg": {
+      "app_block": {
+        "page_title": "Купете повече и спестете",
+        "widget": {
+          "title": "Купете повече и спестете",
+          "tier_savings_badge": "Спестете {saving_amount}",
+          "description": "Изберете количество и настройте всеки артикул.",
+          "tier_rule": "Най-високото ниво важи за всички артикули",
+          "original": "Оригинална цена",
+          "savings": "Очаквано спестяване",
+          "total": "Общо за комплекта",
+          "add_to_cart": "Добавете {quantity} в количката · {price}",
+          "adding": "Добавяне на комплекта...",
+          "cart_failure": "Комплектът не можа да бъде добавен. Изборът ви е запазен.",
+          "cart_success": "Добавени са {quantity} артикула в {lines} реда в количката.",
+          "cart_uncertain": "Не успяхме да потвърдим количката. Проверете я преди нов опит.",
+          "choose_option": "Изберете опция",
+          "item_option": "Артикул {index}: {option}",
+          "tier_items": "{quantity} артикула",
+          "sold_out": "Разпродадено",
+          "no_stock": "Няма достатъчно налични варианти за това количество.",
+          "calculated_at_checkout": "Изчислява се при плащане",
+          "add_to_cart_quantity": "Добавете {quantity} в количката"
+        }
+      }
+    },
+    "cs": {
+      "app_block": {
+        "page_title": "Kupujte více a ušetřete",
+        "widget": {
+          "title": "Kupujte více a ušetřete",
+          "tier_savings_badge": "Ušetřete {saving_amount}",
+          "description": "Vyberte množství a nastavte každý produkt.",
+          "tier_rule": "Nejvyšší úroveň platí pro všechny položky",
+          "original": "Původní cena",
+          "savings": "Odhadovaná úspora",
+          "total": "Celkem za balíček",
+          "add_to_cart": "Přidat {quantity} do košíku · {price}",
+          "adding": "Přidávání balíčku...",
+          "cart_failure": "Balíček se nepodařilo přidat. Vaše volby zůstaly zachovány.",
+          "cart_success": "Do košíku bylo přidáno {quantity} položek na {lines} řádcích.",
+          "cart_uncertain": "Košík se nepodařilo potvrdit. Před dalším pokusem jej zkontrolujte.",
+          "choose_option": "Vyberte možnost",
+          "item_option": "Položka {index}: {option}",
+          "tier_items": "{quantity} položek",
+          "sold_out": "Vyprodáno",
+          "no_stock": "Pro toto množství není dostatek variant.",
+          "calculated_at_checkout": "Vypočítá se při placení",
+          "add_to_cart_quantity": "Přidat {quantity} do košíku"
+        }
+      }
+    },
+    "da": {
+      "app_block": {
+        "page_title": "Køb mere og spar",
+        "widget": {
+          "title": "Køb mere og spar",
+          "tier_savings_badge": "Spar {saving_amount}",
+          "description": "Vælg en mængde, og angiv derefter hver vare.",
+          "tier_rule": "Det højeste trin gælder for alle varer",
+          "original": "Oprindelig pris",
+          "savings": "Forventet besparelse",
+          "total": "Samlet pakkepris",
+          "add_to_cart": "Tilføj {quantity} til kurven · {price}",
+          "adding": "Tilføjer pakke...",
+          "cart_failure": "Pakken kunne ikke tilføjes. Dine valg er gemt.",
+          "cart_success": "{quantity} varer blev føjet til kurven på {lines} linjer.",
+          "cart_uncertain": "Vi kunne ikke bekræfte din kurv. Kontrollér den før næste forsøg.",
+          "choose_option": "Vælg en mulighed",
+          "item_option": "Vare {index}: {option}",
+          "tier_items": "{quantity} varer",
+          "sold_out": "Udsolgt",
+          "no_stock": "Der er ikke nok tilgængelige varianter til denne mængde.",
+          "calculated_at_checkout": "Beregnes ved betaling",
+          "add_to_cart_quantity": "Tilføj {quantity} til kurven"
+        }
+      }
+    },
+    "de": {
+      "app_block": {
+        "page_title": "Mehr kaufen und sparen",
+        "widget": {
+          "title": "Mehr kaufen und sparen",
+          "tier_savings_badge": "Spare {saving_amount}",
+          "description": "Wähle eine Menge und konfiguriere jeden Artikel.",
+          "tier_rule": "Die höchste Stufe gilt für alle Artikel",
+          "original": "Originalpreis",
+          "savings": "Voraussichtliche Ersparnis",
+          "total": "Gesamtpreis des Sets",
+          "add_to_cart": "{quantity} zum Warenkorb hinzufügen · {price}",
+          "adding": "Set wird hinzugefügt...",
+          "cart_failure": "Das Set konnte nicht hinzugefügt werden. Deine Auswahl bleibt erhalten.",
+          "cart_success": "{quantity} Artikel wurden in {lines} Warenkorbpositionen hinzugefügt.",
+          "cart_uncertain": "Der Warenkorb konnte nicht bestätigt werden. Prüfe ihn vor dem nächsten Versuch.",
+          "choose_option": "Option auswählen",
+          "item_option": "Artikel {index}: {option}",
+          "tier_items": "{quantity} Artikel",
+          "sold_out": "Ausverkauft",
+          "no_stock": "Für diese Menge sind nicht genügend Varianten verfügbar.",
+          "calculated_at_checkout": "Wird beim Checkout berechnet",
+          "add_to_cart_quantity": "{quantity} zum Warenkorb hinzufügen"
+        }
+      }
+    },
+    "el": {
+      "app_block": {
+        "page_title": "Αγοράστε περισσότερα και εξοικονομήστε",
+        "widget": {
+          "title": "Αγοράστε περισσότερα και εξοικονομήστε",
+          "tier_savings_badge": "Εξοικονομήστε {saving_amount}",
+          "description": "Επιλέξτε ποσότητα και διαμορφώστε κάθε προϊόν.",
+          "tier_rule": "Η υψηλότερη βαθμίδα ισχύει για όλα τα προϊόντα",
+          "original": "Αρχική τιμή",
+          "savings": "Εκτιμώμενη εξοικονόμηση",
+          "total": "Σύνολο πακέτου",
+          "add_to_cart": "Προσθήκη {quantity} στο καλάθι · {price}",
+          "adding": "Προσθήκη πακέτου...",
+          "cart_failure": "Δεν ήταν δυνατή η προσθήκη του πακέτου. Οι επιλογές σας διατηρήθηκαν.",
+          "cart_success": "Προστέθηκαν {quantity} προϊόντα σε {lines} γραμμές καλαθιού.",
+          "cart_uncertain": "Δεν ήταν δυνατή η επιβεβαίωση του καλαθιού. Ελέγξτε το πριν προσπαθήσετε ξανά.",
+          "choose_option": "Επιλέξτε επιλογή",
+          "item_option": "Προϊόν {index}: {option}",
+          "tier_items": "{quantity} προϊόντα",
+          "sold_out": "Εξαντλήθηκε",
+          "no_stock": "Δεν υπάρχουν αρκετές διαθέσιμες παραλλαγές για αυτή την ποσότητα.",
+          "calculated_at_checkout": "Υπολογίζεται στο ταμείο",
+          "add_to_cart_quantity": "Προσθήκη {quantity} στο καλάθι"
+        }
+      }
+    },
+    "en": {
+      "app_block": {
+        "page_title": "Multi-item Discounts",
+        "widget": {
+          "title": "Bundle & save",
+          "tier_savings_badge": "Save {saving_amount}",
+          "description": "Choose a quantity, then set each item.",
+          "tier_rule": "Highest tier applies to all items",
+          "original": "Original",
+          "savings": "Estimated savings",
+          "total": "Bundle total",
+          "add_to_cart": "Add {quantity} to cart · {price}",
+          "adding": "Adding bundle...",
+          "cart_failure": "Bundle could not be added. Your selections have been kept so you can retry.",
+          "cart_success": "{quantity} items were added as {lines} cart lines.",
+          "cart_uncertain": "We could not confirm your cart. Check it before trying again.",
+          "choose_option": "Choose an option",
+          "item_option": "Item {index}: {option}",
+          "tier_items": "{quantity} items",
+          "sold_out": "Sold out",
+          "no_stock": "Not enough available variants for this quantity.",
+          "calculated_at_checkout": "Calculated at checkout",
+          "add_to_cart_quantity": "Add {quantity} To Cart"
+        }
+      }
+    },
+    "es": {
+      "app_block": {
+        "page_title": "Compra más y ahorra",
+        "widget": {
+          "title": "Compra más y ahorra",
+          "tier_savings_badge": "Ahorra {saving_amount}",
+          "description": "Elige una cantidad y configura cada artículo.",
+          "tier_rule": "El nivel más alto se aplica a todos los artículos",
+          "original": "Precio original",
+          "savings": "Ahorro estimado",
+          "total": "Total del lote",
+          "add_to_cart": "Añadir {quantity} al carrito · {price}",
+          "adding": "Añadiendo lote...",
+          "cart_failure": "No se pudo añadir el lote. Tus selecciones se han conservado.",
+          "cart_success": "Se añadieron {quantity} artículos en {lines} líneas del carrito.",
+          "cart_uncertain": "No pudimos confirmar el carrito. Revísalo antes de intentarlo de nuevo.",
+          "choose_option": "Elige una opción",
+          "item_option": "Artículo {index}: {option}",
+          "tier_items": "{quantity} artículos",
+          "sold_out": "Agotado",
+          "no_stock": "No hay suficientes variantes disponibles para esta cantidad.",
+          "calculated_at_checkout": "Se calcula al pagar",
+          "add_to_cart_quantity": "Añadir {quantity} al carrito"
+        }
+      }
+    },
+    "et": {
+      "app_block": {
+        "page_title": "Osta rohkem ja säästa",
+        "widget": {
+          "title": "Osta rohkem ja säästa",
+          "tier_savings_badge": "Säästke {saving_amount}",
+          "description": "Vali kogus ja seadista iga toode.",
+          "tier_rule": "Kõrgeim tase kehtib kõigile toodetele",
+          "original": "Alghind",
+          "savings": "Hinnanguline sääst",
+          "total": "Komplekti kogusumma",
+          "add_to_cart": "Lisa {quantity} ostukorvi · {price}",
+          "adding": "Komplekti lisamine...",
+          "cart_failure": "Komplekti ei saanud lisada. Sinu valikud on alles.",
+          "cart_success": "{quantity} toodet lisati ostukorvi {lines} real.",
+          "cart_uncertain": "Ostukorvi ei saanud kinnitada. Kontrolli seda enne uut katset.",
+          "choose_option": "Vali valik",
+          "item_option": "Toode {index}: {option}",
+          "tier_items": "{quantity} toodet",
+          "sold_out": "Läbi müüdud",
+          "no_stock": "Selle koguse jaoks pole piisavalt variante.",
+          "calculated_at_checkout": "Arvutatakse kassas",
+          "add_to_cart_quantity": "Lisa {quantity} ostukorvi"
+        }
+      }
+    },
+    "fi": {
+      "app_block": {
+        "page_title": "Osta enemmän ja säästä",
+        "widget": {
+          "title": "Osta enemmän ja säästä",
+          "tier_savings_badge": "Säästä {saving_amount}",
+          "description": "Valitse määrä ja määritä jokainen tuote.",
+          "tier_rule": "Korkein taso koskee kaikkia tuotteita",
+          "original": "Alkuperäinen hinta",
+          "savings": "Arvioitu säästö",
+          "total": "Paketin yhteensä",
+          "add_to_cart": "Lisää {quantity} ostoskoriin · {price}",
+          "adding": "Pakettia lisätään...",
+          "cart_failure": "Pakettia ei voitu lisätä. Valintasi säilytettiin.",
+          "cart_success": "{quantity} tuotetta lisättiin ostoskoriin {lines} riville.",
+          "cart_uncertain": "Emme voineet vahvistaa ostoskoria. Tarkista se ennen uutta yritystä.",
+          "choose_option": "Valitse vaihtoehto",
+          "item_option": "Tuote {index}: {option}",
+          "tier_items": "{quantity} tuotetta",
+          "sold_out": "Loppuunmyyty",
+          "no_stock": "Tälle määrälle ei ole riittävästi vaihtoehtoja.",
+          "calculated_at_checkout": "Lasketaan kassalla",
+          "add_to_cart_quantity": "Lisää {quantity} ostoskoriin"
+        }
+      }
+    },
+    "fr": {
+      "app_block": {
+        "page_title": "Achetez plus et économisez",
+        "widget": {
+          "title": "Achetez plus et économisez",
+          "tier_savings_badge": "Économisez {saving_amount}",
+          "description": "Choisissez une quantité, puis configurez chaque article.",
+          "tier_rule": "Le palier le plus élevé s’applique à tous les articles",
+          "original": "Prix d’origine",
+          "savings": "Économies estimées",
+          "total": "Total du lot",
+          "add_to_cart": "Ajouter {quantity} au panier · {price}",
+          "adding": "Ajout du lot...",
+          "cart_failure": "Impossible d’ajouter le lot. Vos choix ont été conservés.",
+          "cart_success": "{quantity} articles ont été ajoutés sur {lines} lignes du panier.",
+          "cart_uncertain": "Nous n’avons pas pu confirmer votre panier. Vérifiez-le avant de réessayer.",
+          "choose_option": "Choisissez une option",
+          "item_option": "Article {index} : {option}",
+          "tier_items": "{quantity} articles",
+          "sold_out": "Épuisé",
+          "no_stock": "Stock insuffisant pour cette quantité.",
+          "calculated_at_checkout": "Calculé au paiement",
+          "add_to_cart_quantity": "Ajouter {quantity} au panier"
+        }
+      }
+    },
+    "hi": {
+      "app_block": {
+        "page_title": "अधिक खरीदें और बचत करें",
+        "widget": {
+          "title": "अधिक खरीदें और बचत करें",
+          "tier_savings_badge": "{saving_amount} बचाएं",
+          "description": "मात्रा चुनें, फिर हर आइटम की सेटिंग चुनें।",
+          "tier_rule": "सबसे ऊंचा स्तर सभी आइटम पर लागू होता है",
+          "original": "मूल कीमत",
+          "savings": "अनुमानित बचत",
+          "total": "बंडल कुल",
+          "add_to_cart": "{quantity} कार्ट में जोड़ें · {price}",
+          "adding": "बंडल जोड़ा जा रहा है...",
+          "cart_failure": "बंडल जोड़ा नहीं जा सका। आपके चयन सुरक्षित रखे गए हैं।",
+          "cart_success": "{quantity} आइटम {lines} कार्ट पंक्तियों में जोड़े गए।",
+          "cart_uncertain": "हम आपके कार्ट की पुष्टि नहीं कर सके। दोबारा प्रयास से पहले जांचें।",
+          "choose_option": "विकल्प चुनें",
+          "item_option": "आइटम {index}: {option}",
+          "tier_items": "{quantity} आइटम",
+          "sold_out": "बिक गया",
+          "no_stock": "इस मात्रा के लिए पर्याप्त विकल्प उपलब्ध नहीं हैं।",
+          "calculated_at_checkout": "चेकआउट पर गणना की जाएगी",
+          "add_to_cart_quantity": "{quantity} कार्ट में जोड़ें"
+        }
+      }
+    },
+    "hr": {
+      "app_block": {
+        "page_title": "Kupite više i uštedite",
+        "widget": {
+          "title": "Kupite više i uštedite",
+          "tier_savings_badge": "Uštedite {saving_amount}",
+          "description": "Odaberite količinu, zatim postavite svaki artikl.",
+          "tier_rule": "Najviša razina vrijedi za sve artikle",
+          "original": "Izvorna cijena",
+          "savings": "Procijenjena ušteda",
+          "total": "Ukupno za paket",
+          "add_to_cart": "Dodajte {quantity} u košaricu · {price}",
+          "adding": "Dodavanje paketa...",
+          "cart_failure": "Paket nije moguće dodati. Vaši odabiri su sačuvani.",
+          "cart_success": "{quantity} artikala dodano je u {lines} stavki košarice.",
+          "cart_uncertain": "Nismo mogli potvrditi košaricu. Provjerite je prije ponovnog pokušaja.",
+          "choose_option": "Odaberite opciju",
+          "item_option": "Artikl {index}: {option}",
+          "tier_items": "{quantity} artikala",
+          "sold_out": "Rasprodano",
+          "no_stock": "Nema dovoljno dostupnih varijanti za ovu količinu.",
+          "calculated_at_checkout": "Izračunava se pri naplati",
+          "add_to_cart_quantity": "Dodajte {quantity} u košaricu"
+        }
+      }
+    },
+    "hu": {
+      "app_block": {
+        "page_title": "Vásároljon többet és takarítson meg",
+        "widget": {
+          "title": "Vásároljon többet és takarítson meg",
+          "tier_savings_badge": "Takarítson meg {saving_amount}",
+          "description": "Válasszon mennyiséget, majd állítsa be az egyes termékeket.",
+          "tier_rule": "A legmagasabb szint minden termékre érvényes",
+          "original": "Eredeti ár",
+          "savings": "Becsült megtakarítás",
+          "total": "Csomag összesen",
+          "add_to_cart": "{quantity} kosárba helyezése · {price}",
+          "adding": "Csomag hozzáadása...",
+          "cart_failure": "A csomagot nem sikerült hozzáadni. Választásai megmaradtak.",
+          "cart_success": "{quantity} termék {lines} kosársoron lett hozzáadva.",
+          "cart_uncertain": "Nem tudtuk megerősíteni a kosarat. Ellenőrizze újrapróbálás előtt.",
+          "choose_option": "Válasszon egy lehetőséget",
+          "item_option": "Termék {index}: {option}",
+          "tier_items": "{quantity} termék",
+          "sold_out": "Elfogyott",
+          "no_stock": "Nincs elég elérhető változat ehhez a mennyiséghez.",
+          "calculated_at_checkout": "Fizetéskor számítjuk ki",
+          "add_to_cart_quantity": "{quantity} kosárba helyezése"
+        }
+      }
+    },
+    "id": {
+      "app_block": {
+        "page_title": "Diskon Pembelian Banyak Produk",
+        "widget": {
+          "title": "Beli lebih banyak dan hemat",
+          "tier_savings_badge": "Hemat {saving_amount}",
+          "description": "Pilih jumlah, lalu atur setiap item.",
+          "tier_rule": "Tingkat tertinggi berlaku untuk semua item",
+          "original": "Harga asli",
+          "savings": "Perkiraan hemat",
+          "total": "Total paket",
+          "add_to_cart": "Tambahkan {quantity} ke keranjang · {price}",
+          "adding": "Menambahkan paket...",
+          "cart_failure": "Paket tidak dapat ditambahkan. Pilihan Anda disimpan.",
+          "cart_success": "{quantity} item ditambahkan sebagai {lines} baris keranjang.",
+          "cart_uncertain": "Keranjang tidak dapat dikonfirmasi. Periksa sebelum mencoba lagi.",
+          "choose_option": "Pilih opsi",
+          "item_option": "Produk {index}: {option}",
+          "tier_items": "{quantity} item",
+          "sold_out": "Habis",
+          "no_stock": "Varian yang tersedia tidak cukup untuk jumlah ini.",
+          "calculated_at_checkout": "Dihitung saat checkout",
+          "add_to_cart_quantity": "Tambahkan {quantity} ke keranjang"
+        }
+      }
+    },
+    "it": {
+      "app_block": {
+        "page_title": "Acquista di più e risparmia",
+        "widget": {
+          "title": "Acquista di più e risparmia",
+          "tier_savings_badge": "Risparmia {saving_amount}",
+          "description": "Scegli una quantità, poi configura ogni articolo.",
+          "tier_rule": "Il livello più alto si applica a tutti gli articoli",
+          "original": "Prezzo originale",
+          "savings": "Risparmio stimato",
+          "total": "Totale bundle",
+          "add_to_cart": "Aggiungi {quantity} al carrello · {price}",
+          "adding": "Aggiunta del bundle...",
+          "cart_failure": "Impossibile aggiungere il bundle. Le selezioni sono state conservate.",
+          "cart_success": "{quantity} articoli aggiunti in {lines} righe del carrello.",
+          "cart_uncertain": "Non abbiamo potuto confermare il carrello. Controllalo prima di riprovare.",
+          "choose_option": "Scegli un’opzione",
+          "item_option": "Articolo {index}: {option}",
+          "tier_items": "{quantity} articoli",
+          "sold_out": "Esaurito",
+          "no_stock": "Varianti disponibili insufficienti per questa quantità.",
+          "calculated_at_checkout": "Calcolato al pagamento",
+          "add_to_cart_quantity": "Aggiungi {quantity} al carrello"
+        }
+      }
+    },
+    "ja": {
+      "app_block": {
+        "page_title": "複数購入割引",
+        "widget": {
+          "title": "まとめ買いでお得",
+          "tier_savings_badge": "{saving_amount} お得",
+          "description": "数量を選び、各商品の内容を設定してください。",
+          "tier_rule": "すべての商品に最高数量ティアが適用されます",
+          "original": "通常価格",
+          "savings": "見積もり節約額",
+          "total": "セット合計",
+          "add_to_cart": "{quantity}個をカートに追加 · {price}",
+          "adding": "セットを追加中...",
+          "cart_failure": "セットを追加できませんでした。選択内容は保持されています。",
+          "cart_success": "{quantity}個の商品を{lines}行のカートに追加しました。",
+          "cart_uncertain": "カートを確認できませんでした。再試行前に確認してください。",
+          "choose_option": "オプションを選択",
+          "item_option": "商品 {index}: {option}",
+          "tier_items": "{quantity}個",
+          "sold_out": "売り切れ",
+          "no_stock": "この数量に必要なバリエーションが不足しています。",
+          "calculated_at_checkout": "チェックアウト時に計算",
+          "add_to_cart_quantity": "{quantity}個をカートに追加"
+        }
+      }
+    },
+    "ko": {
+      "app_block": {
+        "page_title": "더 많이 구매하고 절약하세요",
+        "widget": {
+          "title": "더 많이 구매하고 절약하세요",
+          "tier_savings_badge": "{saving_amount} 절약",
+          "description": "수량을 선택한 후 각 상품을 설정하세요.",
+          "tier_rule": "가장 높은 단계가 모든 상품에 적용됩니다",
+          "original": "정가",
+          "savings": "예상 절약",
+          "total": "묶음 합계",
+          "add_to_cart": "{quantity}개 장바구니에 담기 · {price}",
+          "adding": "묶음 추가 중...",
+          "cart_failure": "묶음을 추가하지 못했습니다. 선택 내용은 유지됩니다.",
+          "cart_success": "{quantity}개 상품이 {lines}개 장바구니 항목으로 추가되었습니다.",
+          "cart_uncertain": "장바구니를 확인할 수 없습니다. 다시 시도하기 전에 확인하세요.",
+          "choose_option": "옵션 선택",
+          "item_option": "상품 {index}: {option}",
+          "tier_items": "{quantity}개",
+          "sold_out": "품절",
+          "no_stock": "이 수량에 사용할 수 있는 옵션이 부족합니다.",
+          "calculated_at_checkout": "결제 시 계산",
+          "add_to_cart_quantity": "{quantity}개 장바구니에 담기"
+        }
+      }
+    },
+    "lt": {
+      "app_block": {
+        "page_title": "Pirkite daugiau ir sutaupykite",
+        "widget": {
+          "title": "Pirkite daugiau ir sutaupykite",
+          "tier_savings_badge": "Sutaupykite {saving_amount}",
+          "description": "Pasirinkite kiekį ir nustatykite kiekvieną prekę.",
+          "tier_rule": "Aukščiausias lygis taikomas visoms prekėms",
+          "original": "Pradinė kaina",
+          "savings": "Numatomas sutaupymas",
+          "total": "Rinkinio suma",
+          "add_to_cart": "Pridėti {quantity} į krepšelį · {price}",
+          "adding": "Pridedamas rinkinys...",
+          "cart_failure": "Nepavyko pridėti rinkinio. Jūsų pasirinkimai išsaugoti.",
+          "cart_success": "{quantity} prekės pridėtos į {lines} krepšelio eilutes.",
+          "cart_uncertain": "Nepavyko patvirtinti krepšelio. Prieš bandydami vėl jį patikrinkite.",
+          "choose_option": "Pasirinkite parinktį",
+          "item_option": "Prekė {index}: {option}",
+          "tier_items": "{quantity} prekės",
+          "sold_out": "Išparduota",
+          "no_stock": "Šiam kiekiui nepakanka galimų variantų.",
+          "calculated_at_checkout": "Apskaičiuojama atsiskaitant",
+          "add_to_cart_quantity": "Pridėti {quantity} į krepšelį"
+        }
+      }
+    },
+    "lv": {
+      "app_block": {
+        "page_title": "Pērciet vairāk un ietaupiet",
+        "widget": {
+          "title": "Pērciet vairāk un ietaupiet",
+          "tier_savings_badge": "Ietaupiet {saving_amount}",
+          "description": "Izvēlieties daudzumu un iestatiet katru preci.",
+          "tier_rule": "Augstākais līmenis attiecas uz visām precēm",
+          "original": "Sākotnējā cena",
+          "savings": "Paredzamais ietaupījums",
+          "total": "Komplekta kopsumma",
+          "add_to_cart": "Pievienot {quantity} grozam · {price}",
+          "adding": "Komplekta pievienošana...",
+          "cart_failure": "Komplektu nevarēja pievienot. Jūsu izvēles ir saglabātas.",
+          "cart_success": "{quantity} preces pievienotas {lines} groza rindās.",
+          "cart_uncertain": "Mēs nevarējām apstiprināt jūsu grozu. Pārbaudiet to pirms mēģināt vēlreiz.",
+          "choose_option": "Izvēlieties opciju",
+          "item_option": "Prece {index}: {option}",
+          "tier_items": "{quantity} preces",
+          "sold_out": "Izpārdots",
+          "no_stock": "Šim daudzumam nav pietiekami daudz pieejamu variantu.",
+          "calculated_at_checkout": "Aprēķina norēķinoties",
+          "add_to_cart_quantity": "Pievienot {quantity} grozam"
+        }
+      }
+    },
+    "ms": {
+      "app_block": {
+        "page_title": "Diskaun Pembelian Berbilang Item",
+        "widget": {
+          "title": "Beli lebih banyak dan jimat",
+          "tier_savings_badge": "Jimat {saving_amount}",
+          "description": "Pilih kuantiti, kemudian tetapkan setiap item.",
+          "tier_rule": "Tahap tertinggi digunakan untuk semua item",
+          "original": "Harga asal",
+          "savings": "Anggaran penjimatan",
+          "total": "Jumlah pakej",
+          "add_to_cart": "Tambah {quantity} ke troli · {price}",
+          "adding": "Menambah pakej...",
+          "cart_failure": "Pakej tidak dapat ditambah. Pilihan anda disimpan.",
+          "cart_success": "{quantity} item telah ditambah sebagai {lines} baris troli.",
+          "cart_uncertain": "Troli tidak dapat disahkan. Semak sebelum cuba lagi.",
+          "choose_option": "Pilih pilihan",
+          "item_option": "Produk {index}: {option}",
+          "tier_items": "{quantity} item",
+          "sold_out": "Kehabisan stok",
+          "no_stock": "Varian yang tersedia tidak mencukupi untuk kuantiti ini.",
+          "calculated_at_checkout": "Dikira semasa pembayaran",
+          "add_to_cart_quantity": "Tambah {quantity} ke troli"
+        }
+      }
+    },
+    "nb": {
+      "app_block": {
+        "page_title": "Kjøp mer og spar",
+        "widget": {
+          "title": "Kjøp mer og spar",
+          "tier_savings_badge": "Spar {saving_amount}",
+          "description": "Velg antall og konfigurer deretter hver vare.",
+          "tier_rule": "Høyeste nivå gjelder for alle varer",
+          "original": "Opprinnelig pris",
+          "savings": "Beregnet besparelse",
+          "total": "Pakkesum",
+          "add_to_cart": "Legg {quantity} i handlekurven · {price}",
+          "adding": "Legger til pakke...",
+          "cart_failure": "Pakken kunne ikke legges til. Valgene dine er beholdt.",
+          "cart_success": "{quantity} varer ble lagt til som {lines} handlekurvlinjer.",
+          "cart_uncertain": "Vi kunne ikke bekrefte handlekurven. Kontroller den før nytt forsøk.",
+          "choose_option": "Velg et alternativ",
+          "item_option": "Vare {index}: {option}",
+          "tier_items": "{quantity} varer",
+          "sold_out": "Utsolgt",
+          "no_stock": "Ikke nok tilgjengelige varianter for dette antallet.",
+          "calculated_at_checkout": "Beregnes i kassen",
+          "add_to_cart_quantity": "Legg {quantity} i handlekurven"
+        }
+      }
+    },
+    "nl": {
+      "app_block": {
+        "page_title": "Koop meer en bespaar",
+        "widget": {
+          "title": "Koop meer en bespaar",
+          "tier_savings_badge": "Bespaar {saving_amount}",
+          "description": "Kies een aantal en stel daarna elk artikel in.",
+          "tier_rule": "De hoogste staffel geldt voor alle artikelen",
+          "original": "Oorspronkelijke prijs",
+          "savings": "Geschatte besparing",
+          "total": "Bundeltotaal",
+          "add_to_cart": "Voeg {quantity} toe aan winkelwagen · {price}",
+          "adding": "Bundel wordt toegevoegd...",
+          "cart_failure": "Bundel toevoegen is mislukt. Je keuzes blijven bewaard.",
+          "cart_success": "{quantity} artikelen toegevoegd als {lines} winkelwagenregels.",
+          "cart_uncertain": "We konden je winkelwagen niet bevestigen. Controleer hem voordat je opnieuw probeert.",
+          "choose_option": "Kies een optie",
+          "item_option": "Artikel {index}: {option}",
+          "tier_items": "{quantity} artikelen",
+          "sold_out": "Uitverkocht",
+          "no_stock": "Niet genoeg beschikbare varianten voor dit aantal.",
+          "calculated_at_checkout": "Berekend bij afrekenen",
+          "add_to_cart_quantity": "Voeg {quantity} toe aan winkelwagen"
+        }
+      }
+    },
+    "pl": {
+      "app_block": {
+        "page_title": "Kup więcej i oszczędzaj",
+        "widget": {
+          "title": "Kup więcej i oszczędzaj",
+          "tier_savings_badge": "Oszczędź {saving_amount}",
+          "description": "Wybierz ilość, a następnie ustaw każdy produkt.",
+          "tier_rule": "Najwyższy poziom dotyczy wszystkich produktów",
+          "original": "Cena pierwotna",
+          "savings": "Szacowana oszczędność",
+          "total": "Suma zestawu",
+          "add_to_cart": "Dodaj {quantity} do koszyka · {price}",
+          "adding": "Dodawanie zestawu...",
+          "cart_failure": "Nie udało się dodać zestawu. Twoje wybory zostały zachowane.",
+          "cart_success": "Dodano {quantity} produktów w {lines} pozycjach koszyka.",
+          "cart_uncertain": "Nie mogliśmy potwierdzić koszyka. Sprawdź go przed kolejną próbą.",
+          "choose_option": "Wybierz opcję",
+          "item_option": "Produkt {index}: {option}",
+          "tier_items": "{quantity} produktów",
+          "sold_out": "Wyprzedane",
+          "no_stock": "Za mało dostępnych wariantów dla tej ilości.",
+          "calculated_at_checkout": "Obliczane przy płatności",
+          "add_to_cart_quantity": "Dodaj {quantity} do koszyka"
+        }
+      }
+    },
+    "pt-br": {
+      "app_block": {
+        "page_title": "Compre mais e economize",
+        "widget": {
+          "title": "Compre mais e economize",
+          "tier_savings_badge": "Economize {saving_amount}",
+          "description": "Escolha uma quantidade e configure cada item.",
+          "tier_rule": "A maior faixa se aplica a todos os itens",
+          "original": "Preço original",
+          "savings": "Economia estimada",
+          "total": "Total do conjunto",
+          "add_to_cart": "Adicionar {quantity} ao carrinho · {price}",
+          "adding": "Adicionando conjunto...",
+          "cart_failure": "Não foi possível adicionar o conjunto. Suas escolhas foram mantidas.",
+          "cart_success": "{quantity} itens foram adicionados em {lines} linhas do carrinho.",
+          "cart_uncertain": "Não foi possível confirmar o carrinho. Verifique antes de tentar novamente.",
+          "choose_option": "Escolha uma opção",
+          "item_option": "Produto {index}: {option}",
+          "tier_items": "{quantity} itens",
+          "sold_out": "Esgotado",
+          "no_stock": "Não há variantes suficientes para essa quantidade.",
+          "calculated_at_checkout": "Calculado no checkout",
+          "add_to_cart_quantity": "Adicionar {quantity} ao carrinho"
+        }
+      }
+    },
+    "pt-pt": {
+      "app_block": {
+        "page_title": "Compre mais e poupe",
+        "widget": {
+          "title": "Compre mais e poupe",
+          "tier_savings_badge": "Poupe {saving_amount}",
+          "description": "Escolha uma quantidade e configure cada artigo.",
+          "tier_rule": "O escalão mais alto aplica-se a todos os artigos",
+          "original": "Preço original",
+          "savings": "Poupança estimada",
+          "total": "Total do conjunto",
+          "add_to_cart": "Adicionar {quantity} ao carrinho · {price}",
+          "adding": "A adicionar conjunto...",
+          "cart_failure": "Não foi possível adicionar o conjunto. As suas escolhas foram mantidas.",
+          "cart_success": "Foram adicionados {quantity} artigos em {lines} linhas do carrinho.",
+          "cart_uncertain": "Não foi possível confirmar o carrinho. Verifique-o antes de tentar novamente.",
+          "choose_option": "Escolha uma opção",
+          "item_option": "Artigo {index}: {option}",
+          "tier_items": "{quantity} artigos",
+          "sold_out": "Esgotado",
+          "no_stock": "Não existem variantes suficientes para esta quantidade.",
+          "calculated_at_checkout": "Calculado no checkout",
+          "add_to_cart_quantity": "Adicionar {quantity} ao carrinho"
+        }
+      }
+    },
+    "ro": {
+      "app_block": {
+        "page_title": "Cumpără mai mult și economisește",
+        "widget": {
+          "title": "Cumpără mai mult și economisește",
+          "tier_savings_badge": "Economisiți {saving_amount}",
+          "description": "Alege o cantitate, apoi configurează fiecare produs.",
+          "tier_rule": "Nivelul cel mai mare se aplică tuturor produselor",
+          "original": "Preț original",
+          "savings": "Economie estimată",
+          "total": "Total pachet",
+          "add_to_cart": "Adaugă {quantity} în coș · {price}",
+          "adding": "Se adaugă pachetul...",
+          "cart_failure": "Pachetul nu a putut fi adăugat. Alegerile tale au fost păstrate.",
+          "cart_success": "{quantity} produse au fost adăugate în {lines} rânduri din coș.",
+          "cart_uncertain": "Nu am putut confirma coșul. Verifică-l înainte de a încerca din nou.",
+          "choose_option": "Alege o opțiune",
+          "item_option": "Produs {index}: {option}",
+          "tier_items": "{quantity} produse",
+          "sold_out": "Stoc epuizat",
+          "no_stock": "Nu sunt suficiente variante disponibile pentru această cantitate.",
+          "calculated_at_checkout": "Calculat la plată",
+          "add_to_cart_quantity": "Adaugă {quantity} în coș"
+        }
+      }
+    },
+    "ru": {
+      "app_block": {
+        "page_title": "Покупайте больше и экономьте",
+        "widget": {
+          "title": "Покупайте больше и экономьте",
+          "tier_savings_badge": "Сэкономьте {saving_amount}",
+          "description": "Выберите количество, затем настройте каждый товар.",
+          "tier_rule": "Максимальный уровень применяется ко всем товарам",
+          "original": "Исходная цена",
+          "savings": "Ожидаемая экономия",
+          "total": "Итого за комплект",
+          "add_to_cart": "Добавить {quantity} в корзину · {price}",
+          "adding": "Добавление комплекта...",
+          "cart_failure": "Не удалось добавить комплект. Ваш выбор сохранен.",
+          "cart_success": "{quantity} товаров добавлено в {lines} строк корзины.",
+          "cart_uncertain": "Не удалось подтвердить корзину. Проверьте ее перед новой попыткой.",
+          "choose_option": "Выберите вариант",
+          "item_option": "Товар {index}: {option}",
+          "tier_items": "{quantity} товаров",
+          "sold_out": "Нет в наличии",
+          "no_stock": "Для этого количества недостаточно доступных вариантов.",
+          "calculated_at_checkout": "Рассчитывается при оформлении",
+          "add_to_cart_quantity": "Добавить {quantity} в корзину"
+        }
+      }
+    },
+    "sk": {
+      "app_block": {
+        "page_title": "Kúpte viac a ušetrite",
+        "widget": {
+          "title": "Kúpte viac a ušetrite",
+          "tier_savings_badge": "Ušetrite {saving_amount}",
+          "description": "Vyberte množstvo a nastavte každý produkt.",
+          "tier_rule": "Najvyššia úroveň platí pre všetky položky",
+          "original": "Pôvodná cena",
+          "savings": "Odhadovaná úspora",
+          "total": "Celkom za balík",
+          "add_to_cart": "Pridať {quantity} do košíka · {price}",
+          "adding": "Pridávanie balíka...",
+          "cart_failure": "Balík sa nepodarilo pridať. Vaše voľby zostali zachované.",
+          "cart_success": "{quantity} položiek bolo pridaných na {lines} riadkov košíka.",
+          "cart_uncertain": "Košík sa nepodarilo potvrdiť. Pred ďalším pokusom ho skontrolujte.",
+          "choose_option": "Vyberte možnosť",
+          "item_option": "Položka {index}: {option}",
+          "tier_items": "{quantity} položiek",
+          "sold_out": "Vypredané",
+          "no_stock": "Pre toto množstvo nie je dosť dostupných variantov.",
+          "calculated_at_checkout": "Vypočíta sa pri platbe",
+          "add_to_cart_quantity": "Pridať {quantity} do košíka"
+        }
+      }
+    },
+    "sl": {
+      "app_block": {
+        "page_title": "Kupite več in prihranite",
+        "widget": {
+          "title": "Kupite več in prihranite",
+          "tier_savings_badge": "Prihranite {saving_amount}",
+          "description": "Izberite količino in nastavite vsak izdelek.",
+          "tier_rule": "Najvišja stopnja velja za vse izdelke",
+          "original": "Izvirna cena",
+          "savings": "Predviden prihranek",
+          "total": "Skupaj za paket",
+          "add_to_cart": "Dodajte {quantity} v košarico · {price}",
+          "adding": "Dodajanje paketa...",
+          "cart_failure": "Paketa ni bilo mogoče dodati. Vaše izbire so shranjene.",
+          "cart_success": "{quantity} izdelkov je dodanih v {lines} vrstic košarice.",
+          "cart_uncertain": "Košarice nismo mogli potrditi. Pred ponovnim poskusom jo preverite.",
+          "choose_option": "Izberite možnost",
+          "item_option": "Izdelek {index}: {option}",
+          "tier_items": "{quantity} izdelkov",
+          "sold_out": "Razprodano",
+          "no_stock": "Za to količino ni dovolj razpoložljivih različic.",
+          "calculated_at_checkout": "Izračuna se ob plačilu",
+          "add_to_cart_quantity": "Dodajte {quantity} v košarico"
+        }
+      }
+    },
+    "sv": {
+      "app_block": {
+        "page_title": "Köp fler och spara",
+        "widget": {
+          "title": "Köp fler och spara",
+          "tier_savings_badge": "Spara {saving_amount}",
+          "description": "Välj antal och ställ sedan in varje vara.",
+          "tier_rule": "Den högsta nivån gäller för alla varor",
+          "original": "Ordinarie pris",
+          "savings": "Beräknad besparing",
+          "total": "Paketpris",
+          "add_to_cart": "Lägg {quantity} i varukorgen · {price}",
+          "adding": "Lägger till paketet...",
+          "cart_failure": "Paketet kunde inte läggas till. Dina val har sparats.",
+          "cart_success": "{quantity} varor lades till som {lines} rader i varukorgen.",
+          "cart_uncertain": "Vi kunde inte bekräfta din varukorg. Kontrollera den före ett nytt försök.",
+          "choose_option": "Välj ett alternativ",
+          "item_option": "Artikel {index}: {option}",
+          "tier_items": "{quantity} varor",
+          "sold_out": "Slutsåld",
+          "no_stock": "Det finns inte tillräckligt många varianter för detta antal.",
+          "calculated_at_checkout": "Beräknas i kassan",
+          "add_to_cart_quantity": "Lägg {quantity} i varukorgen"
+        }
+      }
+    },
+    "th": {
+      "app_block": {
+        "page_title": "ส่วนลดเมื่อซื้อหลายชิ้น",
+        "widget": {
+          "title": "ซื้อเพิ่มประหยัดเพิ่ม",
+          "tier_savings_badge": "ประหยัด {saving_amount}",
+          "description": "เลือกจำนวน แล้วกำหนดรายละเอียดของแต่ละรายการ",
+          "tier_rule": "ใช้ระดับสูงสุดกับสินค้าทั้งหมด",
+          "original": "ราคาเดิม",
+          "savings": "ยอดประหยัดโดยประมาณ",
+          "total": "ราคารวมชุด",
+          "add_to_cart": "เพิ่ม {quantity} รายการลงรถเข็น · {price}",
+          "adding": "กำลังเพิ่มชุด...",
+          "cart_failure": "ไม่สามารถเพิ่มชุดได้ ระบบเก็บตัวเลือกของคุณไว้แล้ว",
+          "cart_success": "เพิ่มสินค้า {quantity} รายการเป็น {lines} รายการในรถเข็นแล้ว",
+          "cart_uncertain": "ยืนยันรถเข็นไม่ได้ โปรดตรวจสอบก่อนลองอีกครั้ง",
+          "choose_option": "เลือกตัวเลือก",
+          "item_option": "รายการที่ {index}: {option}",
+          "tier_items": "{quantity} รายการ",
+          "sold_out": "สินค้าหมด",
+          "no_stock": "ตัวเลือกสินค้าไม่เพียงพอสำหรับจำนวนนี้",
+          "calculated_at_checkout": "คำนวณเมื่อชำระเงิน",
+          "add_to_cart_quantity": "เพิ่ม {quantity} รายการลงรถเข็น"
+        }
+      }
+    },
+    "tr": {
+      "app_block": {
+        "page_title": "Daha fazla al, tasarruf et",
+        "widget": {
+          "title": "Daha fazla al, tasarruf et",
+          "tier_savings_badge": "{saving_amount} tasarruf edin",
+          "description": "Bir adet seçin, ardından her ürünü yapılandırın.",
+          "tier_rule": "En yüksek kademe tüm ürünlere uygulanır",
+          "original": "Orijinal fiyat",
+          "savings": "Tahmini tasarruf",
+          "total": "Paket toplamı",
+          "add_to_cart": "{quantity} ürünü sepete ekle · {price}",
+          "adding": "Paket ekleniyor...",
+          "cart_failure": "Paket eklenemedi. Seçimleriniz korunmuştur.",
+          "cart_success": "{quantity} ürün sepete {lines} satır olarak eklendi.",
+          "cart_uncertain": "Sepetiniz doğrulanamadı. Yeniden denemeden önce kontrol edin.",
+          "choose_option": "Bir seçenek belirleyin",
+          "item_option": "Ürün {index}: {option}",
+          "tier_items": "{quantity} ürün",
+          "sold_out": "Tükendi",
+          "no_stock": "Bu adet için yeterli varyant yok.",
+          "calculated_at_checkout": "Ödemede hesaplanır",
+          "add_to_cart_quantity": "{quantity} ürünü sepete ekle"
+        }
+      }
+    },
+    "vi": {
+      "app_block": {
+        "page_title": "Giảm giá khi mua nhiều sản phẩm",
+        "widget": {
+          "title": "Mua nhiều, tiết kiệm hơn",
+          "tier_savings_badge": "Tiết kiệm {saving_amount}",
+          "description": "Chọn số lượng, sau đó thiết lập từng sản phẩm.",
+          "tier_rule": "Mức cao nhất áp dụng cho tất cả sản phẩm",
+          "original": "Giá gốc",
+          "savings": "Khoản tiết kiệm ước tính",
+          "total": "Tổng gói",
+          "add_to_cart": "Thêm {quantity} sản phẩm vào giỏ · {price}",
+          "adding": "Đang thêm gói...",
+          "cart_failure": "Không thể thêm gói. Lựa chọn của bạn đã được giữ lại.",
+          "cart_success": "Đã thêm {quantity} sản phẩm vào {lines} dòng giỏ hàng.",
+          "cart_uncertain": "Không thể xác nhận giỏ hàng. Hãy kiểm tra trước khi thử lại.",
+          "choose_option": "Chọn tùy chọn",
+          "item_option": "Sản phẩm {index}: {option}",
+          "tier_items": "{quantity} sản phẩm",
+          "sold_out": "Hết hàng",
+          "no_stock": "Không đủ biến thể cho số lượng này.",
+          "calculated_at_checkout": "Tính khi thanh toán",
+          "add_to_cart_quantity": "Thêm {quantity} sản phẩm vào giỏ"
+        }
+      }
+    },
+    "zh-hans-cn": {
+      "app_block": {
+        "page_title": "多件折扣",
+        "widget": {
+          "title": "多买多省",
+          "tier_savings_badge": "节省 {saving_amount}",
+          "description": "选择购买数量，再为每件商品选择规格。",
+          "tier_rule": "所有商品均按最高档位享受优惠",
+          "original": "原价",
+          "savings": "预计节省",
+          "total": "组合总价",
+          "add_to_cart": "将 {quantity} 件商品加入购物车 · {price}",
+          "adding": "正在加入购物车...",
+          "cart_failure": "无法加入购物车。已保留您的选择，请重试。",
+          "cart_success": "已将 {quantity} 件商品作为 {lines} 条购物车商品加入。",
+          "cart_uncertain": "购物车状态暂未确认，请检查购物车后重试。",
+          "choose_option": "请选择规格",
+          "item_option": "第 {index} 件：{option}",
+          "tier_items": "{quantity} 件商品",
+          "sold_out": "已售罄",
+          "no_stock": "可用规格库存不足，无法购买此数量。",
+          "calculated_at_checkout": "结账时计算",
+          "add_to_cart_quantity": "将 {quantity} 件商品加入购物车"
+        }
+      }
+    },
+    "zh-hant-tw": {
+      "app_block": {
+        "page_title": "多件折扣",
+        "widget": {
+          "title": "多買多省",
+          "tier_savings_badge": "節省 {saving_amount}",
+          "description": "選擇購買數量，再為每件商品選擇規格。",
+          "tier_rule": "所有商品均按最高級距享有優惠",
+          "original": "原價",
+          "savings": "預計節省",
+          "total": "組合總價",
+          "add_to_cart": "將 {quantity} 件商品加入購物車 · {price}",
+          "adding": "正在加入購物車...",
+          "cart_failure": "無法加入購物車。已保留您的選擇，請重試。",
+          "cart_success": "已將 {quantity} 件商品作為 {lines} 筆購物車商品加入。",
+          "cart_uncertain": "購物車狀態暫未確認，請檢查購物車後再試。",
+          "choose_option": "請選擇規格",
+          "item_option": "第 {index} 件：{option}",
+          "tier_items": "{quantity} 件商品",
+          "sold_out": "已售罄",
+          "no_stock": "可用規格庫存不足，無法購買此數量。",
+          "calculated_at_checkout": "結帳時計算",
+          "add_to_cart_quantity": "將 {quantity} 件商品加入購物車"
+        }
+      }
+    }
+  }
+}
+{{/schema}}

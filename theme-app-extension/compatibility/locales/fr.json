@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Achetez plus et économisez",
+    "widget": {
+      "title": "Achetez plus et économisez",
+      "tier_savings_badge": "Économisez {saving_amount}",
+      "description": "Choisissez une quantité, puis configurez chaque article.",
+      "tier_rule": "Le palier le plus élevé s’applique à tous les articles",
+      "original": "Prix d’origine",
+      "savings": "Économies estimées",
+      "total": "Total du lot",
+      "add_to_cart": "Ajouter {quantity} au panier · {price}",
+      "adding": "Ajout du lot...",
+      "cart_failure": "Impossible d’ajouter le lot. Vos choix ont été conservés.",
+      "cart_success": "{quantity} articles ont été ajoutés sur {lines} lignes du panier.",
+      "cart_uncertain": "Nous n’avons pas pu confirmer votre panier. Vérifiez-le avant de réessayer.",
+      "choose_option": "Choisissez une option",
+      "item_option": "Article {index} : {option}",
+      "tier_items": "{quantity} articles",
+      "sold_out": "Épuisé",
+      "no_stock": "Stock insuffisant pour cette quantité.",
+      "calculated_at_checkout": "Calculé au paiement",
+      "add_to_cart_quantity": "Ajouter {quantity} au panier"
+    }
+  }
+}

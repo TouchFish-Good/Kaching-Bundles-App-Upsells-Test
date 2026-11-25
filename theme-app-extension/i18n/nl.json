@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Koop meer en bespaar",
+    "widget": {
+      "title": "Koop meer en bespaar",
+      "tier_savings_badge": "Bespaar {saving_amount}",
+      "description": "Kies een aantal en stel daarna elk artikel in.",
+      "tier_rule": "De hoogste staffel geldt voor alle artikelen",
+      "original": "Oorspronkelijke prijs",
+      "savings": "Geschatte besparing",
+      "total": "Bundeltotaal",
+      "add_to_cart": "Voeg {quantity} toe aan winkelwagen · {price}",
+      "adding": "Bundel wordt toegevoegd...",
+      "cart_failure": "Bundel toevoegen is mislukt. Je keuzes blijven bewaard.",
+      "cart_success": "{quantity} artikelen toegevoegd als {lines} winkelwagenregels.",
+      "cart_uncertain": "We konden je winkelwagen niet bevestigen. Controleer hem voordat je opnieuw probeert.",
+      "choose_option": "Kies een optie",
+      "item_option": "Artikel {index}: {option}",
+      "tier_items": "{quantity} artikelen",
+      "sold_out": "Uitverkocht",
+      "no_stock": "Niet genoeg beschikbare varianten voor dit aantal.",
+      "calculated_at_checkout": "Berekend bij afrekenen",
+      "add_to_cart_quantity": "Voeg {quantity} toe aan winkelwagen"
+    }
+  }
+}

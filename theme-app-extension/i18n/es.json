@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Compra más y ahorra",
+    "widget": {
+      "title": "Compra más y ahorra",
+      "tier_savings_badge": "Ahorra {saving_amount}",
+      "description": "Elige una cantidad y configura cada artículo.",
+      "tier_rule": "El nivel más alto se aplica a todos los artículos",
+      "original": "Precio original",
+      "savings": "Ahorro estimado",
+      "total": "Total del lote",
+      "add_to_cart": "Añadir {quantity} al carrito · {price}",
+      "adding": "Añadiendo lote...",
+      "cart_failure": "No se pudo añadir el lote. Tus selecciones se han conservado.",
+      "cart_success": "Se añadieron {quantity} artículos en {lines} líneas del carrito.",
+      "cart_uncertain": "No pudimos confirmar el carrito. Revísalo antes de intentarlo de nuevo.",
+      "choose_option": "Elige una opción",
+      "item_option": "Artículo {index}: {option}",
+      "tier_items": "{quantity} artículos",
+      "sold_out": "Agotado",
+      "no_stock": "No hay suficientes variantes disponibles para esta cantidad.",
+      "calculated_at_checkout": "Se calcula al pagar",
+      "add_to_cart_quantity": "Añadir {quantity} al carrito"
+    }
+  }
+}

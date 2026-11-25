@@ -1,0 +1,36 @@
+# Test environment only. No production routes, D1 IDs or admin service binding.
+name = "shopline-quantity-breaks-test"
+main = "src/index.ts"
+compatibility_date = "2026-10-26"
+keep_vars = true
+workers_dev = true
+preview_urls = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "shopline-quantity-breaks-test"
+# Unconfigured: create an independent test D1 before any remote migration/deploy.
+database_id = ""
+migrations_dir = "migrations"
+
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
+run_worker_first = true
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+[vars]
+SHOPLINE_APP_KEY = "26e3fa9b0b6deb7313e7f6a9e06163eaab66d54d"
+SHOPLINE_APP_URL = "https://raised-stability-gaps-html.trycloudflare.com"
+SHOPLINE_PRODUCT_DISCOUNT_FUNCTION_ID = "dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f"
+SCOPES = "read_products,write_products,read_discounts,write_discounts,read_store_information,read_markets,read_translation,read_orders"
+SHOPLINE_QUANTITY_BREAKS_PUBLICATION_ENABLED = "true"
+
+# Scheduler parity with source; runs against the independent test DB only.
+[triggers]
+crons = ["*/5 * * * *", "0 3 * * *"]

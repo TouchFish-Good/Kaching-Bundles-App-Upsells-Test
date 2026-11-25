@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Acquista di più e risparmia",
+    "widget": {
+      "title": "Acquista di più e risparmia",
+      "tier_savings_badge": "Risparmia {saving_amount}",
+      "description": "Scegli una quantità, poi configura ogni articolo.",
+      "tier_rule": "Il livello più alto si applica a tutti gli articoli",
+      "original": "Prezzo originale",
+      "savings": "Risparmio stimato",
+      "total": "Totale bundle",
+      "add_to_cart": "Aggiungi {quantity} al carrello · {price}",
+      "adding": "Aggiunta del bundle...",
+      "cart_failure": "Impossibile aggiungere il bundle. Le selezioni sono state conservate.",
+      "cart_success": "{quantity} articoli aggiunti in {lines} righe del carrello.",
+      "cart_uncertain": "Non abbiamo potuto confermare il carrello. Controllalo prima di riprovare.",
+      "choose_option": "Scegli un’opzione",
+      "item_option": "Articolo {index}: {option}",
+      "tier_items": "{quantity} articoli",
+      "sold_out": "Esaurito",
+      "no_stock": "Varianti disponibili insufficienti per questa quantità.",
+      "calculated_at_checkout": "Calcolato al pagamento",
+      "add_to_cart_quantity": "Aggiungi {quantity} al carrello"
+    }
+  }
+}

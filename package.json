@@ -1,0 +1,28 @@
+{
+  "name": "duojianzhekou-test",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "scripts": {
+    "shopline": "shopline",
+    "build": "npm run theme:sync && shopline app build",
+    "dev": "shopline app dev",
+    "dev:reset": "shopline app dev --reset",
+    "test:theme": "node --test tests/theme-app-extension/*.test.mjs",
+    "theme:sync": "node scripts/sync-theme-compatibility.mjs",
+    "theme:check": "node scripts/sync-theme-compatibility.mjs --check"
+  },
+  "dependencies": {},
+  "author": "SL",
+  "devDependencies": {
+    "@shoplinedev/app": "next",
+    "@shoplinedev/cli": "next",
+    "handlebars": "4.7.8",
+    "linkedom": "0.18.5"
+  },
+  "private": true,
+  "workspaces": [
+    "extensions/*",
+    "web",
+    "app"
+  ]
+}

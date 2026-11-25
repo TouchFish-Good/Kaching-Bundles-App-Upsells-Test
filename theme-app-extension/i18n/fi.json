@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Osta enemmän ja säästä",
+    "widget": {
+      "title": "Osta enemmän ja säästä",
+      "tier_savings_badge": "Säästä {saving_amount}",
+      "description": "Valitse määrä ja määritä jokainen tuote.",
+      "tier_rule": "Korkein taso koskee kaikkia tuotteita",
+      "original": "Alkuperäinen hinta",
+      "savings": "Arvioitu säästö",
+      "total": "Paketin yhteensä",
+      "add_to_cart": "Lisää {quantity} ostoskoriin · {price}",
+      "adding": "Pakettia lisätään...",
+      "cart_failure": "Pakettia ei voitu lisätä. Valintasi säilytettiin.",
+      "cart_success": "{quantity} tuotetta lisättiin ostoskoriin {lines} riville.",
+      "cart_uncertain": "Emme voineet vahvistaa ostoskoria. Tarkista se ennen uutta yritystä.",
+      "choose_option": "Valitse vaihtoehto",
+      "item_option": "Tuote {index}: {option}",
+      "tier_items": "{quantity} tuotetta",
+      "sold_out": "Loppuunmyyty",
+      "no_stock": "Tälle määrälle ei ole riittävästi vaihtoehtoja.",
+      "calculated_at_checkout": "Lasketaan kassalla",
+      "add_to_cart_quantity": "Lisää {quantity} ostoskoriin"
+    }
+  }
+}

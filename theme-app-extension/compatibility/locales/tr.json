@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Daha fazla al, tasarruf et",
+    "widget": {
+      "title": "Daha fazla al, tasarruf et",
+      "tier_savings_badge": "{saving_amount} tasarruf edin",
+      "description": "Bir adet seçin, ardından her ürünü yapılandırın.",
+      "tier_rule": "En yüksek kademe tüm ürünlere uygulanır",
+      "original": "Orijinal fiyat",
+      "savings": "Tahmini tasarruf",
+      "total": "Paket toplamı",
+      "add_to_cart": "{quantity} ürünü sepete ekle · {price}",
+      "adding": "Paket ekleniyor...",
+      "cart_failure": "Paket eklenemedi. Seçimleriniz korunmuştur.",
+      "cart_success": "{quantity} ürün sepete {lines} satır olarak eklendi.",
+      "cart_uncertain": "Sepetiniz doğrulanamadı. Yeniden denemeden önce kontrol edin.",
+      "choose_option": "Bir seçenek belirleyin",
+      "item_option": "Ürün {index}: {option}",
+      "tier_items": "{quantity} ürün",
+      "sold_out": "Tükendi",
+      "no_stock": "Bu adet için yeterli varyant yok.",
+      "calculated_at_checkout": "Ödemede hesaplanır",
+      "add_to_cart_quantity": "{quantity} ürünü sepete ekle"
+    }
+  }
+}

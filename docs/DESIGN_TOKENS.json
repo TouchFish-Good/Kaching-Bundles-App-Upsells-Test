@@ -1,0 +1,37 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "ink": { "$value": "#102A2A", "$type": "color" },
+    "canvas": { "$value": "#FFFFFF", "$type": "color" },
+    "surface": { "$value": "#FFFFFF", "$type": "color" },
+    "sea": { "$value": "#0F766E", "$type": "color" },
+    "seaDark": { "$value": "#115E59", "$type": "color" },
+    "mint": { "$value": "#DDF6EF", "$type": "color" },
+    "coral": { "$value": "#C6492D", "$type": "color" },
+    "amber": { "$value": "#A16207", "$type": "color" },
+    "line": { "$value": "#D9E0DC", "$type": "color" },
+    "muted": { "$value": "#64716D", "$type": "color" }
+  },
+  "font": {
+    "ui": { "$value": "IBM Plex Sans, Noto Sans SC, sans-serif", "$type": "fontFamily" },
+    "display": { "$value": "DM Sans, Noto Sans SC, sans-serif", "$type": "fontFamily" }
+  },
+  "space": {
+    "1": { "$value": "4px", "$type": "dimension" },
+    "2": { "$value": "8px", "$type": "dimension" },
+    "3": { "$value": "12px", "$type": "dimension" },
+    "4": { "$value": "16px", "$type": "dimension" },
+    "5": { "$value": "20px", "$type": "dimension" },
+    "6": { "$value": "24px", "$type": "dimension" },
+    "8": { "$value": "32px", "$type": "dimension" }
+  },
+  "radius": {
+    "control": { "$value": "6px", "$type": "dimension" },
+    "panel": { "$value": "8px", "$type": "dimension" },
+    "pill": { "$value": "999px", "$type": "dimension" }
+  },
+  "motion": {
+    "fast": { "$value": "120ms", "$type": "duration" },
+    "normal": { "$value": "180ms", "$type": "duration" }
+  }
+}

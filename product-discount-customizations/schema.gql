@@ -1,0 +1,176 @@
+schema {
+  query: Input
+}
+
+type BuyerIdentityInput {
+  customer: CustomerInput
+  email: String
+  isAuthenticated: Boolean
+  phone: String
+  purchasingCompany: PurchasingCompanyInput
+}
+
+type CartCostInput {
+  subtotalAmount: MoneyV2
+  subtotalAmountSet: MoneySet
+}
+
+type CartInput {
+  buyerIdentity: BuyerIdentityInput
+  cost: CartCostInput
+  lines: [CartLineInput]
+}
+
+type CartLineInput {
+  cost: CartCostInput
+  id: String
+  merchandise: MerchandiseInput
+  properties: [CartLineProperties]
+  quantity: Int
+  sellingPlanAllocation: SellingPlanAllocation
+}
+
+type CartLineProperties {
+  additional: String
+  extInfo: String
+  name: String
+  roleVisibility: String
+  show: Boolean
+  type: String
+  urls: [String]
+  value: String
+}
+
+type CollectionMembership {
+  collectionId: String
+  isMember: Boolean
+}
+
+type CompanyContactInput {
+  id: String
+}
+
+type CompanyInput {
+  id: String
+  name: String
+}
+
+type CompanyLocationInput {
+  id: String
+  name: String
+}
+
+type CustomerInput {
+  email: String
+  hasAnyTag: Boolean
+  hasTags: [TagMembership]
+  id: String
+  inAnySegment: Boolean
+  inSegments: [SegmentMembership]
+  metafields: [Metafield]
+  phone: String
+}
+
+type DiscountNode {
+  metafields: [Metafield]
+  priceRuleId: String
+}
+
+type Input {
+  cart(customerSegmentIds: [String], variantMetafield: [MetafieldInput], inCollections: [String], productAnyTagNames: [String], customerAnyTagNames: [String], customerTagNames: [String], customerAnySegmentIds: [String], customerMetafield: [MetafieldInput], productMetafield: [MetafieldInput], inAnyCollectionIds: [String], productTagNames: [String]): CartInput
+  discountNodes: [DiscountNode]
+  localization: LocalizationInput
+  shop: ShopInput
+}
+
+type LocalizationInput {
+  country: String
+  language: String
+  marketId: String
+}
+
+type MerchandiseInput {
+  productVariant: ProductVariantInput
+}
+
+type Metafield {
+  key: String!
+  namespace: String
+  type: String!
+  value: String!
+}
+
+input MetafieldInput {
+  key: String
+  namespace: String
+}
+
+type Money {
+  amount: String!
+  currencyCode: String!
+}
+
+type MoneySet {
+  presentmentMoney: Money
+  shopMoney: Money
+}
+
+type MoneyV2 {
+  amount: String
+  currencyCode: String
+}
+
+type ProductInput {
+  handle: String
+  hasAnyTag: Boolean
+  hasTags: [TagMembership]
+  id: String
+  inAnyCollection: Boolean
+  inCollections: [CollectionMembership]
+  inSalesPlanGroup: Boolean
+  isGiftCard: String
+  metafields: [Metafield]
+  productType: Int
+  title: String
+}
+
+type ProductVariantInput {
+  compareAtPrice: String
+  compareAtPriceSet: MoneySet
+  isCustom: Boolean
+  metafields: [Metafield]
+  price: String
+  priceSet: MoneySet
+  product: ProductInput
+  requiresShipping: Boolean
+  sku: String
+  skuCode: String
+  title: String
+  weight: String
+  weightUnit: String
+}
+
+type PurchasingCompanyInput {
+  company: CompanyInput
+  companyContact: CompanyContactInput
+  companyLocation: CompanyLocationInput
+}
+
+type SegmentMembership {
+  isMember: Boolean
+  segmentId: ID
+}
+
+type SellingPlanAllocation {
+  sellingPlanId: ID
+}
+
+type ShopInput {
+  localTime: String
+}
+
+type TagMembership {
+  hasTag: Boolean
+  tag: String
+}
+

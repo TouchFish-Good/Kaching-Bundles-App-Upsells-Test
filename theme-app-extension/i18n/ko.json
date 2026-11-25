@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "더 많이 구매하고 절약하세요",
+    "widget": {
+      "title": "더 많이 구매하고 절약하세요",
+      "tier_savings_badge": "{saving_amount} 절약",
+      "description": "수량을 선택한 후 각 상품을 설정하세요.",
+      "tier_rule": "가장 높은 단계가 모든 상품에 적용됩니다",
+      "original": "정가",
+      "savings": "예상 절약",
+      "total": "묶음 합계",
+      "add_to_cart": "{quantity}개 장바구니에 담기 · {price}",
+      "adding": "묶음 추가 중...",
+      "cart_failure": "묶음을 추가하지 못했습니다. 선택 내용은 유지됩니다.",
+      "cart_success": "{quantity}개 상품이 {lines}개 장바구니 항목으로 추가되었습니다.",
+      "cart_uncertain": "장바구니를 확인할 수 없습니다. 다시 시도하기 전에 확인하세요.",
+      "choose_option": "옵션 선택",
+      "item_option": "상품 {index}: {option}",
+      "tier_items": "{quantity}개",
+      "sold_out": "품절",
+      "no_stock": "이 수량에 사용할 수 있는 옵션이 부족합니다.",
+      "calculated_at_checkout": "결제 시 계산",
+      "add_to_cart_quantity": "{quantity}개 장바구니에 담기"
+    }
+  }
+}

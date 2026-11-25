@@ -1,0 +1,26 @@
+node_modules
+dist/
+.env
+.env.*
+.DS_Store
+logs
+*.log
+yarn.lock
+package-lock.json
+!worker/package-lock.json
+pnpm-lock.yaml
+app/database.sqlite
+app/quantity-breaks.sqlite*
+app/admin-read.sqlite
+.worktrees/
+.shopline-full-curl-debug
+product-discount-customizations/export
+product-discount-customizations/hash
+worker/.wrangler/
+worker/.mf/
+
+# Local test environment secrets and execution scratch
+.dev.vars
+.dev.vars.*
+.superpowers/
+app/admin-read.sqlite*

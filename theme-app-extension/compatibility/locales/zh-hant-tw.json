@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "多件折扣",
+    "widget": {
+      "title": "多買多省",
+      "tier_savings_badge": "節省 {saving_amount}",
+      "description": "選擇購買數量，再為每件商品選擇規格。",
+      "tier_rule": "所有商品均按最高級距享有優惠",
+      "original": "原價",
+      "savings": "預計節省",
+      "total": "組合總價",
+      "add_to_cart": "將 {quantity} 件商品加入購物車 · {price}",
+      "adding": "正在加入購物車...",
+      "cart_failure": "無法加入購物車。已保留您的選擇，請重試。",
+      "cart_success": "已將 {quantity} 件商品作為 {lines} 筆購物車商品加入。",
+      "cart_uncertain": "購物車狀態暫未確認，請檢查購物車後再試。",
+      "choose_option": "請選擇規格",
+      "item_option": "第 {index} 件：{option}",
+      "tier_items": "{quantity} 件商品",
+      "sold_out": "已售罄",
+      "no_stock": "可用規格庫存不足，無法購買此數量。",
+      "calculated_at_checkout": "結帳時計算",
+      "add_to_cart_quantity": "將 {quantity} 件商品加入購物車"
+    }
+  }
+}

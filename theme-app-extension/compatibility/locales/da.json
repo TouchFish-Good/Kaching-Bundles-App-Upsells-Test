@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Køb mere og spar",
+    "widget": {
+      "title": "Køb mere og spar",
+      "tier_savings_badge": "Spar {saving_amount}",
+      "description": "Vælg en mængde, og angiv derefter hver vare.",
+      "tier_rule": "Det højeste trin gælder for alle varer",
+      "original": "Oprindelig pris",
+      "savings": "Forventet besparelse",
+      "total": "Samlet pakkepris",
+      "add_to_cart": "Tilføj {quantity} til kurven · {price}",
+      "adding": "Tilføjer pakke...",
+      "cart_failure": "Pakken kunne ikke tilføjes. Dine valg er gemt.",
+      "cart_success": "{quantity} varer blev føjet til kurven på {lines} linjer.",
+      "cart_uncertain": "Vi kunne ikke bekræfte din kurv. Kontrollér den før næste forsøg.",
+      "choose_option": "Vælg en mulighed",
+      "item_option": "Vare {index}: {option}",
+      "tier_items": "{quantity} varer",
+      "sold_out": "Udsolgt",
+      "no_stock": "Der er ikke nok tilgængelige varianter til denne mængde.",
+      "calculated_at_checkout": "Beregnes ved betaling",
+      "add_to_cart_quantity": "Tilføj {quantity} til kurven"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+version = "v20231201"
+type = "product-discount-customizations"
+name = "product-discount-customizations"
+
+[build]
+command = "sl-function build"
+path = "dist/function.wasm"
+
+[input.variables]
+namespace = "$app:quantity-breaks"
+key = "collection-membership"
+
+[ui.paths]
+create = "/product-discount-customizations/:functionId/new"
+details = "/product-discount-customizations/:functionId/:id"

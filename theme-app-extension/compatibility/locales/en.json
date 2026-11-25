@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Multi-item Discounts",
+    "widget": {
+      "title": "Bundle & save",
+      "tier_savings_badge": "Save {saving_amount}",
+      "description": "Choose a quantity, then set each item.",
+      "tier_rule": "Highest tier applies to all items",
+      "original": "Original",
+      "savings": "Estimated savings",
+      "total": "Bundle total",
+      "add_to_cart": "Add {quantity} to cart · {price}",
+      "adding": "Adding bundle...",
+      "cart_failure": "Bundle could not be added. Your selections have been kept so you can retry.",
+      "cart_success": "{quantity} items were added as {lines} cart lines.",
+      "cart_uncertain": "We could not confirm your cart. Check it before trying again.",
+      "choose_option": "Choose an option",
+      "item_option": "Item {index}: {option}",
+      "tier_items": "{quantity} items",
+      "sold_out": "Sold out",
+      "no_stock": "Not enough available variants for this quantity.",
+      "calculated_at_checkout": "Calculated at checkout",
+      "add_to_cart_quantity": "Add {quantity} To Cart"
+    }
+  }
+}

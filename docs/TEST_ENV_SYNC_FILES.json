@@ -1,0 +1,2971 @@
+{
+  "source_commit": "bb5a575980dd25940c2b897fdfe3f6f62c4244d6",
+  "files": [
+    {
+      "path": ".gitignore",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": ".npmrc",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "AGENTS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "README.md",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/nodemon.json",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "app/package.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/shopline.web.toml",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "app/src/admin-read/index.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/admin-read/install-event.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/admin-read/internal-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/admin-read/registry.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/admin-read/shop-identity.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/admin-read/signature.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/auth/admin-session.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/auth/scope-storage.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/auth/scopes.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/auth/webhook-registration.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/campaign-collections.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/campaign-products.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/campaigns.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/markets.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/product/create.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/src/controller/quantity-breaks-trace.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/shop-identity.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/store-languages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/storefront-campaign.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/translations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/controller/webhook/index.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/src/index.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/src/service/admin-request-headers.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/admin-rest-version.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/collection-catalog.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/collection-conflicts.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/collection-members.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/collection-variables.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/discount-adapter.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/model.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/product-catalog.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/publish.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/repository.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/validate.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/campaign/widget-config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/markets.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/product/create.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/src/service/shop-identity.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/store-languages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/service/translations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/src/shopline.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "app/test/admin-registry.test.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/admin-rest-version.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/admin-session.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-api.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-collection-catalog.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-collection-conflicts.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-collection-members.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-collection-variables.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-discount-adapter.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-discount-rest.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-discount-update.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-domain.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-product-catalog.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-publish.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/campaign-repository.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/fixtures/campaign-widget-config.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/install-event.test.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/internal-api.test.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/internal-signature.test.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/markets.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/quantity-breaks-trace.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/scope-storage.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/scopes.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/shop-identity-api.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/shop-identity.test.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/store-languages.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/storefront-campaign.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/translations.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/webhook-registration.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/test/widget-config.test.cjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "app/tsconfig.json",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "docs/APP_FUNCTION_INVENTORY.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/APP_GAP_ANALYSIS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/APP_PAGE_INVENTORY.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/APP_PROGRESS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/APP_VISUAL_REFERENCE.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/COMPONENTS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/DESIGN_SPEC.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/DESIGN_TOKENS.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_API_DESIGN.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_DATABASE_DESIGN.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_DESIGN_SPEC.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_IMPLEMENTATION_PLAN.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_REQUIREMENTS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_TEST_PLAN.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/FEEDBACK_USER_FLOWS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/REQUIREMENTS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/SHOPLINE_API_RESEARCH.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/SHOPLINE_AUTHORIZATION_RUNBOOK.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/STOREFRONT_COLLECTION_MEMBERSHIP.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/SUBSCRIPTION_DISPLAY.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/TEST_ENV_SYNC.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/TEST_ENV_SYNC_FILES.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/THEME_OS21_COMPATIBILITY.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/UI_AUDIT.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/UI_REFERENCE_ANALYSIS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/USER_FLOWS.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/VISUAL_GAP_REPORT.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/audits/2026-11-24-subscription-period-handoff.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/cloudflare-workers-runbook.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/incidents/2026-11-17-subscription-operation-storage.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/editor-create-local-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/editor-exit-local-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/feedback-board-1100.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/feedback-board-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/feedback-board-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/gift-bundle-card-reference.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/gift-bundle-editor-design.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-feedback-preview-1037.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-feedback-preview-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-navigation-390.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-quantity-edit-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-quantity-edit-accordion-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-quantity-edit-accordion-390.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-quantity-edit-shell-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-quantity-edit-shell-390-top.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-quantity-edit-shell-390.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-tier-price-modes-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-tier-price-modes-390.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/local-widget-navigation-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-badge-below-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-badge-below-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-color-opacity-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-color-picker-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-editor-iphone-shell-390.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-editor-scope-default-1440.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-editor-style-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-editor-style-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-equal-tier-headers-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-horizontal-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-overview-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-overview-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-translations-fallback-fr-1440.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-translations-fallback-fr-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/quantity-breaks-typography-390.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-analytics-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-bxgy-create-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-bxgy-tier-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-collection-breaks-tier-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-complete-bundle-create-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-complete-bundle-tier-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-create-entry-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-home-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-other-apps-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-plan-management-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-quantity-create-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-quantity-create-settings-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-quantity-create-style-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-quantity-create-tier-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-quantity-edit-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-roadmap-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-settings-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-subscription-create-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-subscription-settings-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-tiered-gifts-create-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-tiered-gifts-settings-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/shopify-translations-en-1037.jpg",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/startup-feedback-2026-11-13.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/startup-home-2026-11-13.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/startup-recovery-2026-11-13.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/startup-translations-2026-11-13.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/storefront-widget-missing-reference-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/test-environment-sync/source-guide.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/test-environment-sync/source-smoke.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/test-environment-sync/target-guide.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/test-environment-sync/target-smoke.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/theme-default-widget-local-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/theme-default-widget-mobile-local-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/translations-inline-css-local-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/workspace-css-missing-reference-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/reference/screenshots/workspace-inline-css-local-2026-11-16.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-admin-shell-store-identity-localization.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-full-app-replication.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-market-pricing.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-quantity-breaks-production-path.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-storefront-translations.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-widget-and-shell.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-15-per-campaign-widget-style.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-shopline-scopes-reauthorization.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-admin-rest-20260901-436.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-tier-copy-delete.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-20-admin-navigation-catalog-pagination.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-20-specified-product-function-discount.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-21-device-specific-widget-style.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-21-direct-collection-function-discount.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-26-cloudflare-workers-d1-migration.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-27-remaining-quantity-breaks-optimizations.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-28-campaign-bulk-actions-and-combination-plan.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-28-shopline-single-plan-subscription-implementation.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-28-subscription-entitlements-completion.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-28-worker-parity-migration.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-29-feedback-board-ui-preview.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-29-feedback-comments-and-attachments.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-29-realtime-subscription-entitlement.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-30-native-subscription-gating.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-01-feedback-review-visibility-and-board-polish.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-03-campaign-platform-state.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-04-campaign-lifecycle-validation-performance.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-05-storefront-widget-style-and-pricing.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-09-discount-names-and-coverage-conflicts.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-11-independent-tier-market-modes.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-11-market-aware-editor-preview.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-13-embedded-startup-optimization.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-13-startup-stability-review.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-19-theme-os21-compatibility.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-24-subscription-handoff-fix.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-11-25-test-environment-sync.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-admin-shell-store-identity-localization-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-quantity-breaks-production-path-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-tier-markets-and-translations-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-15-per-campaign-widget-style-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-16-shopline-scopes-reauthorization-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-admin-api-tier-actions-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-20-admin-navigation-catalog-pagination-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-20-specified-product-function-discount-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-21-device-specific-widget-style-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-21-direct-collection-function-discount-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-26-cloudflare-workers-d1-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-27-campaign-detail-live-update-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-28-campaign-bulk-actions-and-combination-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-28-shopline-single-plan-subscription-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-28-worker-parity-migration-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-29-feedback-comments-and-attachments-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-29-realtime-subscription-entitlement-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-30-shopline-native-subscription-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-01-feedback-review-visibility-and-board-polish-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-03-campaign-platform-state-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-04-campaign-lifecycle-validation-performance-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-05-storefront-widget-style-and-pricing-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-09-discount-names-and-coverage-conflicts-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-11-market-preview-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-11-tier-market-mode-independent-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-12-shopline-gdpr-webhooks-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-13-embedded-startup-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-11-24-gifts-bundles-design.md",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "package.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "product-discount-customizations/LICENSE",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/go.mod",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/go.sum",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/input.graphql",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "product-discount-customizations/internal/discount/discount.go",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "product-discount-customizations/internal/discount/discount_test.go",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "product-discount-customizations/internal/discount/rule_easyjson.go",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "product-discount-customizations/main.go",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "product-discount-customizations/main_host.go",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "product-discount-customizations/module/models.go",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/module/models_easyjson.go",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/package.json",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/schema.gql",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "product-discount-customizations/shopline.function.extension.toml",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "product-discount-customizations/test/build-entry.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "scripts/generate-theme-i18n.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "scripts/sync-theme-compatibility.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "shopline.app.toml",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "tests/environment-isolation.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/app-block.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/cart-refresh.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/compatibility-sync.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/helpers/os21-fixture.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/os21.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/os3-cart-refresh.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/structure.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "tests/theme-app-extension/widget-mount.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/.gitignore",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/.shopline-cli.yml",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/LICENSE",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/blocks/app-block.html",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/blocks/app-embed-block.html",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/compatibility/assets/app-block.css",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/assets/app-block.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/blocks/app-block.html",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/ar.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/bg.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/cs.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/da.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/de.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/el.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/en.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/es.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/et.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/fi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/fr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/hi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/hr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/hu.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/id.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/it.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/ja.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/ko.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/lt.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/lv.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/ms.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/nb.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/nl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/pl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/pt-br.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/pt-pt.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/ro.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/ru.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/sk.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/sl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/sv.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/th.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/tr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/vi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/zh-hans-cn.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/compatibility/locales/zh-hant-tw.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/components/logo-icon.html",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/i18n/ar.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ar.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/bg.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/bg.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/cs.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/cs.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/da.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/da.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/de.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/de.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/el.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/el.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/en.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/i18n/en.schema.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/i18n/es.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/es.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/et.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/et.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/fi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/fi.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/fr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/fr.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/hi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/hi.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/hr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/hr.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/hu.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/hu.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/id.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/id.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/it.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/it.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ja.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ja.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ko.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ko.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/lt.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/lt.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/lv.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/lv.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ms.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ms.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/nb.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/nb.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/nl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/nl.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/pl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/pl.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/pt-br.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/pt-br.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/pt-pt.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/pt-pt.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ro.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ro.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ru.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/ru.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/sk.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/sk.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/sl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/sl.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/sv.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/sv.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/th.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/th.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/tr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/tr.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/vi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/vi.schema.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "theme-app-extension/i18n/zh-hans-cn.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/i18n/zh-hans-cn.schema.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/i18n/zh-hant-tw.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/i18n/zh-hant-tw.schema.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/public/app-block.css",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/public/app-block.js",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "theme-app-extension/public/app-embed-block.css",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/public/app-embed-block.js",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "theme-app-extension/public/logo.png",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/.gitignore",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/README.md",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/build/inline-entry-styles.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/index.html",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/package.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/public/favicon.png",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/public/theme-editor-guide-step-1.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/public/theme-editor-guide-step-2.png",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/shopline.web.toml",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/App.tsx",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/Routes.tsx",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/assets/.gitkeep",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/components/.gitkeep",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/entry-route.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/hooks/useAppBridge.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/hooks/useAuthenticatedFetch.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/index.css",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/index.tsx",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/locales/de.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/en.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/locales/es.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/fr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/id.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/it.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/ja.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/ms.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/nl.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/pt-BR.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/sv.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/th.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/tr.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/vi.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/zh-Hans.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/zh-Hant.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/locales/zh-hans-cn.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/observability/browser-errors.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/observability/request-failure.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/pages/Exit-iframe.tsx",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/pages/NotFound.tsx",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/pages/index.module.css",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/pages/index.tsx",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/pages/quantity-breaks.module.css",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/pages/quantity-breaks.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/pages/quantity-breaks/plan.css",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/pages/quantity-breaks/plan.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/AdminLanguageSelect.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/BridgeConfirmation.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/CampaignCollectionPicker.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/CampaignEditor.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/CampaignProductPicker.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/CampaignStyleEditor.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/FeedbackBoard.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/FeedbackDetailDialog.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/FeedbackStatusFilters.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/SelectionDialog.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/StorefrontWidget.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/ThemeSetupGuide.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/TierDeleteDialog.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/Translations.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/admin-feedback.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/admin-locale.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/admin-workspace-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/authenticated-fetch.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/bootstrap-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/bootstrap-error.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/bootstrap-recovery.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/browser-storage.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/campaign-adapter.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/campaign-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/campaign-datetime.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/campaign-editor-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/campaign-operation-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/color-picker.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/color-swatches.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/combination-policy.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/coverage.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/data.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/editor-save-bar-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/embedded-auth.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/embedded-context.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/feedback-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/feedback-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/feedback-preview-page.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/feedback-preview.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/market-config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/market-preview.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/model.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/money.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/navigation.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/preview-price-client.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/shop-identity-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/slot-selection.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/startup-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/startup-performance.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/startup-read.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/store-languages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/storefront-copy.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/storefront-locales.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/storefront-translation-defaults.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/subscription-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/subscription-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/subscription-navigation.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/subscription-notice.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/theme-setup-guide-messages.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/tier-actions.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/tier-order.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/tier-pricing.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/translation-drafts.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/translation-preview.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/translations-api.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/ui.tsx",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/variant-display.js",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/prototype/widget-config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/utils/embedded-workspace-style-fallback.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/utils/embedded-workspace-styles.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/src/utils/fetch.ts",
+      "change_from_initial_template": "unchanged"
+    },
+    {
+      "path": "web/src/utils/i18n.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/src/vite-env.d.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/test/admin-dictionaries.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/admin-feedback.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/admin-i18n.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/admin-locale.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/admin-shell.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/app-bridge-lifecycle.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/authenticated-fetch.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/bootstrap-entry.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/bootstrap-error.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/bootstrap-recovery.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/bootstrap-shell.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/browser-errors.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-adapter.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-api.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-collection-picker.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-datetime.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-detail.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-editor-exit.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-editor-messages.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-editor-save-bar.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-list-formatting.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-pause-confirmation.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/campaign-product-picker.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/color-picker.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/combination-policy.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/coverage.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/editor-coverage-collapse.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/editor-preview-product.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/editor-storefront-language-preview.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/editor-structure.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/embedded-auth.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/embedded-context.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/embedded-css-fallback.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/feedback-board.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/feedback-preview.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/home-entry.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/home-layout.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/locale-support.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/market-config.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/money.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/preview-price-client.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/preview-variant-display.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/production-inline-css.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/reauthorization-wiring.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/selection-dialog.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/shop-identity-api.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/slot-selection.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/startup-language.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/startup-performance.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/startup-read.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/startup-resilience.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/startup-retry.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/store-languages.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/storefront-copy.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/storefront-translation-defaults.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/subscription-api.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/subscription-expiry-warning.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/subscription-navigation.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/subscription-notice.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/subscription-plan.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/subscription-shell.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/summary-visibility.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/theme-setup-guide.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/tier-actions.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/tier-delete-dialog.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/tier-order.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/tier-pricing.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/translation-drafts.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/translation-preview.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/translation-save-bar.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/translations-api.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/translations-fallback.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/variant-display.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/variant-pricing-display.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/widget-layout.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/widget-localization-layout.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/test/workspace-navigation.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "change_from_initial_template": "modified"
+    },
+    {
+      "path": "worker/migrations/0001_initial.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0002_published_campaign_updates.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0003_subscription_entitlements.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0004_feedback_board.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0005_feedback_authors.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0006_feedback_review_visibility.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0007_feedback_content_limits.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0008_feedback_rejected_public.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0009_feedback_comment_moderation.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0010_campaign_diagnostics.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0011_campaign_platform_state.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0012_publication_node_id.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0013_owner_platform_controls.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0014_publication_resume_state.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0015_campaign_diagnostic_response_summary.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0016_campaign_diagnostic_response_body.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0017_campaign_operation_queue.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0017_global_error_observability.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0018_gdpr_deletion_tasks.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0019_subscription_next_period.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0020_subscription_operation_retention.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0021_subscription_expiry_end_time.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0022_gdpr_task_handle_snapshot.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0023_collection_scope_sync_time.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0024_subscription_display_snapshots.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/migrations/0025_subscription_next_period_display.sql",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/package-lock.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/package.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/gdpr-webhook.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/internal-request.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/oauth.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/rate-limit.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/reauthorization.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/session.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/auth/webhook.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/crypto.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/admin-diagnostics.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/application-request-events.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/campaign-diagnostics.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/campaign-operations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/campaigns.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/feedback.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/gdpr-deletion-tasks.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/migrate.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/sessions.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/subscriptions.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/db/translations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/deployment-config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/domain/campaign.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/domain/entitlement-access.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/domain/feedback.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/domain/store-subscription.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/env.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/index.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/internal/admin-cleanup-client.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/jobs/campaign-operations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/jobs/collection-conflicts.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/jobs/gdpr-deletion-tasks.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/jobs/subscription-operations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/jobs/subscription-reconciliation.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/jobs/subscription-snapshots.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/observability/diagnostic-response.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/observability/sanitize.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/observability/trace.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/bootstrap.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/campaigns.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/catalog.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/feedback-admin.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/feedback.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/gdpr.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/internal-admin.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/observability.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/storefront.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/subscription-access.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/subscription.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/routes/translations.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/collection-metafield-definition.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/collection-publication.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/discounts.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/entitlements.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/locales.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/market-price-request.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/scope-handle-snapshots.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/shopline-admin-request-headers.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/shopline-admin.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/shopline-oauth.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/storefront-collections.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/storefront-market.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/subscriptions.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/src/services/webhooks.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/application-request-events.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/authorization-renewal-response.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/campaign-diagnostics.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/campaign-operations.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/campaign-repository.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/campaign-scope-update-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/collection-conflicts-job.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/collection-metafield-definition.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/collection-publication.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/crypto.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/deployment-config.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/discount-node-resolution.unit.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/discount-publication.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/entitlements-cancellation.unit.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/entitlements.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/expired-campaign-replacement-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/feedback-admin-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/feedback-repository.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/feedback-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/feedback-visibility.unit.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/gdpr-deletion-tasks.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/gdpr-webhook.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/global-observability.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/health.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/helpers/collection-definition.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/internal-admin-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/internal-campaign-admin.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/market-price-request.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/migration-sql-check.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/migrations.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/no-legacy-runtime-imports.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/oauth.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/observability-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/routes-contract.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/scope-handle-snapshots.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/session-auth.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/sessions.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/shopline-admin.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/store-subscriptions.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/storefront-collections.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/storefront-market.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/storefront-os21.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/subscription-access.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/subscription-operations.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/subscription-repository.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/subscription-routes.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/subscription-webhook-backfill.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/subscriptions-service.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/token-expiry.unit.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/trace.unit.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/translation-repository.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/vitest-config.test.mjs",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/webhook-registration.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/webhook-registration.unit.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/test/webhook.test.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/tsconfig.json",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/vitest.config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/vitest.node.config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/vitest.unit.config.ts",
+      "change_from_initial_template": "added"
+    },
+    {
+      "path": "worker/wrangler.toml",
+      "change_from_initial_template": "added"
+    }
+  ],
+  "preserved_private_paths": [
+    "theme-app-extension/.env.prod",
+    "product-discount-customizations/.env.prod",
+    "app/database.sqlite"
+  ],
+  "secret_scan": "passed; no actual source or test secret values found in candidate Git files"
+}

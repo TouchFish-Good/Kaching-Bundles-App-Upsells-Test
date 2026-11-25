@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Köp fler och spara",
+    "widget": {
+      "title": "Köp fler och spara",
+      "tier_savings_badge": "Spara {saving_amount}",
+      "description": "Välj antal och ställ sedan in varje vara.",
+      "tier_rule": "Den högsta nivån gäller för alla varor",
+      "original": "Ordinarie pris",
+      "savings": "Beräknad besparing",
+      "total": "Paketpris",
+      "add_to_cart": "Lägg {quantity} i varukorgen · {price}",
+      "adding": "Lägger till paketet...",
+      "cart_failure": "Paketet kunde inte läggas till. Dina val har sparats.",
+      "cart_success": "{quantity} varor lades till som {lines} rader i varukorgen.",
+      "cart_uncertain": "Vi kunde inte bekräfta din varukorg. Kontrollera den före ett nytt försök.",
+      "choose_option": "Välj ett alternativ",
+      "item_option": "Artikel {index}: {option}",
+      "tier_items": "{quantity} varor",
+      "sold_out": "Slutsåld",
+      "no_stock": "Det finns inte tillräckligt många varianter för detta antal.",
+      "calculated_at_checkout": "Beräknas i kassan",
+      "add_to_cart_quantity": "Lägg {quantity} i varukorgen"
+    }
+  }
+}

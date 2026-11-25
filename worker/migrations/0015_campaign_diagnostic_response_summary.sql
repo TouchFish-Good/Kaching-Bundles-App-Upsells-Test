@@ -1,0 +1,2 @@
+ALTER TABLE campaign_diagnostic_events ADD COLUMN upstream_response_code TEXT;
+ALTER TABLE campaign_diagnostic_events ADD COLUMN upstream_response_message TEXT;

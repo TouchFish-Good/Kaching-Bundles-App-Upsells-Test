@@ -1,0 +1,36 @@
+{
+  "name": "shopline-frontend-template-react",
+  "author": "SHOPLINE",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:prototype": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@formatjs/intl-localematcher": "^0.5.4",
+    "@shoplinedev/appbridge": "^1.0.2",
+    "@shoplineos/app-bridge": "^0.0.3",
+    "i18next": "^23",
+    "i18next-resources-to-backend": "^1",
+    "lucide-react": "^1.56.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-i18next": "^14",
+    "react-router-dom": "^6"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "jsdom": "^26.1.0",
+    "typescript": "^5",
+    "vite": "^5"
+  }
+}

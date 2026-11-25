@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Pērciet vairāk un ietaupiet",
+    "widget": {
+      "title": "Pērciet vairāk un ietaupiet",
+      "tier_savings_badge": "Ietaupiet {saving_amount}",
+      "description": "Izvēlieties daudzumu un iestatiet katru preci.",
+      "tier_rule": "Augstākais līmenis attiecas uz visām precēm",
+      "original": "Sākotnējā cena",
+      "savings": "Paredzamais ietaupījums",
+      "total": "Komplekta kopsumma",
+      "add_to_cart": "Pievienot {quantity} grozam · {price}",
+      "adding": "Komplekta pievienošana...",
+      "cart_failure": "Komplektu nevarēja pievienot. Jūsu izvēles ir saglabātas.",
+      "cart_success": "{quantity} preces pievienotas {lines} groza rindās.",
+      "cart_uncertain": "Mēs nevarējām apstiprināt jūsu grozu. Pārbaudiet to pirms mēģināt vēlreiz.",
+      "choose_option": "Izvēlieties opciju",
+      "item_option": "Prece {index}: {option}",
+      "tier_items": "{quantity} preces",
+      "sold_out": "Izpārdots",
+      "no_stock": "Šim daudzumam nav pietiekami daudz pieejamu variantu.",
+      "calculated_at_checkout": "Aprēķina norēķinoties",
+      "add_to_cart_quantity": "Pievienot {quantity} grozam"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "app_block": {
+    "page_title": "Diskaun Pembelian Berbilang Item",
+    "widget": {
+      "title": "Beli lebih banyak dan jimat",
+      "tier_savings_badge": "Jimat {saving_amount}",
+      "description": "Pilih kuantiti, kemudian tetapkan setiap item.",
+      "tier_rule": "Tahap tertinggi digunakan untuk semua item",
+      "original": "Harga asal",
+      "savings": "Anggaran penjimatan",
+      "total": "Jumlah pakej",
+      "add_to_cart": "Tambah {quantity} ke troli · {price}",
+      "adding": "Menambah pakej...",
+      "cart_failure": "Pakej tidak dapat ditambah. Pilihan anda disimpan.",
+      "cart_success": "{quantity} item telah ditambah sebagai {lines} baris troli.",
+      "cart_uncertain": "Troli tidak dapat disahkan. Semak sebelum cuba lagi.",
+      "choose_option": "Pilih pilihan",
+      "item_option": "Produk {index}: {option}",
+      "tier_items": "{quantity} item",
+      "sold_out": "Kehabisan stok",
+      "no_stock": "Varian yang tersedia tidak mencukupi untuk kuantiti ini.",
+      "calculated_at_checkout": "Dikira semasa pembayaran",
+      "add_to_cart_quantity": "Tambah {quantity} ke troli"
+    }
+  }
+}
