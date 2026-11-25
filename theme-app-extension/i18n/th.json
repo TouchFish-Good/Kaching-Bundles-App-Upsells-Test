@@ -27,7 +27,8 @@
       "offer_previous": "ก่อนหน้า",
       "offer_next": "ถัดไป",
       "offer_select": "Select",
-      "offer_unlock": "Unlock with {quantity} items"
+      "offer_unlock": "Unlock with {quantity} items",
+      "check_cart": "ตรวจสอบตะกร้า"
     }
   }
 }

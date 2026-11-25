@@ -27,7 +27,8 @@
       "offer_previous": "Vorige",
       "offer_next": "Volgende",
       "offer_select": "Select",
-      "offer_unlock": "Unlock with {quantity} items"
+      "offer_unlock": "Unlock with {quantity} items",
+      "check_cart": "Winkelwagen controleren"
     }
   }
 }

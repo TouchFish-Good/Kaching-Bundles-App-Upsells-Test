@@ -1202,3 +1202,11 @@ Admin REST 服务请求统一改为 `v20260901`，保留原有 SDK OAuth、offli
 - 本地主题全量一次结果123/124，唯一失败为既有 `unchanged default desktop and mobile configuration renders a usable widget` 的10px/8px旧断言；在 ce738ec 干净文件副本中复现。后续受影响的原生/购物车/两代通知定向检查50/50通过（含新增17项附件测试），未将完整套件记为全绿。SLine 官方 validator 带扩展根目录和 fail-on-error 通过，无关闭诊断；canonical browser core drift、OS2.1 sync/check 通过。
 - 本地 Chromium 实测两代1440/390/320、容器400/600/700对应1/2/3列，动态移除/重挂载与独立区块、轮播键盘/触摸、一次模拟购物车批次；参考/前后截图和 browser-evidence.json 保存在 docs/local/gifts-bundles-task5。无浏览器错误、横向溢出或真实购物车写入。OS2.1 使用本地 Handlebars helper 夹具执行模板；OS3 使用原生DOM夹具与实际JS/CSS，未声称执行真实SHOPLINE模板渲染。
 - 尚待授权的测试店部署验收：实际 shop metafield 权限/可见性、all_products 实店输出、Function SKU/variant及line-total能力、真实购物车/结账。仅本地提交，未推送/部署/发布；整体应用仍未全部验收。
+
+
+### Task5 review fixes — local theme verification (2026-11-25)
+
+- 修复单选捆绑的未勾选付费商品自动纳入：保留空选择、取消、暂不达标及不可用选择；仅异常多条明确勾选规则按实际减免择优。
+- 不确定复合加购事务按组件持久保留，跨重渲染、移除/恢复及活动修订继续锁定；新增本地化“检查购物车”仅只读核验，不能再次 POST，只有原事务精确确认成功才解锁。
+- 两个已启用模块的全部配置附加商品统一排除主商品资格，与 Function 一致；关闭模块保留的草稿不参与排除。补充实际 OS2.1 模板 JPY 主售价/比较价挂载回归。
+- 本轮覆盖测试56/56、原加购/文案回归3/3通过；同步/漂移/SLine检查通过，OS3/OS2.1桌面及移动8张本地截图见 `docs/local/gifts-bundles-task5/round1/`。仅本地模拟接口，真实店铺原生渲染/Function/结账仍未验证，未推送或部署。

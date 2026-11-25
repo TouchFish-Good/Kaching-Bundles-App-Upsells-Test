@@ -27,7 +27,8 @@
       "offer_previous": "Trước",
       "offer_next": "Tiếp",
       "offer_select": "Select",
-      "offer_unlock": "Unlock with {quantity} items"
+      "offer_unlock": "Unlock with {quantity} items",
+      "check_cart": "Kiểm tra giỏ hàng"
     }
   }
 }

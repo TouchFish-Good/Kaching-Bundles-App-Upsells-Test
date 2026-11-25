@@ -27,7 +27,8 @@
       "offer_previous": "Föregående",
       "offer_next": "Nästa",
       "offer_select": "Select",
-      "offer_unlock": "Unlock with {quantity} items"
+      "offer_unlock": "Unlock with {quantity} items",
+      "check_cart": "Kontrollera varukorgen"
     }
   }
 }

@@ -27,7 +27,8 @@
       "offer_previous": "Previous",
       "offer_next": "Next",
       "offer_select": "Select",
-      "offer_unlock": "Unlock with {quantity} items"
+      "offer_unlock": "Unlock with {quantity} items",
+      "check_cart": "Kontroller handlekurv"
     }
   }
 }

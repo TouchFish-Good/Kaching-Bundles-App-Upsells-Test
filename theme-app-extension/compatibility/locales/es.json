@@ -27,7 +27,8 @@
       "offer_previous": "Anterior",
       "offer_next": "Siguiente",
       "offer_select": "Seleccionar",
-      "offer_unlock": "Desbloquear con {quantity} artículos"
+      "offer_unlock": "Desbloquear con {quantity} artículos",
+      "check_cart": "Comprobar carrito"
     }
   }
 }

@@ -27,7 +27,8 @@
       "offer_previous": "Zurück",
       "offer_next": "Weiter",
       "offer_select": "Auswählen",
-      "offer_unlock": "Mit {quantity} Artikeln freischalten"
+      "offer_unlock": "Mit {quantity} Artikeln freischalten",
+      "check_cart": "Warenkorb prüfen"
     }
   }
 }

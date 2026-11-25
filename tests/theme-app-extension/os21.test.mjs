@@ -126,3 +126,15 @@ test('uses the OS2.1 product template identifier accepted by the platform schema
   const os3Schema = JSON.parse(/{{#schema}}([\s\S]*?){{\/schema}}/.exec(os3)[1]);
   assert.deepEqual(os3Schema.templates, ['product']);
 });
+
+test('actual OS2.1 template mounts JPY main and compare prices in native currency subunits',async()=>{
+  const context=structuredClone(os21Context);
+  context.shop.currency.iso_code='JPY';context.localization.country.currency.iso_code='JPY';
+  context.product.variants[0].price=123;context.product.variants[0].compare_at_price=456;
+  const {block,theme}=setup(context);const variant=theme.readCatalog(block).variants[0];
+  assert.equal(variant.price,123);assert.equal(variant.compareAtPrice,456);
+  await theme.mountBlock(block);
+  assert.equal(block.querySelector('.qb-slot .qb-variant-price b').textContent,'¥98');
+  assert.equal(block.querySelector('.qb-slot .qb-variant-price del').textContent,'¥123','current tier comparison uses original selling price');
+  assert.equal(block.querySelector('[data-bundle-total]').textContent,'¥196');
+});

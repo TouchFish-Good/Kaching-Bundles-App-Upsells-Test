@@ -27,7 +27,8 @@
       "offer_previous": "上一個",
       "offer_next": "下一個",
       "offer_select": "選擇",
-      "offer_unlock": "購買 {quantity} 件即可解鎖"
+      "offer_unlock": "購買 {quantity} 件即可解鎖",
+      "check_cart": "檢查購物車"
     }
   }
 }

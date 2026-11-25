@@ -777,7 +777,7 @@ return exports; })();
       try { cart = await bounded(read); } catch (_) { /* read only, never retry writes */ }
       const after = compositeQuantities(cart);
       const confirmed = before && after && [...expected].every(([key,q]) => (after.get(key)||0) - (before.get(key)||0) >= q);
-      return confirmed ? {status:'added',cartResponse:cart} : {status:'uncertain'};
+      return confirmed ? {status:'added',cartResponse:cart} : {status:'uncertain',resolve:confirm};
     }
     try {
       const {response,body}=await bounded(async signal=>{
@@ -843,6 +843,11 @@ return exports; })();
       if (!campaign[kind]?.enabled) continue;
       try { groups.push({kind,module:OfferCore.normalizeOfferModule(campaign[kind],kind)}); } catch (_) { /* malformed extras cannot break main */ }
     }
+    // Match Function qualification: all configured Products in enabled modules
+    // are accessories, even if native data for a particular rule is unavailable.
+    const accessoryProducts = new Set(groups.flatMap(g=>g.module.items.map(r=>r.productId)));
+    const mainQualifies = !accessoryProducts.has(block.dataset.productId);
+    const mainProducts = quantity=>mainQualifies?[{productId:block.dataset.productId,quantity}]:[];
     const validRules = new Set(groups.flatMap(g=>g.module.items.map(r=>r.ruleId)));
     for (const key of state.choices.keys()) if (!validRules.has(key)) state.choices.delete(key);
     const sellable = v=>v?.available===true && safeAmount(v.priceMinor);
@@ -877,7 +882,7 @@ return exports; })();
           const ref=trusted && entry.refs.find(r=>r.id===rule.productId);
           const actual=ref && native.products.get(rule.productId);
           const product=actual && actual.handle===ref.handle && ref.variantIds.length===new Set(ref.variantIds).size && rule.allowedVariantIds.every(id=>ref.variantIds.includes(id)) ? actual : null;
-          const eligible=OfferCore.offerEligible(rule,campaign.tiers,quantity) && rule.productId!==block.dataset.productId;
+          const eligible=mainQualifies && OfferCore.offerEligible(rule,campaign.tiers,quantity);
           const choice=state.choices.get(rule.ruleId) || {selected:false,quantity:rule.quantity,slots:[]}; state.choices.set(rule.ruleId,choice);
           if(choice.productId && choice.productId!==rule.productId)choice.slots=[];
           choice.productId=rule.productId;
@@ -895,15 +900,15 @@ return exports; })();
           const override=campaign.marketId?rule.marketOverrides?.[campaign.marketId]:undefined;
           const converted=!override ? currency===shopCurrency || rule.discountType==='percentage' || (kind==='gifts' && rule.discountValue===0) : override.mode==='specified_amount' && override.currencyCode===currency;
           let ready=!!product && renderable && selected.every(sellable) && converted;
-          const cap=OfferCore.offerQuota(rule,campaign.tiers,[{productId:block.dataset.productId,quantity}]);
+          const cap=OfferCore.offerQuota(rule,campaign.tiers,mainProducts(quantity));
           const original=ready?selected.reduce((sum,v)=>sum+v.priceMinor,0):0;
           const savings=ready && eligible?selected.reduce((sum,v,i)=>sum+(i<cap?OfferCore.offerDiscountMinor(v.priceMinor,rule,override):0),0):0;
           ready=ready && safeAmount(original) && safeAmount(savings) && safeAmount(original-savings);
           return {kind,module,rule,product,eligible,choice,count,options,selected,ready,original,savings,included:ready && eligible && (kind==='gifts' || choice.selected)};
         });
         if(kind==='bundles' && module.selectionMode==='single') {
-          const eligible=cards.filter(c=>c.ready && c.eligible);
-          const picked=eligible.find(c=>c.choice.selected) || (state.singleCanceled?null:eligible.sort((a,b)=>b.savings-a.savings || a.rule.displayOrder-b.rule.displayOrder)[0]);
+          const candidates=cards.filter(c=>c.choice.selected && c.ready && c.eligible);
+          const picked=candidates.sort((a,b)=>b.savings-a.savings || a.rule.displayOrder-b.rule.displayOrder)[0];
           cards.forEach(c=>{c.included=c===picked;});
         }
         for(const c of cards) {
@@ -915,12 +920,12 @@ return exports; })();
           card.append(element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable')));
           if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-offer-label-below',rule.label));
           if(!c.eligible) {
-            const tier=OfferCore.offerUnlockTier(rule,campaign.tiers);
-            if(tier){const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.addEventListener('click',()=>{if(kind==='bundles')choice.selected=true;chooseTier(tier);});card.append(unlock);}
+            const tier=mainQualifies && OfferCore.offerUnlockTier(rule,campaign.tiers);
+            if(tier){const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.addEventListener('click',()=>{if(kind==='bundles'){if(module.selectionMode==='single')cards.forEach(other=>other.choice.selected=false);choice.selected=true;}chooseTier(tier);});card.append(unlock);}
           } else if(kind==='gifts') card.append(element(doc,'span','qb-offer-state',c.ready?copy('widget.offer_included','Included'):copy('widget.offer_unavailable','Unavailable')));
           else {
             const toggle=element(doc,'button','qb-offer-select',c.included?copy('widget.offer_included','Included'):copy('widget.offer_select','Select'));toggle.type='button';toggle.dataset.offerSelect='';toggle.setAttribute('aria-pressed',String(c.included));toggle.disabled=!c.ready;
-            toggle.addEventListener('click',()=>{if(module.selectionMode==='single'){state.singleCanceled=c.included;cards.forEach(other=>other.choice.selected=false);}choice.selected=!c.included;rerender();});card.append(toggle);
+            toggle.addEventListener('click',()=>{if(module.selectionMode==='single'){cards.forEach(other=>other.choice.selected=false);}choice.selected=!c.included;rerender();});card.append(toggle);
             const label=element(doc,'label','qb-offer-quantity',copy('widget.offer_quantity','Quantity'));
             const input=element(doc,'input');input.type='number';input.min='1';input.step='1';input.value=String(choice.quantity);input.setAttribute('aria-label',copy('widget.offer_quantity','Quantity'));
             input.addEventListener('change',()=>{choice.quantity=Number(input.value);rerender();});label.append(input);card.append(label);
@@ -938,7 +943,7 @@ return exports; })();
       const included=allCards.filter(c=>c.included);
       const original=included.reduce((n,c)=>n+c.original,0),savings=included.reduce((n,c)=>n+c.savings,0),count=included.reduce((n,c)=>n+c.count,0);
       const safe=[original,savings,count,original-savings].every(safeAmount);
-      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,[{productId:block.dataset.productId,quantity}])?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
+      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
       if(!safe){invalidate();container.append(element(doc,'p','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));}
       return quote;
     }
@@ -1072,7 +1077,9 @@ return exports; })();
     summary.append(checkoutNote);
     if (heading) block.append(heading);
     const offers=createOffers(block,campaign,envelope,saved.native,saved,doc,copy,currency,shopCurrency,locale,mediaQuery,tier=>{selectedTier=tier;render();},()=>render());
-    block.append(choices, ...(offers.hasModules?[offers.container]:[]), summary, button, status);
+    const checkCart=element(doc,'button','qb-check-cart qb-offer-select',copy('widget.check_cart','Check cart'));
+    checkCart.type='button';checkCart.dataset.checkCart='';checkCart.hidden=true;
+    block.append(choices, ...(offers.hasModules?[offers.container]:[]), summary, button, status, checkCart);
 
     function availableForOption(index, name, value) {
       const selected = catalog.variants.find((variant) => variant.id === selections[index]);
@@ -1241,12 +1248,22 @@ return exports; })();
       buttonLabel.textContent = unavailable
         ? copy('widget.sold_out', 'Sold out')
         : copy('widget.add_to_cart', 'Add {quantity} to cart · {price}', { quantity:quantity+(accessoryActive?accessory.quantity:0), price: total.textContent });
-      buttonLabel.hidden = adding;
-      rotator.hidden = !adding;
+      const transaction=saved.transaction;
+      const busy=adding || transaction?.status==='pending' || transaction?.checking===true;
+      buttonLabel.hidden = busy;
+      rotator.hidden = !busy;
       button.setAttribute('aria-label', buttonLabel.textContent);
-      button.setAttribute('aria-busy', String(adding));
-      button.disabled = adding || unavailable || Boolean(validity.reason);
+      button.setAttribute('aria-busy', String(busy));
+      button.disabled = busy || Boolean(transaction) || unavailable || Boolean(validity.reason);
+      checkCart.hidden = transaction?.status!=='uncertain';
+      checkCart.disabled = transaction?.checking===true;
+      checkCart.setAttribute('aria-busy',String(transaction?.checking===true));
+      const result=saved.cartResult;
+      status.textContent = result?.status === 'added' ? copy('widget.cart_success', '{quantity} items were added as {lines} cart lines.', {quantity:result.quantity,lines:result.lines}) : transaction?.status==='uncertain' || result?.status==='uncertain'
+        ? copy('widget.cart_uncertain', 'We could not confirm your cart. Check it before trying again.') : result?.status==='invalid'
+          ? copy('widget.no_stock', 'Not enough available variants for this quantity.') : result?.status==='failed' ? copy('widget.cart_failure', 'Bundle could not be added. Your selections have been kept so you can retry.') : '';
     }
+    saved.render=render;
     const onViewportChange = () => render();
     const resizeObserver=typeof scope.ResizeObserver==='function'?new scope.ResizeObserver(()=>render()):null;
     resizeObserver?.observe(block);
@@ -1265,8 +1282,9 @@ return exports; })();
       render();
     };
     button.addEventListener('click', async () => {
-      if (button.disabled || adding) return;
+      if (button.disabled || adding || saved.transaction || lifecycle.disposed || saved.generation!==generation) return;
       adding = true;
+      saved.cartResult=null;
       status.textContent = '';
       render();
       const quantity = selectedTier.quantity;
@@ -1278,18 +1296,32 @@ return exports; })();
       const useComposite=offers.enabled;
       const context = scope.crypto?.randomUUID?.() || `qb-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const items=useComposite?buildCompositeItems(mainItems,accessory.safe && safeComposite?accessory.lines:[],{campaignId:campaign.id,productId,productHandle:block.dataset.productHandle || '',context}):mainItems;
+      const transaction=useComposite?{status:'pending',items,productId,productHandle:block.dataset.productHandle || '',themeVersion:block.dataset.themeVersion,fetcher}:null;
+      if(transaction)saved.transaction=transaction;
       const result = useComposite?await addComposite(items,fetcher):await addBundle(selectedItems,catalog.variants,fetcher);
-      const addedItems=result.status==='added'?items:[];
-      if (result.status === 'added') await notifyThemeCartUpdated(addedItems, {
-        productId, productHandle: block.dataset.productHandle || '', themeVersion: block.dataset.themeVersion,
-        cartResponse: result.cartResponse, fetcher,
-      }, scope).catch(() => { /* Optional theme integration cannot change a confirmed cart result. */ });
       adding = false;
-      status.textContent = result.status === 'added' ? copy('widget.cart_success', '{quantity} items were added as {lines} cart lines.', { quantity:addedItems.reduce((n,item)=>n+item.quantity,0), lines: addedItems.length }) : result.status === 'uncertain'
-        ? copy('widget.cart_uncertain', 'We could not confirm your cart. Check it before trying again.') : result.status === 'invalid'
-          ? copy('widget.no_stock', 'Not enough available variants for this quantity.') : copy('widget.cart_failure', 'Bundle could not be added. Your selections have been kept so you can retry.');
-      render();
-      if (result.status === 'uncertain') button.disabled = true;
+      await settleCart(result,items,transaction);
+      if(!transaction && result.status==='uncertain')button.disabled=true;
+    });
+    async function settleCart(result,items,transaction) {
+      if(transaction && saved.transaction!==transaction)return;
+      if(transaction && result.status==='uncertain') {
+        transaction.status='uncertain';transaction.resolve=result.resolve;transaction.checking=false;
+      } else if(transaction) saved.transaction=null;
+      saved.cartResult={status:result.status,quantity:items.reduce((n,item)=>n+item.quantity,0),lines:items.length};
+      saved.render?.();
+      if(result.status==='added')await notifyThemeCartUpdated(items,{
+        productId:transaction?.productId || productId,productHandle:transaction?.productHandle || block.dataset.productHandle || '',themeVersion:transaction?.themeVersion || block.dataset.themeVersion,
+        cartResponse:result.cartResponse,fetcher:transaction?.fetcher || fetcher,
+      },scope).catch(()=>{ /* Optional notification cannot change a confirmed result. */ });
+    }
+    checkCart.addEventListener('click',async()=>{
+      const transaction=saved.transaction;
+      if(transaction?.status!=='uncertain' || transaction.checking || typeof transaction.resolve!=='function' || lifecycle.disposed || saved.generation!==generation)return;
+      transaction.checking=true;saved.render?.();
+      let result;
+      try{result=await transaction.resolve();}catch(_){result={status:'uncertain',resolve:transaction.resolve};}
+      await settleCart(result,transaction.items,transaction);
     });
     render();
   }

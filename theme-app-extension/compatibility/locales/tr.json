@@ -27,7 +27,8 @@
       "offer_previous": "Önceki",
       "offer_next": "Sonraki",
       "offer_select": "Select",
-      "offer_unlock": "Unlock with {quantity} items"
+      "offer_unlock": "Unlock with {quantity} items",
+      "check_cart": "Sepeti kontrol et"
     }
   }
 }

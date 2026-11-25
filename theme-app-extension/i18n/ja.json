@@ -27,7 +27,8 @@
       "offer_previous": "前へ",
       "offer_next": "次へ",
       "offer_select": "選択",
-      "offer_unlock": "{quantity} 点でアンロック"
+      "offer_unlock": "{quantity} 点でアンロック",
+      "check_cart": "カートを確認"
     }
   }
 }

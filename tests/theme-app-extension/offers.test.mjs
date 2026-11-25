@@ -112,14 +112,96 @@ test('theme events use actual accessory product/handle and exact property line k
   const gift=events.find(e=>e.type==='variant:added'&&e.detail.variantId==='gift-v');
   assert.equal(gift.detail.productId,'gift-p');assert.equal(gift.detail.productHandle,'gift-handle');assert.equal(gift.detail.lineItemKey,'actual-1');
 });
-test('native single selection fallback chooses maximum actual savings and supports cancellation',async()=>{
-  const campaign=offerCampaign();campaign.bundles.selectionMode='single';campaign.bundles.items[1].discountValue=7500;
+test('single bundles preserve empty, canceled, ineligible and unavailable intentional choices without paid substitution',async()=>{
+  const campaign=offerCampaign();campaign.bundles.selectionMode='single';campaign.bundles.items[1].discountValue=7500;campaign.bundles.items[0].trigger.quantity=3;
   const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+  const included=()=>Array.from(h.block.querySelectorAll('[data-offer-role="bundle"][data-included="true"]'),n=>n.dataset.offerRule);
+  assert.deepEqual(included(),[],'initial mount cannot opt into a paid item');
+  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
+  assert.deepEqual(included(),['c'],'larger saving on unchosen d cannot replace c');
+  h.block.querySelector('[data-tier-id="t2"] .qb-tier-header').click();
+  assert.deepEqual(included(),[],'eligible but unchosen d cannot replace now-ineligible c');
+  h.block.querySelector('[data-tier-id="t4"] .qb-tier-header').click();
+  assert.deepEqual(included(),['c'],'chosen rule survives temporary ineligibility');
+  const input=h.block.querySelector('[data-offer-rule="c"] input');input.value='101';input.dispatchEvent(new h.window.Event('change'));
+  assert.deepEqual(included(),[],'unavailable c cannot substitute ready d');h.resize();assert.deepEqual(included(),[]);
+  const next=structuredClone(campaign);next.revision++;next.bundles.items=next.bundles.items.filter(r=>r.ruleId!=='c');
+  await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
+  assert.deepEqual(included(),[],'deleted chosen rule leaves empty selection');
+  h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();assert.deepEqual(included(),['d']);
+  h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();h.resize();assert.deepEqual(included(),[]);
+});
+test('single bundle monetary fallback considers only anomalous explicitly selected rules',async()=>{
+  const campaign=offerCampaign();campaign.bundles.items[1].discountValue=7500;
+  const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();
+  const next=structuredClone(campaign);next.revision++;next.bundles.selectionMode='single';
+  await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
   assert.equal(h.block.querySelector('[data-offer-rule="d"]').dataset.included,'true');
-  h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();
-  assert.equal(h.block.querySelectorAll('[data-offer-role="bundle"][data-included="true"]').length,0);
+  assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'false');
+});
+test('all configured accessory Products are excluded from main eligibility, quotas, unlock and receipt',async()=>{
+  for(const missingNative of [false,true]) {
+    const campaign=offerCampaign();
+    const h=setupOffers({campaign,markup:offerMarkup(campaign).replace('data-product-id="main"','data-product-id="p-a"').replace(missingNative?'data-offer-product="p-a"':'NO-MATCH','data-offer-product="absent"')});await h.theme.mountBlock(h.block);
+    assert.equal(h.block.querySelectorAll('[data-included="true"]').length,0,'accessory main cannot unlock any other rule');
+    assert.equal(h.block.querySelector('.qb-offer-unlock'),null,'no tier can qualify excluded main');
+    h.block.querySelectorAll('[data-offer-select]').forEach(b=>b.click());
+    assert.equal(h.block.querySelectorAll('.qb-offer-receipt').length,0);
+    assert.equal(h.block.querySelector('[data-bundle-total]').textContent,'$40.00');
+  }
+});
+test('disabled retained accessory config does not exclude its Product from main qualification',async()=>{
+  const campaign=offerCampaign();campaign.gifts.enabled=false;
+  const h=setupOffers({campaign,markup:offerMarkup(campaign).replace('data-product-id="main"','data-product-id="p-a"')});await h.theme.mountBlock(h.block);
   h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
   assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'true');
+  assert.equal(h.block.querySelector('[data-bundle-total]').textContent,'$50.00');
+});
+const flushCart=()=>new Promise(resolve=>setImmediate(resolve));
+test('unresolved composite transaction survives render, forced click, lifecycle, revision and read-only checks',async()=>{
+  let posts=0,reads=0,confirmed=false,posted;
+  const campaign=offerCampaign();
+  const fetcher=async(url,init)=>{
+    if(url==='/cart/add'){posts++;posted=JSON.parse(init.body).items;throw Error('ambiguous write');}
+    if(url==='/api/carts/ajax-cart'){reads++;return {ok:true,json:async()=>({items:confirmed?posted:[]})};}
+    return {ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign})};
+  };
+  const h=setupOffers({fetcher}),lifecycle={};await h.theme.mountBlock(h.block,fetcher,lifecycle);
+  h.block.querySelector('[data-add-bundle]').click();await flushCart();
+  assert.equal(posts,1);assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  h.resize();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true,'viewport render retains transaction lock');
+  h.block.querySelector('[data-tier-id="t2"] .qb-tier-header').click();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  const forceClick=()=>{const b=h.block.querySelector('[data-add-bundle]');b.disabled=false;b.dispatchEvent(new h.window.Event('click'));};
+  forceClick();await flushCart();assert.equal(posts,1,'handler checks persistent lock');
+  lifecycle.disposed=true;lifecycle.cleanup();h.block.remove();h.document.append(h.block);lifecycle.disposed=false;lifecycle.resume();
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  campaign.revision++;campaign.gifts.enabled=false;campaign.bundles.enabled=false;await h.theme.mountBlock(h.block,fetcher);
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true,'disabled-offer revision retains original transaction');
+  assert.match(h.block.querySelector('.qb-status').textContent,/confirm/);
+  const check=h.block.querySelector('[data-check-cart]');assert.ok(check && !check.hidden,'explicit read-only resolution is available');
+  check.click();await flushCart();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true,'empty cart snapshot is not proof write failed');
+  assert.equal(posts,1);assert.equal(reads,3);
+  confirmed=true;h.block.querySelector('[data-check-cart]').click();await flushCart();
+  assert.equal(posts,1,'resolution never reissues POST');assert.equal(reads,4);
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false,'exact confirmed transaction clears lock');
+  assert.equal(h.block.querySelector('[data-check-cart]').hidden,true);
+});
+test('pending composite write is locked across remount before ambiguous response arrives',async()=>{
+  let posts=0,rejectPost;
+  const campaign=offerCampaign();
+  const fetcher=async(url,init)=>{
+    if(url==='/cart/add'){posts++;return new Promise((_,reject)=>rejectPost=reject);}
+    if(url==='/api/carts/ajax-cart')return {ok:true,json:async()=>({items:[]})};
+    return {ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign})};
+  };
+  const h=setupOffers({fetcher});await h.theme.mountBlock(h.block,fetcher);h.block.querySelector('[data-add-bundle]').click();await flushCart();
+  campaign.revision++;await h.theme.mountBlock(h.block,fetcher);
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  h.block.querySelector('[data-add-bundle]').dispatchEvent(new h.window.Event('click'));assert.equal(posts,1);
+  rejectPost(Error('timeout'));await flushCart();
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  assert.equal(h.block.querySelector('[data-check-cart]').hidden,false);
 });
 test('stale locale response is discarded and independent simultaneous blocks deduplicate negotiation',async()=>{
   let resolve,calls=0;const promise=new Promise(r=>resolve=r);
