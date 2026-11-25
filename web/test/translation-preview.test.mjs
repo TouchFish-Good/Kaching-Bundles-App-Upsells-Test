@@ -78,13 +78,23 @@ test('translation preview shows inline cart outcomes without examples or real ca
     await act(async () => { root.render(React.createElement(I18nextProvider, { i18n }, React.createElement(Translations, { shopId: 'preview-shop', notify: () => {}, fetcher }))); });
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
     assert.equal(document.querySelector('[data-translation-example]'), null);
-    assert.equal(document.querySelectorAll('textarea').length, 14);
+    assert.equal(document.querySelectorAll('textarea').length, 16);
     assert.equal(document.querySelector('textarea[aria-label$="Adding bundle..."]'), null);
     for (const text of ['Bundle & save', 'Save {saving_amount}', 'Original', 'Estimated savings', 'Bundle total', 'Add {quantity} to cart · {price}']) {
       const row = [...document.querySelectorAll('textarea')].find((field) => field.getAttribute('aria-label').endsWith(text)).parentElement.parentElement;
       assert.equal(row.querySelector('p'), null, text);
     }
     const widget = document.querySelector('[class*="storefront"]');
+    for (const [sourceTitle, editedTitle] of [['🎁 Free gifts with your order', 'My gifts'], ['Frequently Bought Together', 'My additions']]) {
+      const titleField = [...document.querySelectorAll('textarea')].find(field => field.getAttribute('aria-label').endsWith(sourceTitle));
+      assert.ok(titleField, sourceTitle);
+      await act(() => { Simulate.change(titleField, { target: { value: editedTitle } }); });
+      assert.match(widget.textContent, new RegExp(editedTitle));
+      await act(() => { Simulate.change(titleField, { target: { value: '' } }); });
+      assert.doesNotMatch(widget.textContent, new RegExp(editedTitle));
+      assert.ok(widget.querySelector('[data-offer-kind]'), 'empty heading retains offer preview');
+    }
+
     assert.ok(widget.querySelector('[class*="grandTotal"]'));
     assert.ok(widget.querySelector('[class*="summarySalePrice"]'));
     const field = document.querySelector('textarea[aria-label$="Bundle total"]');
@@ -133,7 +143,8 @@ test('translation hints only describe conditional copy and cart outcome controls
   try {
     const { translationCopy, translationUsageKeys } = await vite.ssrLoadModule('/src/prototype/translation-preview.ts');
     const { APP_LOCALES } = await vite.ssrLoadModule('/src/prototype/admin-locale.ts');
-    assert.equal(translationCopy.length, 14);
+    assert.equal(translationCopy.length, 16);
+    for (const key of ['widget.gifts.title', 'widget.bundles.title']) assert.ok(translationCopy.some(entry => entry.key === key && entry.location === 'Widget header'));
     for (const key of ['widget.title', 'widget.tier_savings_badge', 'widget.original', 'widget.savings', 'widget.total', 'widget.add_to_cart']) assert.equal(translationUsageKeys[key], undefined);
     for (const key of ['widget.description', 'widget.tier_rule', 'widget.checkout_note', 'widget.adding']) assert.equal(translationCopy.some((entry) => entry.key === key), false);
     for (const locale of APP_LOCALES) {

@@ -31,7 +31,7 @@ test('all supplied storefront defaults retain the required placeholders', async 
   } finally { await vite.close(); }
 });
 
-test('every non-English storefront language starts with localized textarea defaults', async () => {
+test('non-English drafts localize established copy and preserve confirmed English offer title sources', async () => {
   const vite = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
   try {
     const { initialTranslationDraft } = await vite.ssrLoadModule('/src/prototype/storefront-translation-defaults.ts');
@@ -40,7 +40,15 @@ test('every non-English storefront language starts with localized textarea defau
 
     for (const locale of STOREFRONT_LOCALES.filter((locale) => locale !== 'en')) {
       const draft = initialTranslationDraft(locale, {});
-      for (const entry of storefrontCopy) assert.notEqual(draft[entry.key], entry.source, `${locale}: ${entry.key} fell back to English`);
+      const offerTitles = { 'widget.gifts.title': '🎁 Free gifts with your order', 'widget.bundles.title': 'Frequently Bought Together' };
+      for (const entry of storefrontCopy) {
+        if (Object.hasOwn(offerTitles, entry.key)) {
+          assert.equal(entry.source, offerTitles[entry.key]);
+          assert.equal(draft[entry.key], offerTitles[entry.key], `${locale}: confirmed title default`);
+          assert.equal(initialTranslationDraft(locale, { [entry.key]: 'Merchant title' })[entry.key], 'Merchant title');
+          assert.equal(initialTranslationDraft(locale, { [entry.key]: '' })[entry.key], '', 'explicit empty is not missing');
+        } else assert.notEqual(draft[entry.key], entry.source, `${locale}: ${entry.key} fell back to English`);
+      }
     }
   } finally { await vite.close(); }
 });

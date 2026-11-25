@@ -1,0 +1,1015 @@
+{
+  "status": "local Task6 complete; Task7 implementation and final independent branch review pending",
+  "base": "4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7",
+  "task6_base": "fe25e31a1cf274d8ed1891096eb01f037bd86def",
+  "remote": "https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git",
+  "branch": "codex/gifts-bundles-test",
+  "tests": [
+    {
+      "command": "PATH=/usr/local/go/bin:/Users/SL/.nvm/versions/node/v22.22.3/bin:$PATH node --test tests/offer-modules/cross-layer.test.mjs",
+      "cwd": "/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test",
+      "exit_code": 0,
+      "log": "task-6-cross-final.log",
+      "summary": [
+        "ok 1 - saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 2",
+        "ok 2 - saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 4",
+        "ok 3 - Go pools two qualifying Products once and caps actual line totals across duplicate contexts",
+        "ok 4 - saved locale title and explicit empty heading reach the actual theme without disabling gifts",
+        "ok 5 - both saved disabled modules and nonnegotiating clients preserve v1 and main-only requests",
+        "# tests 5",
+        "# pass 5",
+        "# fail 0",
+        "# skipped 0",
+        "# duration_ms 19387.264125"
+      ],
+      "log_sha256": "af9375d74062c27c6dc8d42b4e63ba5e5f3f4e4042a8048b27fb77ed49137f29",
+      "actual_output": "TAP version 13\n# (node:48465) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 2\nok 1 - saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 2\n  ---\n  duration_ms: 9655.701042\n  type: 'test'\n  ...\n# Subtest: saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 4\nok 2 - saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 4\n  ---\n  duration_ms: 7360.89675\n  type: 'test'\n  ...\n# Subtest: Go pools two qualifying Products once and caps actual line totals across duplicate contexts\nok 3 - Go pools two qualifying Products once and caps actual line totals across duplicate contexts\n  ---\n  duration_ms: 1541.17225\n  type: 'test'\n  ...\n# Subtest: saved locale title and explicit empty heading reach the actual theme without disabling gifts\nok 4 - saved locale title and explicit empty heading reach the actual theme without disabling gifts\n  ---\n  duration_ms: 49.712\n  type: 'test'\n  ...\n# Subtest: both saved disabled modules and nonnegotiating clients preserve v1 and main-only requests\nok 5 - both saved disabled modules and nonnegotiating clients preserve v1 and main-only requests\n  ---\n  duration_ms: 30.392625\n  type: 'test'\n  ...\n1..5\n# tests 5\n# suites 0\n# pass 5\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 19387.264125\n"
+    },
+    {
+      "command": "node --test --test-name-pattern=\"main quantity 2\" tests/offer-modules/cross-layer.test.mjs (temporary gift-projection mutation, restored in finally)",
+      "cwd": "/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test",
+      "exit_code": 1,
+      "log": "task-6-cross-mutation-red.log",
+      "summary": [
+        "not ok 1 - saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 2",
+        "# tests 1",
+        "# pass 0",
+        "# fail 1",
+        "# skipped 0",
+        "# duration_ms 3610.067417"
+      ],
+      "log_sha256": "b3e7cc3de88f6ab5cb0d1ba3199727d58e574515d837ef2bb1038be1161400fe",
+      "actual_output": "TAP version 13\n# (node:47875) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n# (Use `node --trace-warnings ...` to show where the warning was created)\n# Subtest: saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 2\nnot ok 1 - saved D1 → Worker v2 → mounted theme batch → real Go codec at main quantity 2\n  ---\n  duration_ms: 2889.654458\n  type: 'test'\n  location: '/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/tests/offer-modules/cross-layer.test.mjs:86:4'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly deep-equal:\n    + actual - expected\n    \n      [\n        {\n    -     amount: '20.00',\n    -     each: false,\n    -     line: 'line-1',\n    -     quantity: 1\n    -   },\n    -   {\n          amount: '10.00',\n          each: false,\n          line: 'line-2',\n          quantity: 1\n        },\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected:\n    0:\n      line: 'line-1'\n      quantity: 1\n      amount: '20.00'\n      each: false\n    1:\n      line: 'line-2'\n      quantity: 1\n      amount: '10.00'\n      each: false\n    2:\n      line: 'line-3'\n      quantity: 1\n      amount: '10.00'\n      each: false\n  actual:\n    0:\n      line: 'line-2'\n      quantity: 1\n      amount: '10.00'\n      each: false\n    1:\n      line: 'line-3'\n      quantity: 1\n      amount: '10.00'\n      each: false\n  operator: 'deepStrictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/SL/Desktop/%E5%A4%9A%E4%BB%B6%E6%8A%98%E6%89%A3-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83/duojianzhekou-test/tests/offer-modules/cross-layer.test.mjs:97:12)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 3610.067417\n"
+    },
+    {
+      "command": "node --test --test-name-pattern='every non-English storefront language starts|translation preview shows inline|translation hints only' test/storefront-translation-defaults.test.mjs test/translation-preview.test.mjs",
+      "cwd": "/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/web",
+      "exit_code": 1,
+      "log": "task-6-titles-red.log",
+      "summary": [
+        "not ok 1 - every non-English storefront language starts with localized textarea defaults",
+        "not ok 2 - translation preview shows inline cart outcomes without examples or real cart writes",
+        "not ok 3 - translation hints only describe conditional copy and cart outcome controls are localized",
+        "# tests 3",
+        "# pass 0",
+        "# fail 3",
+        "# skipped 0",
+        "# duration_ms 2769.6395"
+      ],
+      "log_sha256": "71b8de6c0fd7f48976f815683c761f0186e912d0138387b15cd2d5d76d1e93b7",
+      "actual_output": "TAP version 13\n# Subtest: every non-English storefront language starts with localized textarea defaults\nnot ok 1 - every non-English storefront language starts with localized textarea defaults\n  ---\n  duration_ms: 216.264375\n  type: 'test'\n  location: '/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/web/test/storefront-translation-defaults.test.mjs:34:1'\n  failureType: 'testCodeFailure'\n  error: 'ar: widget.gifts.title fell back to English'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: '🎁 Free gifts with your order'\n  actual: '🎁 Free gifts with your order'\n  operator: 'notStrictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/SL/Desktop/%E5%A4%9A%E4%BB%B6%E6%8A%98%E6%89%A3-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83/duojianzhekou-test/web/test/storefront-translation-defaults.test.mjs:43:50)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# Subtest: translation preview shows inline cart outcomes without examples or real cart writes\nnot ok 2 - translation preview shows inline cart outcomes without examples or real cart writes\n  ---\n  duration_ms: 2671.003084\n  type: 'test'\n  location: '/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/web/test/translation-preview.test.mjs:52:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    16 !== 14\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 14\n  actual: 16\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/SL/Desktop/%E5%A4%9A%E4%BB%B6%E6%8A%98%E6%89%A3-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83/duojianzhekou-test/web/test/translation-preview.test.mjs:81:12)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)\n  ...\n# Subtest: translation hints only describe conditional copy and cart outcome controls are localized\nnot ok 3 - translation hints only describe conditional copy and cart outcome controls are localized\n  ---\n  duration_ms: 30.678375\n  type: 'test'\n  location: '/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/web/test/translation-preview.test.mjs:130:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    16 !== 14\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 14\n  actual: 16\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/SL/Desktop/%E5%A4%9A%E4%BB%B6%E6%8A%98%E6%89%A3-%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83/duojianzhekou-test/web/test/translation-preview.test.mjs:136:12)\n    async Test.run (node:internal/test_runner/test:1054:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)\n  ...\n1..3\n# tests 3\n# suites 0\n# pass 0\n# fail 3\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 2769.6395\n"
+    },
+    {
+      "command": "node --test test/storefront-translation-defaults.test.mjs test/translation-preview.test.mjs",
+      "cwd": "/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/web",
+      "exit_code": 0,
+      "log": "task-6-titles-green.log",
+      "summary": [
+        "ok 1 - storefront translation drafts start in the selected language and preserve merchant edits",
+        "ok 2 - all supplied storefront defaults retain the required placeholders",
+        "ok 3 - non-English drafts localize established copy and preserve confirmed English offer title sources",
+        "ok 4 - every non-English theme language localizes the tier savings badge",
+        "ok 5 - translations render a draft-aware storefront preview that follows the page language",
+        "ok 6 - translations use an icon and concise label for the language refresh action",
+        "ok 7 - translations provide matching editor and preview skeleton columns while languages load",
+        "ok 8 - translations refresh the storefront language list after restoring cached languages",
+        "ok 9 - translation preview shows inline cart outcomes without examples or real cart writes",
+        "ok 10 - translation hints only describe conditional copy and cart outcome controls are localized",
+        "# tests 10",
+        "# pass 10",
+        "# fail 0",
+        "# skipped 0",
+        "# duration_ms 6690.491375"
+      ],
+      "log_sha256": "9b314dc249d218a489fe23b0ede8625fbacac0b22f6baad569deb696b9ba0c42",
+      "actual_output": "TAP version 13\n# Subtest: storefront translation drafts start in the selected language and preserve merchant edits\nok 1 - storefront translation drafts start in the selected language and preserve merchant edits\n  ---\n  duration_ms: 177.056417\n  type: 'test'\n  ...\n# Subtest: all supplied storefront defaults retain the required placeholders\nok 2 - all supplied storefront defaults retain the required placeholders\n  ---\n  duration_ms: 72.479416\n  type: 'test'\n  ...\n# Subtest: non-English drafts localize established copy and preserve confirmed English offer title sources\nok 3 - non-English drafts localize established copy and preserve confirmed English offer title sources\n  ---\n  duration_ms: 81.139\n  type: 'test'\n  ...\n# Subtest: every non-English theme language localizes the tier savings badge\nok 4 - every non-English theme language localizes the tier savings badge\n  ---\n  duration_ms: 2.03575\n  type: 'test'\n  ...\n# Subtest: translations render a draft-aware storefront preview that follows the page language\nok 5 - translations render a draft-aware storefront preview that follows the page language\n  ---\n  duration_ms: 5.471\n  type: 'test'\n  ...\n# Subtest: translations use an icon and concise label for the language refresh action\nok 6 - translations use an icon and concise label for the language refresh action\n  ---\n  duration_ms: 1.566208\n  type: 'test'\n  ...\n# Subtest: translations provide matching editor and preview skeleton columns while languages load\nok 7 - translations provide matching editor and preview skeleton columns while languages load\n  ---\n  duration_ms: 1.890708\n  type: 'test'\n  ...\n# Subtest: translations refresh the storefront language list after restoring cached languages\nok 8 - translations refresh the storefront language list after restoring cached languages\n  ---\n  duration_ms: 0.683917\n  type: 'test'\n  ...\n# Subtest: translation preview shows inline cart outcomes without examples or real cart writes\nok 9 - translation preview shows inline cart outcomes without examples or real cart writes\n  ---\n  duration_ms: 6565.355041\n  type: 'test'\n  ...\n# Subtest: translation hints only describe conditional copy and cart outcome controls are localized\nok 10 - translation hints only describe conditional copy and cart outcome controls are localized\n  ---\n  duration_ms: 39.935292\n  type: 'test'\n  ...\n1..10\n# tests 10\n# suites 0\n# pass 10\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 6690.491375\n"
+    },
+    {
+      "command": "node --test --test-name-pattern='server campaign conversion restores missing detailed appearance defaults|campaign editor separates the internal|duplicate quantities in an unsaved|style editor exposes badge placement|right corner badges stay|shows only the selected variant price|reserves a readable Recommended' test/campaign-adapter.test.mjs test/editor-structure.test.mjs test/feedback-board.test.mjs test/variant-display.test.mjs",
+      "cwd": "/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test/.superpowers/sdd/2026-11-25-test-gifts-bundles-implementation/task6-prefeature/web",
+      "base": "4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7",
+      "exit_code": 1,
+      "log": "task-6-prefeature-baseline.log",
+      "summary": [
+        "not ok 1 - server campaign conversion restores missing detailed appearance defaults",
+        "not ok 2 - campaign editor separates the internal and checkout discount names and renders coverage detail rows",
+        "not ok 3 - duplicate quantities in an unsaved draft keep preview radio IDs unique",
+        "not ok 4 - style editor exposes badge placement and separate variant, cart, savings and button controls",
+        "not ok 3 - test/feedback-board.test.mjs",
+        "not ok 6 - right corner badges stay in the tier header on narrow previews",
+        "not ok 7 - shows only the selected variant price in a bundle slot header",
+        "not ok 8 - reserves a readable Recommended column instead of shrinking its label",
+        "# tests 8",
+        "# pass 0",
+        "# fail 8",
+        "# skipped 0",
+        "# duration_ms 5230.218792"
+      ],
+      "log_sha256": "9a4b7b30b0411e0aa57aba3462d7a98f3fcc9417aed1f14208a4714c0b8e2237"
+    }
+  ],
+  "protection": {
+    "production_file_count": 725,
+    "production_changed_paths": [],
+    "production_status_matches": true,
+    "test_identity_snapshots": {
+      "test-identities-baseline.json": {
+        "count": 6,
+        "changed_paths": []
+      },
+      "test-identities-expanded-baseline.json": {
+        "count": 9,
+        "changed_paths": []
+      }
+    },
+    "remote": "https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git",
+    "branch": "codex/gifts-bundles-test"
+  },
+  "secret_scan": {
+    "high_confidence_patterns_only": true,
+    "candidate_paths": [],
+    "manual_review": "No new credentials or protected configurations staged; synthetic test values only."
+  },
+  "added_or_modified_focus_css_paths": [],
+  "rulings_in_original_order": [
+    "user command to start implementation is authorization to execute this written scope continuously; no repeated permission check between tasks — avoids stopping already authorized work; all remote side effects remain separately gated.",
+    "use existing independent test checkout and a feature branch instead of new worktree — satisfies user exact target and avoids source edits; cost is retaining current documentation drafts in this checkout.",
+    "local per-task commits stage only owned task files and never other draft documents; no push occurs until user approval.",
+    "quantity trigger gifts are cumulative; explicit tier-ID triggers use current highest reached tier semantics — preserves existing tier model without changing confirmed ≥2/≥3 gift behavior; cost if wrong is adjusting only tier-ID qualification across clients/Function.",
+    "exclude configured accessory Products from main authority, including ambiguous role cases — prevents circular/self-funded gift or bundle quota when same Product appears in both roles; cost if wrong is rejecting an intended same-Product accessory promotion until a verified unit-level distinction exists.",
+    "follow user native all_products approach; replace provisional Storefront credential/transport dependency with test-only published shop-metafield handle index and theme-native availability/prices — official docs confirm native fields; cost is an extra idempotent publication synchronization step and OS2.1 20-handle preload boundary. Exact implementation handoff theme-catalog-ruling.md. Original business rules unchanged; no remote writes authorized.",
+    "native SSR preloads scope-relevant candidates without guessing undocumented current-clock API; Worker/public response alone selects active schedule/priority — official date docs lacked server-now support, so highest-only SSR would suppress valid scheduled overlaps; cost is extra native lookups and potential OS2.1 shared20-handle exhaustion, handled unavailable with main usable. Exact follow-up appended native ruling/Task5 brief.",
+    "interpret fixed-one bundles as one unit per rule/add, retaining earlier explicitly confirmed per-distinct-main-Product pooled quota (each contributes1) — separates new config/UI quantity instruction from cart quota examples; cost if wrong is revising quota across core/Function and checkout vectors."
+  ],
+  "task6_owned_paths": [
+    "docs/APP_PROGRESS.md",
+    "docs/COMPONENTS.md",
+    "docs/DESIGN_SPEC.md",
+    "docs/REQUIREMENTS.md",
+    "docs/USER_FLOWS.md",
+    "docs/audits/2026-11-25-gifts-bundles-files.md",
+    "docs/audits/2026-11-25-gifts-bundles-local-integration.md",
+    "docs/audits/2026-11-25-gifts-bundles-verification.json",
+    "docs/local/gifts-bundles-task4/README.md",
+    "docs/local/gifts-bundles-task5/README.md",
+    "docs/superpowers/plans/2026-11-25-test-gifts-bundles-implementation.md",
+    "docs/superpowers/specs/2026-11-24-gifts-bundles-design.md",
+    "docs/superpowers/specs/2026-11-25-test-gifts-bundles-design.md",
+    "product-discount-customizations/internal/discount/cross_layer_test.go",
+    "tests/offer-modules/cross-layer.test.mjs",
+    "tests/offer-modules/helpers/sqlite-d1.mjs",
+    "web/test/storefront-translation-defaults.test.mjs",
+    "web/test/translation-preview.test.mjs"
+  ],
+  "branch_files": [
+    {
+      "status": "M",
+      "path": "app/src/service/campaign/discount-adapter.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/src/service/campaign/model.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/src/service/campaign/validate.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/src/service/translations.ts"
+    },
+    {
+      "status": "M",
+      "path": "docs/APP_PROGRESS.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/COMPONENTS.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/DESIGN_SPEC.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/REQUIREMENTS.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/USER_FLOWS.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/audits/2026-11-25-gifts-bundles-files.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/audits/2026-11-25-gifts-bundles-local-integration.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/audits/2026-11-25-gifts-bundles-verification.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/after-1440-expanded.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/after-1440-offers.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/after-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/after-320.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/after-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/before-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/before-320.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/before-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/browser-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/browser-interactions.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/carousel-mobile390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/container-400.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/container-600.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/container-700.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/fix1-browser-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/fix1-huge-unavailable.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/header-off.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/header-on-collapsed.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/header-reopened.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/preview-mobile390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/preview-unavailable.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task4/translations-empty-title-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/after-os2.1-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/after-os2.1-320.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/after-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/after-os3-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/after-os3-320.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/after-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/before-os2.1-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/before-os2.1-320.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/before-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/before-os3-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/before-os3-320.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/before-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/browser-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/carousel-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/container-400.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/container-600.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/container-700.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/dynamic-independent-blocks-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/browser-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/single-after-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/single-after-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/single-before-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/single-before-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/uncertain-os2.1-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/uncertain-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/uncertain-os3-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task5/round1/uncertain-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/reference/screenshots/gifts-bundles-section-toggle-reference.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/superpowers/plans/2026-11-25-test-gifts-bundles-implementation.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/superpowers/specs/2026-11-24-gifts-bundles-design.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/superpowers/specs/2026-11-25-test-gifts-bundles-design.md"
+    },
+    {
+      "status": "M",
+      "path": "package.json"
+    },
+    {
+      "status": "M",
+      "path": "product-discount-customizations/input.graphql"
+    },
+    {
+      "status": "A",
+      "path": "product-discount-customizations/internal/discount/accessory.go"
+    },
+    {
+      "status": "A",
+      "path": "product-discount-customizations/internal/discount/accessory_test.go"
+    },
+    {
+      "status": "A",
+      "path": "product-discount-customizations/internal/discount/cross_layer_test.go"
+    },
+    {
+      "status": "M",
+      "path": "product-discount-customizations/internal/discount/discount.go"
+    },
+    {
+      "status": "A",
+      "path": "product-discount-customizations/internal/discount/offer_types.go"
+    },
+    {
+      "status": "A",
+      "path": "product-discount-customizations/internal/discount/offer_types_easyjson.go"
+    },
+    {
+      "status": "M",
+      "path": "product-discount-customizations/internal/discount/rule_easyjson.go"
+    },
+    {
+      "status": "A",
+      "path": "scripts/sync-theme-offer-core.mjs"
+    },
+    {
+      "status": "A",
+      "path": "scripts/theme-offer-runtime.js"
+    },
+    {
+      "status": "A",
+      "path": "shared/offer-core.cjs"
+    },
+    {
+      "status": "A",
+      "path": "shared/offer-core.d.cts"
+    },
+    {
+      "status": "A",
+      "path": "shared/offer-core.d.mts"
+    },
+    {
+      "status": "A",
+      "path": "shared/offer-core.mjs"
+    },
+    {
+      "status": "A",
+      "path": "shared/sync-offer-core.mjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/offer-modules/core.test.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/offer-modules/cross-layer.test.mjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/offer-modules/fixture.cjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/offer-modules/helpers/sqlite-d1.mjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/offer-modules/integration.test.mjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/offer-modules/projection-titles.test.mjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/theme-app-extension/helpers/offer-fixture.mjs"
+    },
+    {
+      "status": "M",
+      "path": "tests/theme-app-extension/helpers/os21-fixture.mjs"
+    },
+    {
+      "status": "A",
+      "path": "tests/theme-app-extension/offers.test.mjs"
+    },
+    {
+      "status": "M",
+      "path": "tests/theme-app-extension/os21.test.mjs"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/blocks/app-block.html"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/assets/app-block.css"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/assets/app-block.js"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/blocks/app-block.html"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/ar.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/bg.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/cs.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/da.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/de.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/el.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/en.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/es.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/et.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/fi.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/fr.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/hi.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/hr.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/hu.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/id.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/it.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/ja.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/ko.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/lt.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/lv.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/ms.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/nb.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/nl.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/pl.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/pt-br.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/pt-pt.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/ro.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/ru.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/sk.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/sl.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/sv.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/th.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/tr.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/vi.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/zh-hans-cn.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/compatibility/locales/zh-hant-tw.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/ar.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/bg.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/cs.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/da.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/de.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/el.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/en.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/es.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/et.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/fi.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/fr.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/hi.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/hr.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/hu.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/id.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/it.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/ja.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/ko.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/lt.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/lv.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/ms.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/nb.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/nl.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/pl.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/pt-br.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/pt-pt.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/ro.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/ru.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/sk.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/sl.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/sv.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/th.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/tr.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/vi.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/zh-hans-cn.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/i18n/zh-hant-tw.json"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/public/app-block.css"
+    },
+    {
+      "status": "M",
+      "path": "theme-app-extension/public/app-block.js"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/CampaignEditor.tsx"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/OfferModulePanel.tsx"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/OfferPreview.tsx"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/OfferStyleEditor.tsx"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/StorefrontWidget.tsx"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/Translations.tsx"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/campaign-adapter.ts"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/model.ts"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/offer-messages.ts"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/offer-preview-client.ts"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/offer-selection.ts"
+    },
+    {
+      "status": "A",
+      "path": "web/src/prototype/offers.module.css"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/storefront-copy.ts"
+    },
+    {
+      "status": "M",
+      "path": "web/src/prototype/storefront-translation-defaults.ts"
+    },
+    {
+      "status": "A",
+      "path": "web/test/offer-editor.test.mjs"
+    },
+    {
+      "status": "M",
+      "path": "web/test/storefront-translation-defaults.test.mjs"
+    },
+    {
+      "status": "M",
+      "path": "web/test/translation-preview.test.mjs"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/db/campaigns.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/db/translations.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/domain/campaign.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/env.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/jobs/campaign-operations.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/routes/campaigns.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/routes/internal-admin.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/routes/storefront.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/services/collection-publication.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/services/discounts.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/src/services/offer-config.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/src/services/offer-index.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/src/services/offer-preview.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/services/shopline-admin-request-headers.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/services/storefront-collections.ts"
+    },
+    {
+      "status": "M",
+      "path": "worker/src/services/storefront-market.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/test/helpers/offers.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/test/offer-index.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/test/offer-modules.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/test/offer-preview.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/test/offer-publication.test.ts"
+    },
+    {
+      "status": "A",
+      "path": "worker/test/offer-storefront.test.ts"
+    }
+  ],
+  "scope_limits": [
+    "No merchant native rendering, metafield writes or platform cart/checkout executed.",
+    "No push, deploy, extension publication or extra Storefront token.",
+    "Task7 latest fixed-one/checkbox/gift-copy requirements pending."
+  ]
+}

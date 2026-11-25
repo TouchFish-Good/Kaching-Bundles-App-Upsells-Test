@@ -1,5 +1,7 @@
 # Task5 native theme fixture evidence
 
+> 本页为Task4/5当时的实际本地证据。Task6期间用户新增要求：捆绑固定1件、商家/买家均无数量控件、原生checkbox选择，赠品不显示重复Included状态。Task7待实施并重新截图，本页旧图不证明新增要求已通过。
+
 All evidence is local to the isolated test checkout. No merchant endpoint or real cart was written. The dedicated fixture server ran on `127.0.0.1:5285`; it was stopped after capture. Browser plugin/CUA were unavailable, so the existing Playwright runtime and installed Chromium headless-shell1248 were used without installation.
 
 `before-os{3,2.1}-{1440,390,320}.png` uses the actual ce738ec JavaScript/CSS. Matching `after-...` files use the current theme JavaScript/CSS. OS2.1 markup is rendered from the actual publishable Handlebars template using documented helper fixtures; OS3 markup simulates the template's native DOM contract. These screenshots do **not** prove native SHOPLINE template compilation, metafield permissions or real shop availability/prices.

@@ -1,5 +1,7 @@
 # Task 4 local visual evidence
 
+> 本页为Task4/5当时的实际本地证据。Task6期间用户新增要求：捆绑固定1件、商家/买家均无数量控件、原生checkbox选择，赠品不显示重复Included状态。Task7待实施并重新截图，本页旧图不证明新增要求已通过。
+
 All images are real Chromium screenshots of the existing React editor/widget using local synthetic catalog/price/session responses. No SHOPLINE integration, real cart write, deployment or merchant write is represented.
 
 - Reference: `docs/reference/screenshots/gifts-bundles-section-toggle-reference.png`.
