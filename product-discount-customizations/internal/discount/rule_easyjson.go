@@ -32,16 +32,37 @@ func (v *discountRule) UnmarshalEasyJSON(in *jlexer.Lexer) {
 			v.StoreCurrencyCode = string(in.String())
 		case "storeCurrencyDecimals":
 			v.StoreCurrencyDecimals = int(in.Int())
+			v.hasCurrencyDecimals = true
 		case "scope":
 			v.Scope.UnmarshalEasyJSON(in)
 		case "tiers":
 			decodeDiscountTiers(in, &v.Tiers)
+		case "gifts":
+			v.giftsJSON = in.Raw()
+		case "bundles":
+			v.bundlesJSON = in.Raw()
 		default:
 			in.SkipRecursive()
 		}
 		in.WantComma()
 	}
 	in.Delim('}')
+	if v.SchemaVersion == 2 {
+		for _, field := range []struct {
+			raw    []byte
+			target **offerModule
+		}{{v.giftsJSON, &v.Gifts}, {v.bundlesJSON, &v.Bundles}} {
+			if len(field.raw) == 0 {
+				continue
+			}
+			*field.target = &offerModule{}
+			parser := jlexer.Lexer{Data: field.raw}
+			(*field.target).UnmarshalEasyJSON(&parser)
+			if err := parser.Error(); err != nil {
+				in.AddError(err)
+			}
+		}
+	}
 	if isTopLevel {
 		in.Consumed()
 	}

@@ -33,12 +33,21 @@ type discountTier struct {
 }
 
 type discountRule struct {
-	SchemaVersion         int            `json:"schemaVersion"`
-	CampaignID            string         `json:"campaignId"`
-	StoreCurrencyCode     string         `json:"storeCurrencyCode"`
-	StoreCurrencyDecimals int            `json:"storeCurrencyDecimals"`
-	Scope                 ruleScope      `json:"scope"`
-	Tiers                 []discountTier `json:"tiers"`
+	SchemaVersion          int            `json:"schemaVersion"`
+	CampaignID             string         `json:"campaignId"`
+	StoreCurrencyCode      string         `json:"storeCurrencyCode"`
+	StoreCurrencyDecimals  int            `json:"storeCurrencyDecimals"`
+	Scope                  ruleScope      `json:"scope"`
+	Tiers                  []discountTier `json:"tiers"`
+	Gifts                  *offerModule   `json:"gifts"`
+	Bundles                *offerModule   `json:"bundles"`
+	giftsJSON, bundlesJSON []byte
+	hasCurrencyDecimals    bool
+}
+
+type ruleNode struct {
+	node *module.DiscountNode
+	rule discountRule
 }
 
 type candidate struct {
@@ -78,10 +87,7 @@ func evaluateDiscounts(req *module.ProductDiscountCustomizationFunctionRequest, 
 		return result
 	}
 	var candidates []candidate
-	validNodes := make([]struct {
-		node *module.DiscountNode
-		rule discountRule
-	}, 0, len(req.DiscountNodes))
+	validNodes := make([]ruleNode, 0, len(req.DiscountNodes))
 	for _, node := range req.DiscountNodes {
 		trace("quantity-breaks: evaluate parse node")
 		if node == nil || node.PriceRuleId == nil || *node.PriceRuleId == "" {
@@ -92,10 +98,7 @@ func evaluateDiscounts(req *module.ProductDiscountCustomizationFunctionRequest, 
 			trace("quantity-breaks: evaluate skipped invalid rule")
 			continue
 		}
-		validNodes = append(validNodes, struct {
-			node *module.DiscountNode
-			rule discountRule
-		}{node, rule})
+		validNodes = append(validNodes, ruleNode{node, rule})
 	}
 	trace("quantity-breaks: evaluate parsed nodes")
 	productMatches := map[string]productRuleMatch{}
@@ -125,10 +128,14 @@ func evaluateDiscounts(req *module.ProductDiscountCustomizationFunctionRequest, 
 			}
 		}
 	}
+	legacyReq := mainRequest(req, validNodes)
 	trace("quantity-breaks: evaluate matched products")
 	for _, entry := range validNodes {
 		trace("quantity-breaks: evaluate apply rule")
-		candidate, valid := applyRule(entry.rule, entry.node, req, productMatches)
+		if entry.rule.SchemaVersion == 2 {
+			continue
+		}
+		candidate, valid := applyRule(entry.rule, entry.node, legacyReq, productMatches)
 		if !valid {
 			trace("quantity-breaks: evaluate invalid candidate")
 			return result
@@ -137,6 +144,8 @@ func evaluateDiscounts(req *module.ProductDiscountCustomizationFunctionRequest, 
 			candidates = append(candidates, candidate)
 		}
 	}
+	v2 := evaluateOffersV2(req, validNodes)
+	candidates = append(candidates, compatibleV2(candidates, v2)...)
 	trace("quantity-breaks: evaluate collected candidates")
 	for _, entry := range candidates {
 		result.Discounts = append(result.Discounts, entry.discounts...)
@@ -151,7 +160,7 @@ func ruleFromNode(node *module.DiscountNode) (discountRule, bool) {
 			continue
 		}
 		var rule discountRule
-		if easyjson.Unmarshal([]byte(field.Value), &rule) != nil || !validRule(rule) {
+		if easyjson.Unmarshal([]byte(field.Value), &rule) != nil || !validRule(rule) || rule.SchemaVersion == 2 && (!uniqueJSON([]byte(field.Value), 0) || !validOffers(rule)) {
 			return discountRule{}, false
 		}
 		return rule, true
@@ -160,7 +169,7 @@ func ruleFromNode(node *module.DiscountNode) (discountRule, bool) {
 }
 
 func validRule(rule discountRule) bool {
-	if rule.SchemaVersion != 1 || rule.CampaignID == "" || len(rule.Tiers) == 0 || len(rule.StoreCurrencyCode) != 3 || rule.StoreCurrencyDecimals < 0 || rule.StoreCurrencyDecimals > 3 {
+	if (rule.SchemaVersion != 1 && rule.SchemaVersion != 2) || rule.CampaignID == "" || len(rule.Tiers) == 0 || len(rule.StoreCurrencyCode) != 3 || rule.StoreCurrencyDecimals < 0 || rule.StoreCurrencyDecimals > 3 {
 		return false
 	}
 	if rule.Scope.Kind != "all" && rule.Scope.Kind != "products" && rule.Scope.Kind != "collections" {

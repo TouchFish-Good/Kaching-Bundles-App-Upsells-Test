@@ -3,8 +3,10 @@ query Input($inCollections: [String]) {
         lines {
             id
             quantity
+            properties { name value type show roleVisibility }
             merchandise {
                 productVariant {
+                    sku
                     product {
                         id
                         inCollections { collectionId isMember }
