@@ -1,3 +1,5 @@
+import type { OfferModuleConfig } from '../../../../shared/offer-core.cjs';
+export type { OfferModuleKind, OfferModuleConfig, OfferRule, OfferDeviceStyle, OfferTrigger, OfferMarketOverride, OfferFunctionRule, OfferFunctionModule } from '../../../../shared/offer-core.cjs';
 import type { CampaignWidgetConfig } from './widget-config';
 
 export type CampaignStatus = 'draft' | 'active' | 'scheduled' | 'paused' | 'ended';
@@ -34,5 +36,7 @@ export type CampaignDraft = {
   tiers: CampaignTier[];
   combinesWith: { orderDiscounts: boolean; productDiscounts: boolean; shippingDiscounts: boolean };
   widget?: CampaignWidgetConfig;
+  gifts?: OfferModuleConfig;
+  bundles?: OfferModuleConfig;
 };
 export type Campaign = CampaignDraft & { revision: number; updatedAt: string };

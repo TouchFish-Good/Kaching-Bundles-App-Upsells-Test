@@ -1,3 +1,4 @@
+import { validateOfferModule } from '../../../../shared/offer-core.cjs';
 import type { CampaignDraft, CampaignScope } from './model';
 import { validateCampaignWidgetConfig } from './widget-config';
 
@@ -57,6 +58,7 @@ export function validateCampaign(value: CampaignDraft): string[] {
     }
   }
   if (!value.combinesWith || typeof value.combinesWith.orderDiscounts !== 'boolean' || typeof value.combinesWith.productDiscounts !== 'boolean' || typeof value.combinesWith.shippingDiscounts !== 'boolean') errors.push('Combination choices are required.');
+  for (const kind of ['gifts', 'bundles'] as const) if (value[kind] !== undefined) errors.push(...validateOfferModule(value[kind], kind, value.tiers));
   if (value.widget !== undefined) errors.push(...validateCampaignWidgetConfig(value.widget));
   if (!value.startsAt) errors.push('startsAt is required.');
   else if (Number.isNaN(Date.parse(value.startsAt))) errors.push('Invalid startsAt.');

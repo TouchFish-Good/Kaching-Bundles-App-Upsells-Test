@@ -1,3 +1,6 @@
+import { validateOfferModule } from '../../../shared/offer-core.mjs';
+import type { OfferModuleConfig } from '../../../shared/offer-core.mjs';
+export type { OfferModuleKind, OfferModuleConfig, OfferRule, OfferDeviceStyle, OfferTrigger, OfferMarketOverride, OfferFunctionRule, OfferFunctionModule } from '../../../shared/offer-core.mjs';
 export type WidgetTypography = { sizePx: number; weight: number };
 export type CampaignWidgetConfig = {
   version: 1;
@@ -203,6 +206,8 @@ export type CampaignDraft = {
   tiers: CampaignTier[];
   combinesWith: { orderDiscounts: boolean; productDiscounts: boolean; shippingDiscounts: boolean };
   widget?: CampaignWidgetConfig;
+  gifts?: OfferModuleConfig;
+  bundles?: OfferModuleConfig;
   pauseReason?: 'subscription_expired' | 'platform_missing';
 };
 export type Campaign = CampaignDraft & { revision: number; updatedAt: string };
@@ -286,6 +291,7 @@ export function validateCampaign(value: CampaignDraft): string[] {
     }
   }
   if (!value.combinesWith || typeof value.combinesWith.orderDiscounts !== 'boolean' || typeof value.combinesWith.productDiscounts !== 'boolean' || typeof value.combinesWith.shippingDiscounts !== 'boolean') errors.push('Combination choices are required.');
+  for (const kind of ['gifts', 'bundles'] as const) if (value[kind] !== undefined) errors.push(...validateOfferModule(value[kind], kind, value.tiers));
   if (value.widget !== undefined) errors.push(...validateCampaignWidgetConfig(value.widget));
   if (!value.startsAt) errors.push('startsAt is required.');
   else if (Number.isNaN(Date.parse(value.startsAt))) errors.push('Invalid startsAt.');

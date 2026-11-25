@@ -1,3 +1,5 @@
+import type { OfferModuleConfig } from '../../../shared/offer-core.mjs';
+export type { OfferModuleKind, OfferModuleConfig, OfferRule, OfferDeviceStyle, OfferTrigger, OfferMarketOverride } from '../../../shared/offer-core.mjs';
 import type { CampaignWidgetConfig } from './widget-config';
 
 export type CampaignStatus = "Active" | "Scheduled" | "Paused" | "Pausing" | "Starting" | "Draft" | "Ended" | "Unverified";
@@ -27,6 +29,8 @@ export type Campaign = {
   combineProduct?: boolean;
   combineShipping?: boolean;
   widget?: CampaignWidgetConfig;
+  gifts?: OfferModuleConfig;
+  bundles?: OfferModuleConfig;
   collectionConflict?: { state: 'clear' | 'conflict' | 'unknown'; campaignIds: string[] };
 };
 

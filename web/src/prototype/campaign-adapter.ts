@@ -1,3 +1,4 @@
+import { normalizeOfferModule, type OfferModuleConfig } from '../../../shared/offer-core.mjs';
 import type { Campaign, Tier, CampaignListStatus } from './model';
 import { defaultCampaignWidgetConfig, normalizeCampaignWidgetConfig, type CampaignWidgetConfig } from './widget-config';
 import { campaignText } from './campaign-editor-messages';
@@ -9,6 +10,8 @@ export type ServerCampaign = {
   tiers: Array<{ tierId: string; displayOrder: number; quantity: number; discountType: 'none' | 'percentage' | 'fixed_amount' | 'fixed_price' | 'bundle_fixed_amount' | 'bundle_fixed_price'; discountValue?: number; marketOverrides?: Tier['marketOverrides']; recommended?: boolean; label?: string; subtitle?: string; tag?: string }>;
   combinesWith: { orderDiscounts: boolean; productDiscounts?: boolean; shippingDiscounts: boolean };
   startsAt?: string; endsAt?: string; neverExpires?: boolean; timeZone?: string; widget?: CampaignWidgetConfig;
+  gifts?: OfferModuleConfig;
+  bundles?: OfferModuleConfig;
   platformDiscountId?: string;
   platformStatus?: 'active' | 'paused' | 'missing' | 'unverified';
   platformOperationState?: 'idle' | 'publishing' | 'activating' | 'updating' | 'active' | 'pausing' | 'paused' | 'unpublishing' | 'deleting' | 'removed' | 'entitlement_revoked' | 'missing' | 'needs_reconciliation';
@@ -89,6 +92,8 @@ export function toAdminCampaign(server: ServerCampaign, productTitles: Record<st
         : `${server.scope.collectionIds?.length ?? 0} collections`;
   return {
     id: server.id, name: server.name, discountName: server.discountName?.trim() || server.name, products, scope: server.scope, status: displayStatus(server), listStatus: listStatusLabels[displayStatus(server)], revision: server.revision, collectionConflict: server.collectionConflict,
+    gifts: normalizeOfferModule(server.gifts, 'gifts'),
+    bundles: normalizeOfferModule(server.bundles, 'bundles'),
     widget: server.widget ? normalizeCampaignWidgetConfig(server.widget) : defaultCampaignWidgetConfig(),
     startsAt: server.startsAt, endsAt: server.endsAt, neverExpires: server.neverExpires ?? !server.endsAt, timeZone: server.timeZone, combineOrder: server.combinesWith.orderDiscounts, combineProduct: server.combinesWith.productDiscounts ?? false, combineShipping: server.combinesWith.shippingDiscounts,
     schedule: formatCampaignDateTime(server.startsAt, undefined, server.timeZone),
@@ -126,5 +131,7 @@ export function toCampaignDraft(admin: Campaign, original?: ServerCampaign): Omi
       shippingDiscounts: admin.combineShipping ?? original?.combinesWith.shippingDiscounts ?? false,
     },
     widget: admin.widget ?? original?.widget,
+    gifts: normalizeOfferModule(admin.gifts ?? original?.gifts, 'gifts'),
+    bundles: normalizeOfferModule(admin.bundles ?? original?.bundles, 'bundles'),
   };
 }
