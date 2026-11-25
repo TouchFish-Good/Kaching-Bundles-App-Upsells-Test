@@ -89,6 +89,21 @@ export function OfferModulePanel({
         r.ruleId === id ? { ...r, ...change } : r,
       ),
     });
+  const replaceItems = (items: OfferRule[]) => {
+    const retained = new Set(items.map((rule) => rule.ruleId));
+    const retainDrafts = (drafts: Record<string, string>) =>
+      Object.fromEntries(
+        Object.entries(drafts).filter(([id]) => retained.has(id)),
+      );
+    const nextErrors = retainDrafts(errors);
+    setErrors(nextErrors);
+    setAmounts(retainDrafts);
+    for (const id of pending.current) {
+      if (!retained.has(id)) pending.current.delete(id);
+    }
+    onDraftError(Object.values(nextErrors)[0] ?? "");
+    onChange({ ...value, items });
+  };
   const selectProducts = (selected: string[]) => {
     const items = selected.map((id, index) => {
       const old = value.items.find((r) => r.productId === id);
@@ -109,7 +124,7 @@ export function OfferModulePanel({
         trigger: { type: "quantity", operator: "gte", quantity: 2 },
       } as OfferRule;
     });
-    onChange({ ...value, items });
+    replaceItems(items);
   };
   const amount = (rule: OfferRule, input: string) => {
     setAmounts((current) => ({ ...current, [rule.ruleId]: input }));
@@ -206,18 +221,9 @@ export function OfferModulePanel({
                   type="button"
                   className={styles.remove}
                   aria-label={`${text("remove")} ${product?.title ?? ""}`}
-                  onClick={() => {
-                    const nextErrors = { ...errors };
-                    delete nextErrors[rule.ruleId];
-                    setErrors(nextErrors);
-                    onDraftError(Object.values(nextErrors)[0] ?? "");
-                    onChange({
-                      ...value,
-                      items: value.items.filter(
-                        (r) => r.ruleId !== rule.ruleId,
-                      ),
-                    });
-                  }}
+                  onClick={() =>
+                    replaceItems(value.items.filter((r) => r.ruleId !== rule.ruleId))
+                  }
                 >
                   <Trash2 size={16} />
                 </button>

@@ -1,0 +1,17 @@
+{
+  "source": "Local simulated preview only; no SHOPLINE or real-cart writes",
+  "unavailable": {
+    "giftUnavailable": "Included giftTravel serumUnavailable",
+    "giftControls": 0,
+    "bundleQuantity": "4294967296",
+    "bundleIncluded": "false",
+    "bundleControls": 0,
+    "configuredGiftQuantity": 4294967296,
+    "summary": "Accessories $0.00Total $64.00Simulated cart preview"
+  },
+  "recovered": {
+    "included": "true",
+    "controls": 2
+  },
+  "pageErrors": []
+}

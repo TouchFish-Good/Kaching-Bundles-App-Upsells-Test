@@ -160,7 +160,7 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
   const combinedQuantity = quantity + offers.quantity;
   const combinedTotal = discounted + offers.discounted;
   const combinedOriginal = original + offers.original;
-  const combinedSafe = offers.safe && Number.isSafeInteger(combinedTotal) && Number.isSafeInteger(combinedOriginal);
+  const combinedSafe = offers.safe && Number.isSafeInteger(combinedQuantity) && Number.isSafeInteger(combinedTotal) && Number.isSafeInteger(combinedOriginal);
   const selectedPriceFailed = selected.some(variant => previewPricing?.unavailableVariantIds?.includes(variant.id));
   const previewStatus = previewTier.status === 'unavailable'
     ? previewMessages?.conversionUnavailable ?? 'Market discount conversion is unavailable.'

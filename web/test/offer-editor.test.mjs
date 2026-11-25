@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { Simulate } from "react-dom/test-utils";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 await i18n.use(initReactI18next).init({
@@ -19,9 +18,8 @@ await i18n.use(initReactI18next).init({
 });
 import { test } from "node:test";
 import React, { act } from "react";
-import { createRoot } from "react-dom/client";
 import { createServer } from "vite";
-import { JSDOM } from "jsdom";
+import { JSDOM, VirtualConsole } from "jsdom";
 import { defaultOfferModule } from "../../shared/offer-core.mjs";
 const rule = (id, quantity = 2) => ({
   ruleId: id,
@@ -91,7 +89,14 @@ async function harness(run) {
     server: { middlewareMode: true, hmr: false },
     appType: "custom",
   });
-  const dom = new JSDOM('<div id="root"></div>', { url: "http://localhost" });
+  const jsdomErrors = [];
+  const virtualConsole = new VirtualConsole();
+  virtualConsole.on("jsdomError", (error) => jsdomErrors.push(error.message));
+  virtualConsole.sendTo(console);
+  const dom = new JSDOM('<div id="root"></div>', {
+    url: "http://localhost",
+    virtualConsole,
+  });
   const keys = [
     "window",
     "document",
@@ -110,6 +115,9 @@ async function harness(run) {
     },
     IS_REACT_ACT_ENVIRONMENT: true,
   });
+  // ReactDOM detects input-event support at import time; install the DOM first.
+  const { createRoot } = await import("react-dom/client");
+  const { Simulate } = await import("react-dom/test-utils");
   const root = createRoot(document.getElementById("root"));
   try {
     await run({
@@ -136,6 +144,7 @@ async function harness(run) {
     Object.assign(globalThis, old);
     dom.window.close();
     await vite.close();
+    assert.deepEqual(jsdomErrors, [], "unexpected jsdom exceptions must fail the DOM harness");
   }
 }
 test("editor preview automatically includes both gifts at four and only A at two without gift cancellation", () =>
@@ -990,4 +999,110 @@ test("campaign editor device controls preserve selected bundles and variants", (
       document.querySelector('[data-offer-kind="bundles"] select').value,
       "bl",
     );
+  }));
+
+test("large persisted gift quantities fail unavailable before expanding unit controls", () =>
+  harness(async ({ vite, render }) => {
+    const { StorefrontWidget } = await vite.ssrLoadModule("/src/prototype/StorefrontWidget.tsx");
+    for (const quantity of [4294967296, 1000000, Number.MAX_SAFE_INTEGER, 0, -1, 1.5]) {
+      const gifts = moduleFor("gifts", [{ ...rule("a"), quantity }]);
+      await render(StorefrontWidget, { ...base, gifts, offerPreview: { state: "ready", products } });
+      const card = document.querySelector('[data-rule-id="a"]');
+      assert.equal(card.dataset.included, "false");
+      assert.match(card.textContent, /unavailable/i);
+      assert.equal(card.querySelectorAll("select").length, 0);
+      assert.equal(gifts.items[0].quantity, quantity, "preview must preserve merchant configuration");
+    }
+  }));
+
+test("large buyer bundle quantity stays editable and cannot allocate or quote truncated units", () =>
+  harness(async ({ vite, render, click, change }) => {
+    const { StorefrontWidget } = await vite.ssrLoadModule("/src/prototype/StorefrontWidget.tsx");
+    await render(StorefrontWidget, {
+      ...base, bundles: moduleFor("bundles", [rule("a")]), offerPreview: { state: "ready", products },
+    });
+    await click(document.querySelector('[data-offer-kind="bundles"] input[type="checkbox"]'));
+    const input = () => document.querySelector('[data-offer-kind="bundles"] input[type="number"]');
+    await change(input(), "4294967296");
+    const card = document.querySelector('[data-rule-id="a"]');
+    assert.equal(input().value, "4294967296");
+    assert.equal(card.dataset.included, "false");
+    assert.match(card.textContent, /unavailable/i);
+    assert.equal(card.querySelectorAll("select").length, 0);
+    await change(input(), "2");
+    assert.equal(card.dataset.included, "true");
+    assert.equal(card.querySelectorAll("select").length, 2);
+  }));
+
+test("picker deselection clears removed drafts and keeps retained rule errors", () =>
+  harness(async ({ vite, render, click, change }) => {
+    const { OfferModulePanel } = await vite.ssrLoadModule("/src/prototype/OfferModulePanel.tsx");
+    let current;
+    const fetcher = async () => json({ products: pickerProducts(), missingIds: [], nextPageInfo: null });
+    function Form() {
+      const [value, setValue] = React.useState(moduleFor("bundles", [
+        { ...rule("a"), discountType: "percentage" },
+        { ...rule("b"), discountType: "percentage" },
+      ]));
+      const [error, setError] = React.useState("");
+      current = value;
+      return React.createElement(React.Fragment, null,
+        React.createElement(OfferModulePanel, { kind: "bundles", value, onChange: setValue,
+          tiers: base.tiers, locale: "en", fetcher, currencyCode: "USD", onDraftError: setError }),
+        React.createElement("output", { id: "draft-error" }, error));
+    }
+    await render(Form, {});
+    await click(document.querySelector("[aria-expanded]"));
+    await settle();
+    const drafts = () => document.querySelectorAll('[data-offer-panel] input[inputmode="decimal"]');
+    const choose = async (index, count) => {
+      await click([...document.querySelectorAll("button")].find(b => b.textContent === "Add products"));
+      await settle();
+      await click(document.querySelectorAll('[role="dialog"] input[type="checkbox"]')[index]);
+      await click([...document.querySelectorAll('[role="dialog"] button')].find(b => b.textContent === `Select ${count} item${count === 1 ? "" : "s"}`));
+      await settle();
+    };
+    await change(drafts()[0], "invalid-a");
+    assert.ok(document.querySelector("#draft-error").textContent);
+    await choose(0, 1);
+    assert.deepEqual(current.items.map(r => r.productId), ["b"]);
+    assert.equal(document.querySelector("#draft-error").textContent, "", "removed invalid rule must not block save");
+    await choose(0, 2);
+    assert.ok([...drafts()].every(input => input.value !== "invalid-a"));
+    await change(drafts()[0], "invalid-b");
+    await change(drafts()[1], "invalid-a-again");
+    await choose(0, 1);
+    assert.deepEqual(current.items.map(r => r.productId), ["b"]);
+    assert.ok(document.querySelector("#draft-error").textContent, "retained invalid rule must still block save");
+    await change(drafts()[0], "10");
+    assert.equal(document.querySelector("#draft-error").textContent, "");
+  }));
+
+test("unsafe aggregate quote exposes no partial accessory quantity or cart lines", () =>
+  harness(async ({ vite, render }) => {
+    const { useOfferSelection } = await vite.ssrLoadModule("/src/prototype/offer-selection.ts");
+    let selection;
+    const expensive = products.slice(0, 2).map(product => ({
+      ...product,
+      variants: product.variants.map(variant => ({
+        ...variant,
+        price: { ...variant.price, amountMinor: Number.MAX_SAFE_INTEGER },
+      })),
+    }));
+    function Probe() {
+      selection = useOfferSelection({
+        gifts: moduleFor("gifts", [rule("a"), rule("b")]),
+        preview: { state: "ready", products: expensive },
+        tiers: base.tiers,
+        mainQuantity: 4,
+        currencyCode: "USD",
+      });
+      return null;
+    }
+    await render(Probe, {});
+    assert.equal(selection.safe, false);
+    assert.equal(selection.quantity, 0);
+    assert.deepEqual(selection.lines, []);
+    assert.equal(selection.original, 0);
+    assert.equal(selection.discounted, 0);
   }));

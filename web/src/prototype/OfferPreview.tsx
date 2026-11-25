@@ -284,13 +284,13 @@ function OfferGroup({
                 </>
               )}
               {card.options.length > 0 &&
-                Array.from({ length: card.count }, (_, index) => (
+                card.selected.map((variant, index) => (
                   <label key={index}>
                     {renderStorefrontCopy("widget.choose_option", translations)}{" "}
                     #{index + 1}
                     <select
                       aria-label={`${text(group.kind)} ${card.product?.title} ${renderStorefrontCopy("widget.choose_option", translations)} ${index + 1}`}
-                      value={card.selected[index]?.id ?? ""}
+                      value={variant?.id ?? ""}
                       onChange={(e) =>
                         selection.selectVariant(
                           group.kind as OfferModuleKind,

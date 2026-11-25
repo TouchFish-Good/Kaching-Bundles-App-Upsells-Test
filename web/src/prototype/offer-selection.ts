@@ -15,6 +15,10 @@ import type {
   OfferPreviewState,
   OfferPreviewVariant,
 } from "./offer-preview-client";
+// Only the simulated preview's expanded per-unit controls are bounded. Preserve
+// configured quantities above this budget and mark that accessory unavailable;
+// this is not a Product, campaign, or checkout quantity limit.
+const MAX_PREVIEW_UNIT_CONTROLS = 100;
 export function trustedOfferVariant(
   v: OfferPreviewVariant | undefined,
   currency?: string,
@@ -96,16 +100,21 @@ export function useOfferSelection({
           product?.variants.filter((v) =>
             rule.allowedVariantIds.includes(v.id),
           ) ?? [];
-        const selected = Array.from({ length: count }, (_, index) => {
-          const saved = variants[`${kind}:${rule.ruleId}:${index}`];
-          return saved
-            ? options.find((v) => v.id === saved)
-            : options.find((v) => trustedOfferVariant(v, currencyCode));
-        });
-        const ready =
-          product?.available === true &&
+        const countPreviewable =
           Number.isSafeInteger(count) &&
           count >= 1 &&
+          count <= MAX_PREVIEW_UNIT_CONTROLS;
+        const selected = countPreviewable
+          ? Array.from({ length: count }, (_, index) => {
+              const saved = variants[`${kind}:${rule.ruleId}:${index}`];
+              return saved
+                ? options.find((v) => v.id === saved)
+                : options.find((v) => trustedOfferVariant(v, currencyCode));
+            })
+          : [];
+        const ready =
+          product?.available === true &&
+          countPreviewable &&
           selected.length === count &&
           selected.every((v) => trustedOfferVariant(v, currencyCode));
         const cap = mainProductId
@@ -174,15 +183,20 @@ export function useOfferSelection({
   }
   const included = groups.flatMap((g) => g.cards.filter((c) => c.included));
   const original = included.reduce((n, c) => n + c.original, 0),
-    savings = included.reduce((n, c) => n + c.savings, 0);
-  const safe = Number.isSafeInteger(original) && Number.isSafeInteger(savings);
+    savings = included.reduce((n, c) => n + c.savings, 0),
+    quantity = included.reduce((n, c) => n + c.count, 0);
+  const safe =
+    Number.isSafeInteger(original) &&
+    Number.isSafeInteger(savings) &&
+    Number.isSafeInteger(quantity) &&
+    Number.isSafeInteger(original - savings);
   return {
     groups,
     original: safe ? original : 0,
     discounted: safe ? original - savings : 0,
     savings: safe ? savings : 0,
-    quantity: included.reduce((n, c) => n + c.count, 0),
-    lines: included.flatMap((c) => c.selected.map((v) => v!.id)),
+    quantity: safe ? quantity : 0,
+    lines: safe ? included.flatMap((c) => c.selected.map((v) => v!.id)) : [],
     safe,
     toggle: (module: OfferModuleConfig, rule: OfferRule) =>
       setChoices((current) =>
