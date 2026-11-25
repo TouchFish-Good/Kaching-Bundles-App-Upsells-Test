@@ -12,7 +12,7 @@ import { resolveCollectionMembers } from '../service/campaign/collection-members
 import { refreshPublishedCollectionConflicts } from '../service/campaign/collection-conflicts';
 
 type CampaignStore = CampaignRepository;
-const DEFAULT_PRODUCT_DISCOUNT_FUNCTION_ID = 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f';
+const DEFAULT_PRODUCT_DISCOUNT_FUNCTION_ID = '754292a155d740809a5437a3f8c59231';
 type PublicationDependencies = {
   publicationEnabled?: boolean;
   functionId?: string;

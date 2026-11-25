@@ -85,9 +85,9 @@ describe('SHOPLINE Function discount publication', () => {
   it('uses the configured Function ID and returns the platform activity ID', async () => {
     const fetcher = createdActiveFetcher();
     vi.stubGlobal('fetch', fetcher);
-    const result = await createAutomaticDiscount(session, campaign, { ...(env as Env), SHOPLINE_PRODUCT_DISCOUNT_FUNCTION_ID: 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f', SHOPLINE_STORE_CURRENCY_CODE: 'USD' } as Env);
+    const result = await createAutomaticDiscount(session, campaign, { ...(env as Env), SHOPLINE_PRODUCT_DISCOUNT_FUNCTION_ID: '754292a155d740809a5437a3f8c59231', SHOPLINE_STORE_CURRENCY_CODE: 'USD' } as Env);
     expect(result).toEqual({ discountId: '7757655103080239428', nodeId: 'gid://shopline/DiscountAutomaticNode/7757655103080239428' });
-    expect(fetcher).toHaveBeenCalledWith(expect.stringContaining('/sales/discount_automatic_app.json'), expect.objectContaining({ method: 'POST', body: expect.stringContaining('dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f') }));
+    expect(fetcher).toHaveBeenCalledWith(expect.stringContaining('/sales/discount_automatic_app.json'), expect.objectContaining({ method: 'POST', body: expect.stringContaining('754292a155d740809a5437a3f8c59231') }));
   });
 
   it('uses the checkout-facing discount name for the SHOPLINE title', async () => {
@@ -161,7 +161,7 @@ describe('SHOPLINE Function discount publication', () => {
         expect(String(input)).toContain(`/admin/openapi/v20260901/sales/discount_automatic_app/${discountId}.json`);
         expect(JSON.parse(String(init.body))).toMatchObject({
           title: campaign.name,
-          function_id: 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f',
+          function_id: '754292a155d740809a5437a3f8c59231',
           starts_at: campaign.startsAt,
           ends_at: pauseAt,
           metafields: [{ namespace: 'sale', key: 'quantity_breaks', type: 'json' }],
@@ -183,7 +183,7 @@ describe('SHOPLINE Function discount publication', () => {
         const reads = fetcher.mock.calls.filter(([, request]) => request?.method === 'GET').length;
         return Response.json({ discount_apps: reads === 1 ? [{ app_discount_id: discountId, status: 'expired' }] : [] });
       }
-      expect(String(input)).toBe(`https://demo.myshopline.com/admin/openapi/v20261201/sales/discount_apps/dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f/${discountId}.json`);
+      expect(String(input)).toBe(`https://demo.myshopline.com/admin/openapi/v20261201/sales/discount_apps/754292a155d740809a5437a3f8c59231/${discountId}.json`);
       expect(init?.method).toBe('DELETE');
       return Response.json({ success: true });
     });

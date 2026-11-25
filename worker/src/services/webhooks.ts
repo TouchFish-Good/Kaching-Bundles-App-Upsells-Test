@@ -14,7 +14,7 @@ type RegisteredWebhook = { topic?: unknown; address?: unknown };
 type RegistrationResult = { createdTopics: string[] };
 
 function callbackUrlFor(env: Env): string {
-  return `${(env.SHOPLINE_APP_URL || 'https://raised-stability-gaps-html.trycloudflare.com').replace(/\/+$/, '')}/api/webhooks`;
+  return `${(env.SHOPLINE_APP_URL || 'https://app-test.vswwy.cn').replace(/\/+$/, '')}/api/webhooks`;
 }
 
 function registeredWebhooks(payload: unknown): RegisteredWebhook[] {

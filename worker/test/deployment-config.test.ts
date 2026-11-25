@@ -3,8 +3,8 @@ import { DEPLOYMENT_CONFIG } from '../src/deployment-config';
 
 describe('deployment configuration', () => {
   it('uses the test app domain in SHOPLINE configuration', async () => {
-    expect(DEPLOYMENT_CONFIG.appUrl).toBe('https://raised-stability-gaps-html.trycloudflare.com');
-    expect(DEPLOYMENT_CONFIG.callbackUrl).toBe('https://raised-stability-gaps-html.trycloudflare.com/api/auth/callback');
+    expect(DEPLOYMENT_CONFIG.appUrl).toBe('https://app-test.vswwy.cn');
+    expect(DEPLOYMENT_CONFIG.callbackUrl).toBe('https://app-test.vswwy.cn/api/auth/callback');
   });
 
   it('keeps the Worker and D1 names aligned', async () => {

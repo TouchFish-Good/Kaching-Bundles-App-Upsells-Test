@@ -4,7 +4,7 @@ import { test } from 'node:test';
 const read = (path) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const origin = /appUrl\s*=\s*"([^"]+)"/.exec(read('shopline.app.toml'))[1];
 const key = /appKey\s*=\s*"([^"]+)"/.exec(read('shopline.app.toml'))[1];
-const functionId = 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f';
+const functionId = '754292a155d740809a5437a3f8c59231';
 
 test('theme assets fetch campaigns from the test app origin', () => {
   for (const path of ['theme-app-extension/public/app-block.js', 'theme-app-extension/compatibility/assets/app-block.js']) {
@@ -21,7 +21,8 @@ test('Worker deployment config uses independent resources and test identity', ()
   const config = read('worker/wrangler.toml');
   assert.match(config, /name = "shopline-quantity-breaks-test"/);
   assert.match(config, /database_name = "shopline-quantity-breaks-test"/);
-  assert.match(config, /database_id = ""/);
+  assert.match(config, /database_id = "[0-9a-f-]{36}"/);
+  assert.ok(config.includes('pattern = "app-test.vswwy.cn"'));
   for (const value of ['app.vswwy.cn', '16f852cc-24c0-40fe-8147-c1786ed9750c', 'kaching-developer-admin']) assert.ok(!config.includes(value));
   assert.ok(config.includes(key));
   assert.ok(config.includes(origin));

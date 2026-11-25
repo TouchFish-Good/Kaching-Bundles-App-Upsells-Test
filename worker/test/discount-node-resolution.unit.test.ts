@@ -17,7 +17,7 @@ describe('automatic discount state resolution', () => {
       expect(new Headers(init?.headers).get('User-Agent')).toBe('SHOPLINE-Quantity-Breaks-App/1.0');
       expect(url.pathname).toBe('/admin/openapi/v20261201/sales/discount_app.json');
       expect(url.searchParams.get('discount_type')).toBe('automatic');
-      expect(url.searchParams.get('function_id')).toBe('dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f');
+      expect(url.searchParams.get('function_id')).toBe('754292a155d740809a5437a3f8c59231');
       expect(url.searchParams.get('limit')).toBe('100');
       return Response.json(
         { discount_apps: [{ app_discount_id: discountId, status: 'active' }] },

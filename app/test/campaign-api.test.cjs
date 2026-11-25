@@ -216,7 +216,7 @@ test('manual publication of selected products uses the configured Function ID by
     await handler({ method: 'POST', params: { id: 'offer-a' }, path: '/api/quantity-breaks/campaigns/offer-a/status', body: JSON.stringify({ status: 'active', expectedRevision: 1 }) }, result);
     assert.equal(result.code, 200);
     assert.equal(result.body.campaign.status, 'active');
-    assert.equal(suppliedFunctionId, 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f');
+    assert.equal(suppliedFunctionId, '754292a155d740809a5437a3f8c59231');
     assert.equal(suppliedRequestId, 'request-discount');
     assert.deepEqual(suppliedScope, draft().scope);
     assert.equal((await repository.getPublication('shop-a', 'offer-a')).discountId, 'discount-1');

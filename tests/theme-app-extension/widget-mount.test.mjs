@@ -452,7 +452,7 @@ test('mounts a published tier with one independent selector per option and item'
   const calls = [];
   const { theme, block, window } = setup(async (url, options = {}) => {
     calls.push({ url, options });
-    if (url.startsWith('https://raised-stability-gaps-html.trycloudflare.com/')) return { ok: true, json: async () => ({ campaign }) };
+    if (url.startsWith('https://app-test.vswwy.cn/')) return { ok: true, json: async () => ({ campaign }) };
     if (options.method === 'GET') return { ok: true, json: async () => ({ items: [] }) };
     return { ok: true, json: async () => ({ items: [{ id: 'black-s', quantity: 2 }, { id: 'white-l', quantity: 1 }] }) };
   });
@@ -716,7 +716,7 @@ test('can add the first available variant when selectors are hidden', async () =
   const hidden = { ...campaign, widget: { variants: { showSelectors: false, defaultSelection: 'first_available' } } };
   const { theme, block } = setup(async (url, options = {}) => {
     calls.push({ url, options });
-    if (url.startsWith('https://raised-stability-gaps-html.trycloudflare.com/')) return { ok: true, json: async () => ({ campaign: hidden }) };
+    if (url.startsWith('https://app-test.vswwy.cn/')) return { ok: true, json: async () => ({ campaign: hidden }) };
     if (options.method === 'GET') return { ok: true, json: async () => ({ items: [] }) };
     return { ok: true, json: async () => ({ items: [{ id: 'black-s', quantity: 1 }] }) };
   });

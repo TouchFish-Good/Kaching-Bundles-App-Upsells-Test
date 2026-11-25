@@ -262,7 +262,7 @@ describe('developer-platform campaign operations', () => {
     expect(fetcher.mock.calls[1][1]).toMatchObject({ method: 'PUT' });
     expect(JSON.parse(String(fetcher.mock.calls[1][1]?.body))).toMatchObject({
       title: campaign.name,
-      function_id: 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f',
+      function_id: '754292a155d740809a5437a3f8c59231',
       starts_at: campaign.startsAt,
       ends_at: '2026-11-03T00:00:10.000Z',
     });
@@ -352,7 +352,7 @@ describe('developer-platform campaign operations', () => {
     await expect(testEnv.DB.prepare('SELECT event_type FROM campaign_diagnostic_events ORDER BY occurred_at DESC LIMIT 1').first())
       .resolves.toEqual({ event_type: 'campaign_platform_delete' });
     await expect(testEnv.DB.prepare('SELECT upstream_path FROM campaign_diagnostic_events ORDER BY occurred_at DESC LIMIT 1').first())
-      .resolves.toEqual({ upstream_path: '/admin/openapi/v20261201/sales/discount_apps/dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f/discount-1.json' });
+      .resolves.toEqual({ upstream_path: '/admin/openapi/v20261201/sales/discount_apps/754292a155d740809a5437a3f8c59231/discount-1.json' });
     expect(JSON.stringify(await response.json())).not.toContain('discount-1');
   });
 

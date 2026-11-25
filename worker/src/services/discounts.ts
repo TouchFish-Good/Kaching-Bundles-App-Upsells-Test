@@ -6,7 +6,7 @@ import { shoplineAdminHeaders } from './shopline-admin-request-headers';
 
 const ADMIN_VERSION = 'v20260901';
 const FUNCTION_DISCOUNT_VERSION = 'v20261201';
-const DEFAULT_FUNCTION_ID = 'dev-c02e7fd2-10f6-4063-9dab-8a1cd5ba8b8f';
+const DEFAULT_FUNCTION_ID = '754292a155d740809a5437a3f8c59231';
 
 export type ShoplineRequestMetadata = {
   upstreamStatus: number;

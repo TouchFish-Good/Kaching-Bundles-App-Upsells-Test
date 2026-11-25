@@ -1169,8 +1169,16 @@ Admin REST 服务请求统一改为 `v20260901`，保留原有 SDK OAuth、offli
 # 2026-11-25 独立测试目录功能同步（本地完成，未实店验收）
 
 - 将当前源功能/测试/迁移/主题兼容资源/文档同步至本测试项目，保留目标 App Key、App Secret、主题和 Function 开发 UUID、原 SQLite；仅扩充 scopes 并替换运行时代码正式环境缺省值。源目录保持不变。
-- 环境隔离4项、主题兼容39文件/36语言、前后端构建、Worker类型与dry-run、25份本地D1迁移通过。中文目录Worker测试运行时有node:vm工具链问题，在临时英文目录以相同代码运行，51文件499项全部通过；Node单元26项、边界2项通过。
+- 环境隔离4项、主题兼容39文件/36语言、前后端构建、Worker类型与dry-run、26份本地D1迁移通过。中文目录Worker测试运行时有node:vm工具链问题，在临时英文目录以相同代码运行，51文件499项全部通过；Node单元26项、边界2项通过。
 - 主题全量108/109、Express146/152、前端Node22为354/362；失败均已对照源复现。Go存在源既有重叠折扣用例失败，单文件入口编译通过。保留既有业务规则，本批不宣称全量全绿。
 - 浏览器实际核验源/目标页面壳、未授权加载失败状态及设置指南打开，截图保存在docs/reference/screenshots/test-environment-sync/；没有实店会话，未验证活动持久化、支付、真实加购或结账。
 - 独立审查确认功能文件完整与身份隔离；替换会指向正式资源的旧部署手册。测试D1 ID、稳定URL、Partner token、必要的管理binding、套餐/扩展发布及实店验收仍待配置，不能标记生产可用。
 - 本批未提交、推送、部署或发布扩展。详见docs/TEST_ENV_SYNC.md及TEST_ENV_SYNC_FILES.json。拟提交 feat: sync quantity breaks features into isolated test environment；按AGENTS.md等待本批Git授权。
+
+
+# 2026-11-25 测试 Worker 部署到 app-test.vswwy.cn
+
+- 按用户授权创建独立测试D1 `9fcea996-fdc3-4ade-a792-c8659e42800c`，应用26份迁移，绑定测试Worker `shopline-quantity-breaks-test` 与自定义域名 `app-test.vswwy.cn`。部署版本 `8be7be72-098a-4eae-a27d-ac659047ffbb`，两个cron已发布；正式Worker/D1/域名未修改。
+- 配置原测试App Secret及独立加密/内部密钥。App Key/App Secret保持测试原值；两份扩展凭证在本次操作之外更新ID后，保留新Function `754292a155d740809a5437a3f8c59231`、主题UUID `fb0f6365-4554-4c29-aca7-d439ae191804`与扩展ID `10949`，并对齐运行时代码。按新身份快照核验两份凭证、主题元数据和原SQLite未被本次操作覆盖。应用地址、回调、Worker变量和本地主题来源统一新域名；未发布SHOPLINE扩展或更新Partner后台地址。
+- 环境隔离4项、主题来源相关9项、兼容39文件/36语言、前端构建、Worker类型/dry-run通过；完整Worker在英文临时镜像51文件499项通过。线上HTTPS/首页/JS200，未授权API401，缺失资源404，OAuth跳转callback为app-test域名，无签名callback400。浏览器实际加载页面壳；无SHOPLINE会话，未宣称真实商家功能已验收。
+- Function ID对齐后Worker相关6文件72项、Express19项及类型/dry-run通过。CLI代码版本cb6654c0-0acd-4874-9ba2-b09b4ddd2067；用户添加Partner Secret后回读当前活动版本如上，正确Function/D1/域名均保留。Secret名称已确认，Partner权限与订阅尚未联调；独立管理服务binding、平台地址/回调配置、扩展发布及实店验收仍待补齐。记录docs/audits/2026-11-25-test-worker-deployment.md；用户随后明确批准本批推送至 https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git 的 main，提交 chore: deploy test worker at app-test.vswwy.cn。实际推送结果以 Git 回执为准。

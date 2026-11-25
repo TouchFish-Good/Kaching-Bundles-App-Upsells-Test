@@ -7,7 +7,7 @@
     return;
   }
 
-  const APP_ORIGIN = 'https://raised-stability-gaps-html.trycloudflare.com';
+  const APP_ORIGIN = 'https://app-test.vswwy.cn';
 
   function resolveVariant(variants, options) {
     const names = Object.keys(options);

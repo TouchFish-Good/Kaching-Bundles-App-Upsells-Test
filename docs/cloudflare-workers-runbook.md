@@ -1,56 +1,63 @@
 # 测试环境 Worker / D1 运行说明
 
-此仓库为 `Kaching-Bundles-App-Upsells-Test`，禁止将源项目正式域名、正式 D1 ID 或正式管理服务绑定复制过来。本次仅本地同步，尚未部署或修改任何远程资源。
+本仓库为 `Kaching-Bundles-App-Upsells-Test`。2026-11-25 已按用户授权部署独立测试 Worker，发布版本 `8be7be72-098a-4eae-a27d-ac659047ffbb`。
 
-## 当前配置
+## 当前资源
 
-- Worker：`shopline-quantity-breaks-test`；D1 binding：`DB`；数据库名：`shopline-quantity-breaks-test`。
-- `worker/wrangler.toml` 的 `database_id` 留空，必须先创建独立测试 D1 才能远程迁移/部署。没有生产 custom domain 或生产 `DEVELOPER_ADMIN` 服务绑定。
-- App 名称、Key、URL、回调取自目标原 `shopline.app.toml`。当前 URL 是已有临时 Tunnel 地址，不能保证仍在线；CLI 切换 Tunnel 后须同步 Worker 的 `SHOPLINE_APP_URL`、主题 `public/app-block.js` 的 `APP_ORIGIN` 和本地环境文件，再执行 `npm run theme:sync` 更新兼容资源。
-- 两份扩展 `.env.prod` 原样保留。当前 Function UUID 为开发标识；平台发布后若返回不同 ID，再同步本测试应用的 Function ID，不得沿用正式应用 ID。
-- 继承源订阅清理/核对与隐私清理 cron；仅当测试 Worker 部署后生效。
+| 项目 | 配置 |
+| --- | --- |
+| HTTPS 地址 | https://app-test.vswwy.cn |
+| OAuth callback | https://app-test.vswwy.cn/api/auth/callback |
+| Worker | `shopline-quantity-breaks-test` |
+| D1 名称 / binding | `shopline-quantity-breaks-test` / `DB` |
+| D1 ID | `9fcea996-fdc3-4ade-a792-c8659e42800c` |
+| 备用地址 | https://shopline-quantity-breaks-test.2458472041.workers.dev |
 
-## 本地依赖与验证
+独立测试 D1 已应用全部 26 份迁移（编号 0001–0025，其中 0017 有两份不同文件）。正式应用 D1、域名 route、管理 Worker 均未修改。没有给测试 Worker 绑定正式 `DEVELOPER_ADMIN` 服务。
 
-建议以 Node 22 安装和执行 Worker 工具。前端现有 `feedback-board.test.mjs` 使用旧 JSON import assertion，在 Node 22 有语法兼容问题；该问题属于源测试基线。
+App Key、App Secret 仍使用本测试应用的原值。部署期间两份扩展 `.env.prod` 在本次操作之外更新了扩展 ID；已保留新值，并将 Worker / Express 的 Function 配置对齐为 `754292a155d740809a5437a3f8c59231`。当前主题 UUID 为 `fb0f6365-4554-4c29-aca7-d439ae191804`、扩展 ID 为 `10949`。按更新后的快照核验，两份凭证、主题元数据和原 SQLite 未被本次操作覆盖。本次没有执行扩展发布，未确认平台发布状态。
+
+## Secrets 与待联调
+
+测试 Worker 已配置 `SHOPLINE_APP_SECRET`、`TOKEN_ENCRYPTION_KEY`、`ADMIN_INTERNAL_SECRET`，密钥值只在本地忽略文件和 Cloudflare Secrets 中。`TOKEN_ENCRYPTION_KEY` 为独立 32 随机字节的 base64url；不复制正式环境 token / 内部密钥。
+
+用户已在 Cloudflare 添加 `SHOPLINE_PARTNER_ACCESS_TOKEN`，已通过 Secret 名称和活动 Worker 绑定回读确认；未读取密钥值，尚未验证 Partner 接口权限或订阅联调。配置路径：Workers & Pages → `shopline-quantity-breaks-test` → Settings → Variables and Secrets → Add → Secret，名称为 `SHOPLINE_PARTNER_ACCESS_TOKEN`，保存并部署。若使用开发者管理服务 / GDPR 商家审计清理，还需独立测试 `DEVELOPER_ADMIN` binding 与配套内部密钥；不能直接接正式管理服务。
+
+`shopline.app.toml` 已更新为新 HTTPS 地址和 callback，但本次只部署 Cloudflare，没有在 SHOPLINE Partner 后台提交应用地址/回调/权限，也没有发布主题或 Function 扩展。主题 OS3 / OS2.1 本地资源已同步测试来源；店铺中的旧扩展需要另行发布才能更新。测试订阅套餐、权益功能点与平台白名单仍需本测试应用独立确认。
+
+直接在外部浏览器打开应用没有 SHOPLINE session，活动 API 会返回 401，页面显示无法加载并禁用创建。应从已安装该测试应用的 SHOPLINE 后台进入完成 OAuth；本次仅核验回调地址生成，未完成实店授权、订阅购买或折扣结账。
+
+## 本地依赖与检查
+
+Worker 工具使用 Node 22。根项目 `npm run dev` 为源项目 SHOPLINE CLI + Express 路径；完整业务使用 Worker。单独 Vite / Express 不包含完整订阅/反馈后端。
 
 ```bash
 npm install
 npm --prefix worker ci
 npm run theme:check
 node --test tests/environment-isolation.test.mjs
-npm run test:theme
-npm run test:prototype --workspace web
-npm test --workspace app
 npm run build --workspace web
-npm run build --workspace app
 npm --prefix worker run typecheck
 npm --prefix worker run build
 ```
 
-最后一条仅执行 `wrangler deploy --dry-run`，不会发布。完整 Worker 测试：在 `worker` 中运行 `npm test -- --maxWorkers=4 --minWorkers=1`。
+最后一条只执行 `wrangler deploy --dry-run`，不会发布。`app/.env`、`worker/.dev.vars`、扩展 `.env.prod` 和 SQLite 均不进入 Git。
 
-`npm run dev` 沿用源项目 SHOPLINE CLI + Express 开发路径。订阅、反馈等完整线上业务使用 Worker，并非单独启动 Vite / Express 就具备完整后端。`app/.env` 与 `worker/.dev.vars` 只含目标测试凭证及新生成的本地内部/加密密钥，均已忽略。切勿上传这两份文件或扩展 `.env.prod`。切换 Tunnel 或扩展身份后须同步这两份本地环境文件。
+Worker 测试在中文目录有 `node:vm` 依赖工具链问题，本轮在临时英文目录以相同源码/测试/依赖运行，51 文件 499 项全部通过。前端/主题/旧 Express 的既有全量失败记录见 [同步报告](TEST_ENV_SYNC.md)，本轮未修改其业务规则。
 
-## Worker 本地数据
+## 再次部署
 
-已实测以下本地迁移命令可初始化测试库。`wrangler dev` 需要先配置有效的独立测试 D1 ID；当前留空时无法启动，不应视为已可完整运行：
+只有在用户授权发布测试环境后执行，先确认当前配置仍为测试 Worker、测试域名及上述独立 D1 ID：
 
 ```bash
+npm run build --workspace web
 cd worker
-npx wrangler d1 migrations apply DB --local
-npx wrangler dev --local
+npm run typecheck
+npm run build
+npx wrangler d1 migrations apply DB --remote
+npx wrangler deploy
 ```
 
-OAuth 依赖可用 HTTPS 回调。没有 SHOPLINE 授权、测试订阅与平台扩展发布时，浏览器只能做页面壳/指南 smoke check，不能据此认定商家功能已验收。
+域名、App URL、回调、Worker 变量、本地环境与主题 `APP_ORIGIN` 必须一致；修改主题资源后运行 `npm run theme:sync`。不要将生产域名、生产 D1 ID 或生产管理服务复制到本配置。
 
-## 远程测试环境待准备
-
-1. 创建独立测试 D1，把新 ID 写入 `worker/wrangler.toml`，核对数据库名始终带 `-test`。
-2. 配置测试域名/HTTPS URL 与对应 OAuth 回调，保持 App、Worker、主题请求同一测试来源。
-3. 仅为测试 Worker 配置 Secrets：`SHOPLINE_APP_SECRET`、`TOKEN_ENCRYPTION_KEY`、`ADMIN_INTERNAL_SECRET`、`SHOPLINE_PARTNER_ACCESS_TOKEN`。加密密钥为 32 随机字节的 base64url；不要把任何值写入 Git。Partner token 尚未配置，本次不复制正式环境 token。
-4. 若需要开发者管理服务联调，另配测试 `DEVELOPER_ADMIN` binding 与配套内部密钥；当前未绑定，不借用正式管理服务。
-5. 测试扩展发布及安装、扩展权限白名单、订阅套餐/权益功能点、GDPR webhook 等均需测试应用独立确认。本次仅合并代码所需 scopes，未在平台提交权限或完成商家重新授权。
-6. 完成以上核对后，另行部署测试 Worker、应用测试库迁移并验收 OAuth、草稿保存/重读、活动发布/删除、主题加购和真实结账。
-
-本次未执行任何远程迁移、部署、扩展发布或 Git 推送。完整同步记录见 [TEST_ENV_SYNC.md](TEST_ENV_SYNC.md)。
+完整本轮部署与验证结果见 [部署记录](audits/2026-11-25-test-worker-deployment.md)。本批 Git 推送已获用户明确授权；后续每批仍需单独确认，并在推送前说明具体 Git 远程地址及分支。

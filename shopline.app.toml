@@ -1,9 +1,9 @@
 
 appName = "多件折扣-测试环境"
 appKey = "26e3fa9b0b6deb7313e7f6a9e06163eaab66d54d"
-appUrl = "https://raised-stability-gaps-html.trycloudflare.com"
+appUrl = "https://app-test.vswwy.cn"
 appCallbackUrlList = [
-  "https://raised-stability-gaps-html.trycloudflare.com/api/auth/callback"
+  "https://app-test.vswwy.cn/api/auth/callback"
 ]
 isNewWindow = false
 subPathPrefix = "apps"
