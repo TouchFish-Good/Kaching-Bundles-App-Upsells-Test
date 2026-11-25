@@ -1,3 +1,4 @@
+import { campaignRepository } from '../services/offer-index';
 import type { Context, Hono } from 'hono';
 import { campaignForActivation, campaignsConflict, type Campaign, type CampaignDraft } from '../domain/campaign';
 import { CampaignConflictError, CampaignValidationError, D1CampaignRepository, type CampaignPublicationProjection } from '../db/campaigns';
@@ -480,7 +481,7 @@ export function registerCampaignRoutes(app: App): void {
   app.get('/api/quantity-breaks/campaigns', async (c) => {
     const session = await auth(c);
     if (session instanceof Response) return session;
-    const repository = new D1CampaignRepository(c.env.DB);
+    const repository = campaignRepository(c.env);
     const projections = await repository.listProjections(session.handle);
     if (c.req.query('view') === 'configuration') {
       return c.json({ campaigns: projections.map((projection) => campaignResponse(projection,
@@ -494,7 +495,7 @@ export function registerCampaignRoutes(app: App): void {
   app.get('/api/quantity-breaks/campaigns/:id', async (c) => {
     const session = await auth(c);
     if (session instanceof Response) return session;
-    const repository = new D1CampaignRepository(c.env.DB);
+    const repository = campaignRepository(c.env);
     const id = c.req.param('id');
     if (!await repository.getProjection(session.handle, id)) return c.json({ error: 'Campaign not found.' }, 404);
     const platformStatus = await reconcileCampaign(repository, session, c.env, id);
@@ -506,7 +507,7 @@ export function registerCampaignRoutes(app: App): void {
     const session = await auth(c);
     if (session instanceof Response) return session;
     const platformDiscountId = c.req.param('id');
-    const repository = new D1CampaignRepository(c.env.DB);
+    const repository = campaignRepository(c.env);
     const projection = (await repository.listProjections(session.handle))
       .find((item) => item.publication.discountId === platformDiscountId);
     if (!projection) return c.json({ error: 'This discount is not managed by Quantity Breaks.' }, 404);
@@ -520,7 +521,7 @@ export function registerCampaignRoutes(app: App): void {
     if (session instanceof Response) return session;
     try {
       const candidate = coverageCandidate((await body(c)).campaign);
-      const conflicts = await describeCoverageDetails(new D1CampaignRepository(c.env.DB), session, candidate);
+      const conflicts = await describeCoverageDetails(campaignRepository(c.env), session, candidate);
       return c.json({ state: conflicts.length ? 'conflict' : 'clear', conflicts });
     } catch (error) { return errorResponse(error); }
   });
@@ -536,7 +537,7 @@ export function registerCampaignRoutes(app: App): void {
       const expectedRevision = input.expectedRevision;
       if (!campaign || !Number.isInteger(expectedRevision)) throw new CampaignValidationError('Campaign and expectedRevision are required.');
       if (campaign.status === 'active' || campaign.status === 'scheduled') return c.json({ error: 'Direct active writes are not allowed. Save as Draft or Paused, then publish using the status endpoint.' }, 409);
-      const saved = await new D1CampaignRepository(c.env.DB).save(session.handle, { ...campaign, scope: await refreshScopeHandleSnapshots(session, campaign.scope) }, expectedRevision as number);
+      const saved = await campaignRepository(c.env).save(session.handle, { ...campaign, scope: await refreshScopeHandleSnapshots(session, campaign.scope) }, expectedRevision as number);
       return c.json({ campaign: saved }, c.req.method === 'POST' ? 201 : 200);
     } catch (error) { return errorResponse(error); }
   };
@@ -552,7 +553,7 @@ export function registerCampaignRoutes(app: App): void {
       if (campaign && campaign.id !== c.req.param('id')) return c.json({ error: 'Campaign ID does not match the route.' }, 400);
       if (!campaign || !Number.isInteger(input.expectedRevision)) throw new CampaignValidationError('Campaign and expectedRevision are required.');
       const expectedRevision = input.expectedRevision as number;
-      const repository = new D1CampaignRepository(c.env.DB);
+      const repository = campaignRepository(c.env);
       const beforeReconciliation = await repository.get(session.handle, campaign.id);
       if (!beforeReconciliation) return c.json({ error: 'Campaign not found.' }, 404);
       const initialPublication = await repository.getPublication(session.handle, campaign.id);
@@ -622,7 +623,7 @@ export function registerCampaignRoutes(app: App): void {
     try {
       const input = await body(c);
       if (!Number.isInteger(input.expectedRevision)) throw new CampaignValidationError('Campaign ID and expectedRevision are required.');
-      const repository = new D1CampaignRepository(c.env.DB);
+      const repository = campaignRepository(c.env);
       const before = await repository.get(session.handle, c.req.param('id'));
       if (!before) return c.json({ error: 'Campaign not found.' }, 404);
       const platformStatus = await reconcileCampaign(repository, session, c.env, before.id);
@@ -664,7 +665,7 @@ export function registerCampaignRoutes(app: App): void {
       const input = await body(c);
       const expectedRevision = input.expectedRevision;
       if (!Number.isInteger(expectedRevision)) throw new CampaignValidationError('Campaign ID and expectedRevision are required.');
-      const repository = new D1CampaignRepository(c.env.DB);
+      const repository = campaignRepository(c.env);
       const id = c.req.param('id');
       const before = await repository.get(session.handle, id);
       if (!before) throw new CampaignConflictError('Campaign not found.');
@@ -704,7 +705,7 @@ export function registerCampaignRoutes(app: App): void {
       const status = input.status;
       const expectedRevision = input.expectedRevision;
       if (!Number.isInteger(expectedRevision) || (status !== 'active' && status !== 'paused')) throw new CampaignValidationError('Campaign ID, expectedRevision, and active or paused status are required.');
-      const result = await changeCampaignStatus(new D1CampaignRepository(c.env.DB), session, c.env, c.req.param('id'), status, expectedRevision as number, undefined, c.executionCtx);
+      const result = await changeCampaignStatus(campaignRepository(c.env), session, c.env, c.req.param('id'), status, expectedRevision as number, undefined, c.executionCtx);
       if (!result.campaign) return c.json({ error: result.message ?? 'Campaign status was not changed.' }, result.outcome === 'failed' ? 500 : 409);
       return c.json({ campaign: result.campaign });
     } catch (error) { return errorResponse(error); }
@@ -720,7 +721,7 @@ export function registerCampaignRoutes(app: App): void {
       const status = input.status;
       const campaigns = input.campaigns;
       if ((status !== 'active' && status !== 'paused') || !Array.isArray(campaigns) || !campaigns.length || campaigns.length > 35) throw new CampaignValidationError('A status and 1 to 35 campaigns are required.');
-      const repository = new D1CampaignRepository(c.env.DB);
+      const repository = campaignRepository(c.env);
       const reconciledStatuses = await reconcileCampaignList(repository, session, c.env, await repository.listProjections(session.handle));
       const results: BatchResult[] = [];
       for (const item of campaigns) {
@@ -756,7 +757,7 @@ export function registerCampaignRoutes(app: App): void {
         ids.add(candidate.id);
         parsed.push({ id: candidate.id, expectedRevision });
       }
-      const repository = new D1CampaignRepository(c.env.DB);
+      const repository = campaignRepository(c.env);
       const statuses = await reconcileCampaignList(repository, session, c.env, await repository.listProjections(session.handle));
       const results: Array<{ id: string; outcome: 'queued' | 'requires_pause' | 'unverified' | 'failed'; message?: string }> = [];
       const eligible: Array<{ campaignId: string; expectedRevision: number }> = [];

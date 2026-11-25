@@ -3,6 +3,10 @@ import type { Env } from '../env';
 import { resolvedDiscountName, validateCampaign, type CampaignDraft } from '../domain/campaign';
 import { diagnosticResponseBody } from '../observability/diagnostic-response';
 import { shoplineAdminHeaders } from './shopline-admin-request-headers';
+import { hasEnabledOffers, offerSelections, trustedCurrencyDecimals } from './offer-config';
+import { verifiedOfferReferences } from './offer-index';
+export { hasEnabledOffers, offerSelections } from './offer-config';
+import type { OfferModuleConfig } from '../../../shared/offer-core.mjs';
 
 const ADMIN_VERSION = 'v20260901';
 const FUNCTION_DISCOUNT_VERSION = 'v20261201';
@@ -61,17 +65,63 @@ function currencyDecimals(currencyCode: string): number {
   return digits;
 }
 
+export function supportedOfferFunction(handle: string, env: Env): boolean {
+  try {
+    const capabilities = JSON.parse(env.SHOPLINE_OFFER_FUNCTION_CAPABILITIES ?? '{}')[handle];
+    return capabilities?.protocol === 'gift-bundles-v1' && capabilities.functionId === functionId(env) && capabilities.skuIsVariantId === true && capabilities.lineTotalTargets === true;
+  } catch { return false; }
+}
+
+async function assertOfferPublication(session: AuthContext, campaign: CampaignDraft, env: Env, currency: string): Promise<void> {
+  if (!hasEnabledOffers(campaign)) return;
+  if (!supportedOfferFunction(session.handle, env)) throw new Error('Verified gift/bundle Function capability is required for publication.');
+  // Validate the complete projection before any upstream mutation.
+  buildDiscountRule(campaign, currency);
+  await verifiedOfferReferences(session, offerSelections(campaign));
+}
+
+function compactOffer(module: OfferModuleConfig): Record<string, unknown> {
+  return { version: module.version, enabled: true, selectionMode: module.selectionMode, quantityMode: module.quantityMode, quotaScope: module.quotaScope,
+    items: module.items.map(rule => ({ ruleId: rule.ruleId, displayOrder: rule.displayOrder, productId: rule.productId, allowedVariantIds: rule.allowedVariantIds, quantity: rule.quantity, discountType: rule.discountType, discountValue: rule.discountValue, trigger: rule.trigger,
+      ...(rule.marketOverrides ? { marketOverrides: Object.fromEntries(Object.entries(rule.marketOverrides).map(([market, override]) => [market, override.mode === 'auto_convert' ? override : { ...override, currencyDecimals: trustedCurrencyDecimals(override.currencyCode) }])) } : {}),
+    })),
+  };
+}
+
+function assertCompatibleOfferMoney(campaign: CampaignDraft): void {
+  const amounts = [...campaign.tiers.filter(tier => tier.discountType !== 'none'), ...[campaign.gifts, campaign.bundles].flatMap(module => module?.enabled ? module.items : [])];
+  const markets = new Set(amounts.flatMap(amount => Object.keys(amount.marketOverrides ?? {})));
+  for (const market of markets) {
+    const modes = new Set(amounts.map(amount => {
+      const override = amount.marketOverrides?.[market];
+      return override?.mode === 'specified_amount' ? `${override.currencyCode}:${trustedCurrencyDecimals(override.currencyCode)}` : 'auto';
+    }));
+    if (modes.size > 1) throw new Error('Unsafe mixed currency/money modes in gift/bundle publication.');
+  }
+}
+
 export function buildDiscountRule(campaign: CampaignDraft, currency: string): Record<string, unknown> {
   const errors = validateCampaign(campaign);
   if (errors.length) throw new Error(errors.join(' '));
+  const enabled = hasEnabledOffers(campaign);
+  const selections = enabled ? offerSelections(campaign) : [];
+  if (enabled) {
+    const ids = [campaign.gifts, campaign.bundles].flatMap(module => module?.enabled ? module.items.map(rule => rule.ruleId) : []);
+    if (new Set(ids).size !== ids.length) throw new Error('Offer rule IDs must be unique across modules.');
+    assertCompatibleOfferMoney(campaign);
+    trustedCurrencyDecimals(currency);
+  }
+  const excludedProductIds = enabled ? [...new Set([...(campaign.scope.excludedProductIds ?? []), ...selections.map(selection => selection.productId)])] : campaign.scope.excludedProductIds;
   return {
-    schemaVersion: 1, campaignId: campaign.id, storeCurrencyCode: currency,
+    schemaVersion: enabled ? 2 : 1, campaignId: campaign.id, storeCurrencyCode: currency,
     storeCurrencyDecimals: currencyDecimals(currency),
     scope: campaign.scope.kind === 'products'
-      ? { kind: 'products', productIds: campaign.scope.productIds, excludedProductIds: campaign.scope.excludedProductIds }
+      ? { kind: 'products', productIds: campaign.scope.productIds, excludedProductIds }
       : campaign.scope.kind === 'collections'
-        ? { kind: 'collections', collectionIds: campaign.scope.collectionIds, excludedProductIds: campaign.scope.excludedProductIds }
-        : { kind: 'all', excludedProductIds: campaign.scope.excludedProductIds },
+        ? { kind: 'collections', collectionIds: campaign.scope.collectionIds, excludedProductIds }
+        : { kind: 'all', excludedProductIds },
+    ...(campaign.gifts?.enabled ? { gifts: compactOffer(campaign.gifts) } : {}),
+    ...(campaign.bundles?.enabled ? { bundles: compactOffer(campaign.bundles) } : {}),
     tiers: campaign.tiers.map((tier) => ({
       tierId: tier.tierId, quantity: tier.quantity, discountType: tier.discountType, ...(tier.discountType === 'none' ? {} : { discountValue: tier.discountValue }),
       marketOverrides: Object.fromEntries(Object.entries(tier.marketOverrides || {}).map(([marketId, override]) => [marketId,
@@ -359,6 +409,7 @@ export async function deactivateAutomaticDiscount(session: AuthContext, discount
 
 export async function createAutomaticDiscount(session: AuthContext, campaign: CampaignDraft, env: Env, shopCurrencyCode = env.SHOPLINE_STORE_CURRENCY_CODE): Promise<PublishedAutomaticDiscount> {
   if (!shopCurrencyCode) throw new Error('Shop currency is unavailable. Publication is unavailable.');
+  await assertOfferPublication(session, campaign, env, shopCurrencyCode);
   const { data } = await request(session, env, ADMIN_VERSION, 'POST', '/sales/discount_automatic_app.json', discountInput(campaign, env, shopCurrencyCode));
   const id = data.app_discount_id;
   if (typeof id !== 'string' || !id.trim()) throw new Error('SHOPLINE did not return a valid discount ID. Publication is uncertain.');
@@ -383,6 +434,7 @@ export async function createAutomaticDiscount(session: AuthContext, campaign: Ca
 export async function updateAutomaticDiscount(session: AuthContext, discountId: string, campaign: CampaignDraft, env: Env, shopCurrencyCode = env.SHOPLINE_STORE_CURRENCY_CODE, endsAt: string | null = campaign.endsAt ?? null): Promise<string> {
   if (!discountId.trim()) throw new Error('SHOPLINE discount ID is required for update.');
   if (!shopCurrencyCode) throw new Error('Shop currency is unavailable. Update is unavailable.');
+  await assertOfferPublication(session, campaign, env, shopCurrencyCode);
   let data: Record<string, unknown>;
   try {
     ({ data } = await request(session, env, ADMIN_VERSION, 'PUT', `/sales/discount_automatic_app/${encodeURIComponent(discountId)}.json`, discountInput(campaign, env, shopCurrencyCode, endsAt)));
@@ -407,6 +459,7 @@ export async function updateAutomaticDiscountSchedule(
 ): Promise<string> {
   if (!discountId.trim()) throw new Error('SHOPLINE discount ID is required for update.');
   if (!shopCurrencyCode) throw new Error('Shop currency is unavailable. Update is unavailable.');
+  await assertOfferPublication(session, campaign, env, shopCurrencyCode);
   let data: Record<string, unknown>;
   try {
     ({ data } = await request(

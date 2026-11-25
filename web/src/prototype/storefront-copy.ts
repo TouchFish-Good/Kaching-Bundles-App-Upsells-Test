@@ -1,4 +1,6 @@
 export const storefrontCopy = [
+  { key: "widget.gifts.title", source: "🎁 Free gifts with your order", location: "Widget header" },
+  { key: "widget.bundles.title", source: "Frequently Bought Together", location: "Widget header" },
   { key: "widget.title", source: "Bundle & save", location: "Widget header" },
   { key: "widget.tier_savings_badge", source: "Save {saving_amount}", location: "Widget header" },
   { key: "widget.description", source: "Choose a quantity, then set each item.", location: "Widget header" },
@@ -30,7 +32,7 @@ export function validateTranslation(key: StorefrontCopyKey, value: string): stri
 
 export function renderStorefrontCopy(key: StorefrontCopyKey, translations: StorefrontTranslations = {}, variables: Record<string, string | number> = {}): string {
   const entry = storefrontCopy.find((item) => item.key === key)!;
-  if (key === 'widget.title' && Object.prototype.hasOwnProperty.call(translations, key) && !translations[key]?.trim()) return '';
+  if (['widget.title', 'widget.gifts.title', 'widget.bundles.title'].includes(key) && Object.prototype.hasOwnProperty.call(translations, key) && !translations[key]?.trim()) return '';
   const translated = translations[key];
   const source = translated || entry.source;
   return source.replace(/\{([a-z_]+)\}/g, (_match, name: string) => String(variables[name] ?? `{${name}}`));

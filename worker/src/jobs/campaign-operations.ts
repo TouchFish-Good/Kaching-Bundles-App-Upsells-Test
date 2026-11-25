@@ -1,5 +1,6 @@
+import { campaignRepository } from '../services/offer-index';
 import { D1CampaignOperationRepository, type CampaignOperation } from '../db/campaign-operations';
-import { CampaignConflictError, D1CampaignRepository } from '../db/campaigns';
+import { CampaignConflictError } from '../db/campaigns';
 import type { CampaignDraft } from '../domain/campaign';
 import type { Env } from '../env';
 import { D1SessionStore } from '../db/sessions';
@@ -36,7 +37,7 @@ async function deleteOperation(operation: CampaignOperation, env: Env, session: 
     await deleteAutomaticDiscount(session, expired.discountId, env, expired.nodeId);
     return 'succeeded';
   }
-  const campaigns = new D1CampaignRepository(env.DB);
+  const campaigns = campaignRepository(env);
   const current = await campaigns.get(operation.handle, operation.campaignId);
   if (!current) return 'succeeded';
   if (current.revision !== operation.expectedRevision) throw new CampaignConflictError('Campaign revision has changed.');
@@ -61,7 +62,7 @@ async function deleteOperation(operation: CampaignOperation, env: Env, session: 
 }
 
 async function replaceOperation(operation: CampaignOperation, env: Env, session: NonNullable<Awaited<ReturnType<D1SessionStore['get']>>>): Promise<void> {
-  const campaigns = new D1CampaignRepository(env.DB);
+  const campaigns = campaignRepository(env);
   const current = await campaigns.get(operation.handle, operation.campaignId);
   if (!current) throw new CampaignConflictError('Campaign not found.');
   if (current.revision !== operation.expectedRevision) throw new CampaignConflictError('Campaign revision has changed.');

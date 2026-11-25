@@ -1,4 +1,5 @@
 import { withFreshAccessToken } from '../auth/session';
+import { D1SessionStore } from '../db/sessions';
 import type { AuthContext } from '../auth/session';
 import type { Env } from '../env';
 import { shoplineAdminHeaders } from './shopline-admin-request-headers';
@@ -34,11 +35,12 @@ function marketsFromPayload(payload: unknown): MarketRecord[] {
   });
 }
 
-async function loadMarkets(shopHandle: string, env: Env): Promise<MarketRecord[]> {
+async function loadMarkets(shopHandle: string, env: Env, readOnly = false): Promise<MarketRecord[]> {
   const existing = cache.get(shopHandle);
   const now = env.now?.() ?? Date.now();
   if (existing && existing.expiresAt > now) return existing.markets;
-  const session = await withFreshAccessToken(shopHandle, env);
+  const session = readOnly ? await new D1SessionStore(env.DB, env.TOKEN_ENCRYPTION_KEY).get(shopHandle) : await withFreshAccessToken(shopHandle, env);
+  if (!session || (readOnly && (!('installed' in session) || !session.installed || !('expiresAt' in session) || Date.parse(session.expiresAt as string) <= now))) throw new Error('Readonly market context unavailable.');
   const response = await fetch(`https://${shopHandle}.myshopline.com/admin/openapi/${VERSION}/markets.json?limit=100`, {
     headers: shoplineAdminHeaders(session.accessToken),
   });
@@ -48,11 +50,11 @@ async function loadMarkets(shopHandle: string, env: Env): Promise<MarketRecord[]
   return markets;
 }
 
-export async function resolveStorefrontMarketId(shopHandle: string, countryCode: string | undefined, env: Env): Promise<string | undefined> {
+export async function resolveStorefrontMarketId(shopHandle: string, countryCode: string | undefined, env: Env, readOnly = false): Promise<string | undefined> {
   const normalized = country(countryCode);
   if (!normalized) return undefined;
   try {
-    const markets = await loadMarkets(shopHandle, env);
+    const markets = await loadMarkets(shopHandle, env, readOnly);
     return markets.find((market) => market.enabled && market.regions.includes(normalized))?.id;
   } catch {
     return undefined;

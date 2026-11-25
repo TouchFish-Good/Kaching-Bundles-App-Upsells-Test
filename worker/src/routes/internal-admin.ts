@@ -1,3 +1,4 @@
+import { campaignRepository } from '../services/offer-index';
 import type { Context, Hono } from 'hono';
 
 import { authorizeInternalRequest } from '../auth/internal-request';
@@ -313,7 +314,7 @@ export function registerInternalAdminRoutes(app: App): void {
     if (!page) return c.json({ error: { code: 'INVALID_PAGINATION' } }, 422);
     if (query.length > 100) return c.json({ error: { code: 'INVALID_QUERY' } }, 422);
     if (status && !['draft', 'active', 'expired', 'scheduled', 'paused', 'ended'].includes(status)) return c.json({ error: { code: 'INVALID_STATUS' } }, 422);
-    const repository = new D1CampaignRepository(c.env.DB);
+    const repository = campaignRepository(c.env);
     const result = await repository.listForAdmin({ storeId, query, status, ...page });
     return c.json({ data: { total: result.total, items: result.items.map(({ campaign, publication, storeId, shopHandle }) => ({ ...campaignProjection(campaign, publication), storeId, shopHandle })) } });
   }));
@@ -325,7 +326,7 @@ export function registerInternalAdminRoutes(app: App): void {
     if (!page) return c.json({ error: { code: 'INVALID_PAGINATION' } }, 422);
     if (query.length > 100) return c.json({ error: { code: 'INVALID_QUERY' } }, 422);
     if (status && !['draft', 'active', 'expired', 'scheduled', 'paused', 'ended'].includes(status)) return c.json({ error: { code: 'INVALID_STATUS' } }, 422);
-    const result = await new D1CampaignRepository(c.env.DB).listForAdmin({ query, status, ...page });
+    const result = await campaignRepository(c.env).listForAdmin({ query, status, ...page });
     return c.json({ data: { total: result.total, items: result.items.map(({ campaign, publication, storeId, shopHandle }) => ({ ...campaignProjection(campaign, publication), storeId, shopHandle })) } });
   }));
 
@@ -335,7 +336,7 @@ export function registerInternalAdminRoutes(app: App): void {
     if (!storeId || !campaignId) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     const session = await installedStoreSession(c, storeId);
     if (!session) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
-    const repository = new D1CampaignRepository(c.env.DB, () => currentTime(c.env));
+    const repository = campaignRepository(c.env, () => currentTime(c.env));
     let campaign = await repository.get(session.handle, campaignId);
     if (!campaign) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     let publication = await repository.getPublication(session.handle, campaignId);
@@ -358,7 +359,7 @@ export function registerInternalAdminRoutes(app: App): void {
     const session = await installedStoreSession(c, storeId);
     if (!session) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
 
-    const repository = new D1CampaignRepository(c.env.DB, () => currentTime(c.env));
+    const repository = campaignRepository(c.env, () => currentTime(c.env));
     const campaign = await repository.get(session.handle, campaignId);
     if (!campaign) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     if (!['active', 'scheduled'].includes(campaign.status)) return c.json({ error: { code: 'CAMPAIGN_NOT_PAUSABLE' } }, 409);
@@ -403,7 +404,7 @@ export function registerInternalAdminRoutes(app: App): void {
     if (!storeId || !campaignId) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     const session = await installedStoreSession(c, storeId);
     if (!session) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
-    const repository = new D1CampaignRepository(c.env.DB, () => currentTime(c.env));
+    const repository = campaignRepository(c.env, () => currentTime(c.env));
     const campaign = await repository.get(session.handle, campaignId);
     if (!campaign) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     if (campaign.revision !== input.expectedRevision) return c.json({ error: { code: 'STALE_OR_CONFLICT' } }, 409);
@@ -434,7 +435,7 @@ export function registerInternalAdminRoutes(app: App): void {
     if (!storeId || !campaignId) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     const session = await installedStoreSession(c, storeId);
     if (!session) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
-    const repository = new D1CampaignRepository(c.env.DB, () => currentTime(c.env));
+    const repository = campaignRepository(c.env, () => currentTime(c.env));
     const campaign = await repository.get(session.handle, campaignId);
     if (!campaign) return c.json({ error: { code: 'NOT_FOUND' } }, 404);
     const publication = await repository.getPublication(session.handle, campaignId);

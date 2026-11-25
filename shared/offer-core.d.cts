@@ -19,7 +19,7 @@ export type OfferModuleConfig = {
 };
 export type OfferTier = { tierId: string; quantity: number; displayOrder?: number };
 export type OfferMainProduct = { productId: string; quantity: number };
-export type OfferFunctionRule = Omit<OfferRule, 'label' | 'labelPosition' | 'showImage'>;
+export type OfferFunctionRule = Omit<OfferRule, 'label' | 'labelPosition' | 'showImage' | 'marketOverrides'> & { marketOverrides?: Record<string, { mode: 'auto_convert' } | { mode: 'specified_amount'; currencyCode: string; currencyDecimals: number; amountMinor: number }> };
 export type OfferFunctionModule = Omit<OfferModuleConfig, 'style' | 'items'> & { items: OfferFunctionRule[] };
 export function defaultOfferModule(kind: OfferModuleKind): OfferModuleConfig;
 export function normalizeOfferModule(raw: unknown, kind: OfferModuleKind): OfferModuleConfig;

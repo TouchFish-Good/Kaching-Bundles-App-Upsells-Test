@@ -1,4 +1,5 @@
 import { withFreshAccessToken } from '../auth/session';
+import { D1SessionStore } from '../db/sessions';
 import type { Env } from '../env';
 import { shoplineAdminHeaders } from './shopline-admin-request-headers';
 
@@ -50,8 +51,9 @@ async function collectionRequest(handle: string, url: string, headers: HeadersIn
   try { return await task; } finally { current.pending--; }
 }
 
-async function load(handle: string, productId: string, env: Env): Promise<string[]> {
-  const session = await withFreshAccessToken(handle, env);
+async function load(handle: string, productId: string, env: Env, readOnly: boolean): Promise<string[]> {
+  const session = readOnly ? await new D1SessionStore(env.DB, env.TOKEN_ENCRYPTION_KEY).get(handle) : await withFreshAccessToken(handle, env);
+  if (!session || (readOnly && (!('installed' in session) || !session.installed || !('expiresAt' in session) || Date.parse(session.expiresAt as string) <= (env.now?.() ?? Date.now())))) throw new Error('Current readonly collection context unavailable.');
   // One deadline for the whole page sequence, never follow arbitrary URLs from Link.
   const signal = AbortSignal.timeout(5_000);
   const ids = new Set<string>();
@@ -80,11 +82,11 @@ async function load(handle: string, productId: string, env: Env): Promise<string
   throw new Error('Collection membership exceeds display lookup limit.');
 }
 
-export async function resolveStorefrontCollections(handle: string, productId: string, env: Env): Promise<string[]> {
+export async function resolveStorefrontCollections(handle: string, productId: string, env: Env, readOnly = false): Promise<string[]> {
   let cache = caches.get(env.DB);
   if (!cache) { cache = new Map(); caches.set(env.DB, cache); }
   const now = env.now?.() ?? Date.now();
-  const key = `${env.SHOPLINE_APP_KEY}:${handle}:${productId}`;
+  const key = `${env.SHOPLINE_APP_KEY}:${handle}:${productId}:${readOnly}`;
   for (const [key, entry] of cache) if (!entry.pending && entry.expiresAt <= now) cache.delete(key);
   const existing = cache.get(key);
   if (existing) return existing.result;
@@ -95,7 +97,7 @@ export async function resolveStorefrontCollections(handle: string, productId: st
     else throw new Error('Collection lookup busy.');
   }
   const entry: Entry = { expiresAt: now + 60_000, pending: true, result: Promise.resolve([]) };
-  entry.result = load(handle, productId, env).then(ids => {
+  entry.result = load(handle, productId, env, readOnly).then(ids => {
     entry.pending = false; entry.expiresAt = (env.now?.() ?? Date.now()) + 60_000; return ids;
   }, error => {
     entry.pending = false; entry.expiresAt = (env.now?.() ?? Date.now()) + 5_000; throw error;

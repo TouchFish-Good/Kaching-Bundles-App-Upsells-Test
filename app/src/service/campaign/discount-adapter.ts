@@ -19,6 +19,7 @@ function currencyDecimals(currencyCode: string): number {
 export function buildDiscountRule(campaign: CampaignDraft, shopCurrencyCode: string) {
   const errors = validateCampaign(campaign);
   if (errors.length) throw new Error(errors.join(' '));
+  if (campaign.gifts?.enabled || campaign.bundles?.enabled) throw new Error('Verified gift/bundle Function capability is unavailable in the legacy publisher.');
   return {
     schemaVersion: 1,
     campaignId: campaign.id,

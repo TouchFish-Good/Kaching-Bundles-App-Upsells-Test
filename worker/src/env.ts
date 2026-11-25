@@ -11,6 +11,8 @@ export type Env = {
   SHOPLINE_PRODUCT_DISCOUNT_FUNCTION_ID: string;
   SHOPLINE_QUANTITY_BREAKS_PUBLICATION_ENABLED: string;
   SHOPLINE_STORE_CURRENCY_CODE?: string;
+  /** Trusted, evidence-backed per-shop Function capability map. Missing means disabled. */
+  SHOPLINE_OFFER_FUNCTION_CAPABILITIES?: string;
   TOKEN_ENCRYPTION_KEY: string;
   now?: () => number;
 };

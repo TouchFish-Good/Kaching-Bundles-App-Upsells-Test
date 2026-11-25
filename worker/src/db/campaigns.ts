@@ -22,7 +22,13 @@ type Clock = () => number;
 const nowIso = (clock: Clock) => new Date(clock()).toISOString();
 
 export class D1CampaignRepository {
-  constructor(private readonly database: D1Database, private readonly clock: Clock = Date.now) {}
+  constructor(private readonly database: D1Database, private readonly clock: Clock = Date.now,
+    private readonly syncOfferIndex?: (repository: D1CampaignRepository, handle: string, previous: CampaignDraft[], candidate: CampaignDraft, owner: string) => Promise<void>) {}
+
+  async assertShopLease(handle: string, owner: string): Promise<void> {
+    const lock = await this.database.prepare('SELECT owner, expires_at FROM quantity_breaks_shop_locks WHERE shop_handle = ?').bind(handle).first<{ owner: string; expires_at: number }>();
+    if (!lock || lock.owner !== owner || lock.expires_at <= this.clock()) throw new CampaignConflictError('Publication shop lease was lost.');
+  }
 
   private decode(row: Row): Campaign {
     const campaign = JSON.parse(row.campaign_json) as CampaignDraft;
@@ -417,6 +423,8 @@ export class D1CampaignRepository {
         throw new CampaignConflictError('Campaign is not published.');
       }
 
+      await this.syncOfferIndex?.(this, shopHandle, [campaign], { ...leaseCampaign, status: action === 'publish' ? 'active' : 'paused' }, owner);
+      await this.assertShopLease(shopHandle, owner);
       await this.database.prepare(`INSERT INTO quantity_breaks_publications
         (shop_handle, campaign_id, state, discount_id, platform_node_id, owner, resume_status, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(shop_handle, campaign_id) DO UPDATE SET state = excluded.state,
@@ -508,6 +516,8 @@ export class D1CampaignRepository {
       if (campaigns.filter((item) => item.id !== candidate.id && (item.status === 'active' || item.status === 'scheduled')).length >= 35) {
         throw new CampaignConflictError('A SHOPLINE Function supports at most 35 enabled rules.');
       }
+      await this.syncOfferIndex?.(this, shopHandle, [current], replacement, owner);
+      await this.assertShopLease(shopHandle, owner);
       const now = nowIso(this.clock);
       await this.database.batch([
         this.database.prepare(`INSERT INTO quantity_breaks_campaigns (shop_handle, id, campaign_json, revision, updated_at)
@@ -699,6 +709,8 @@ export class D1CampaignRepository {
       if (existing.some((item) => item.id !== candidate.id && campaignsConflict(item, stagedCandidate))) {
         throw new CampaignConflictError('Campaign product scope overlaps another enabled campaign.');
       }
+      await this.syncOfferIndex?.(this, shopHandle, [current], stagedCandidate, owner);
+      await this.assertShopLease(shopHandle, owner);
       await this.database.batch([
         this.database.prepare(`INSERT INTO quantity_breaks_staged_updates
           (shop_handle, campaign_id, candidate_json, expected_revision, discount_id) VALUES (?, ?, ?, ?, ?)

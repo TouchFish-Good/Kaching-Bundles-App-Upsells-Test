@@ -12,6 +12,12 @@ import { D1SubscriptionRepository } from '../db/subscriptions';
 import { hasSubscriptionAccess } from './subscription-access';
 import { normalizeStorefrontLocale } from '../services/locales';
 import { resolveStorefrontMarketId } from '../services/storefront-market';
+import { hasEnabledOffers, offerConfigDigest, validOfferSelection, type OfferSelection } from '../services/offer-config';
+import { supportedOfferFunction } from '../services/discounts';
+import { OFFER_INDEX_NAMESPACE, OFFER_INDEX_KEY } from '../services/offer-index';
+import { resolveOfferPreview } from '../services/offer-preview';
+import { requireShoplineSession } from '../auth/session';
+import { requireSubscriptionAccess } from './subscription-access';
 
 type App = Hono<{ Bindings: Env; Variables: { auth: AuthContext } }>;
 
@@ -59,6 +65,7 @@ export function registerStorefrontRoutes(app: App): void {
       if (c.req.header('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/x-www-form-urlencoded') return c.json({ error: 'Expected form data.' }, 415);
       params = new URLSearchParams(await c.req.text());
     } else params = new URL(c.req.url).searchParams;
+    const v2 = params.get('clientFeatures') === 'gift-bundles-v1';
     let shop = params.get('shop');
     const shopId = params.get('shopId');
     const os21 = params.get('themeVersion') === '2.1';
@@ -83,11 +90,12 @@ export function registerStorefrontRoutes(app: App): void {
       collections = { complete: complete === 'true', ids };
     }
     try {
+      if (v2 && !(await new D1SessionStore(c.env.DB, c.env.TOKEN_ENCRYPTION_KEY).getInstalledStoreId(shop))) return c.json({ error: 'No published campaign for this product.' }, 404);
       const entitlement = await new D1SubscriptionRepository(c.env.DB).readEntitlement(c.env.SHOPLINE_APP_KEY, shop);
       if (!hasSubscriptionAccess(entitlement)) {
         return c.json({ error: 'No published campaign for this product.' }, 404);
       }
-      const now = Date.now();
+      const now = v2 ? (c.env.now?.() ?? Date.now()) : Date.now();
       const repository = new D1CampaignRepository(c.env.DB);
       const candidates: Campaign[] = [];
       for (const campaign of await repository.list(shop)) {
@@ -96,7 +104,7 @@ export function registerStorefrontRoutes(app: App): void {
         if ((await repository.getPublication(shop, campaign.id)).state === 'active') candidates.push(campaign);
       }
       if (os21 && !candidates.some(campaign => campaign.scope.kind === 'products' && includesProduct(campaign.scope, productId)) && candidates.some(campaign => campaign.scope.kind === 'collections')) {
-        collections = { complete: true, ids: await resolveStorefrontCollections(shop, productId, c.env) };
+        collections = { complete: true, ids: await resolveStorefrontCollections(shop, productId, c.env, v2) };
       }
       const matches: Campaign[] = [];
       for (const campaign of candidates) {
@@ -110,8 +118,41 @@ export function registerStorefrontRoutes(app: App): void {
       const locale = normalizeStorefrontLocale(params.get('locale') ?? undefined) ?? 'en';
       const copy: Record<string, string> = await new D1TranslationRepository(c.env.DB).read(shop, locale).catch(() => ({}));
       const countryCode = params.get('countryCode') ?? undefined;
-      const marketId = await resolveStorefrontMarketId(shop, countryCode, c.env);
+      const marketId = await resolveStorefrontMarketId(shop, countryCode, c.env, v2);
+      const selected = preferred[0];
+      if (v2 && hasEnabledOffers(selected)) {
+        const digest = await offerConfigDigest(selected);
+        const latest = await repository.get(shop, selected.id);
+        if (!latest || latest.revision !== selected.revision) return c.json({ error: 'Campaign revision changed.', code: 'STALE_REVISION' }, 409);
+        const currentNow = c.env.now?.() ?? Date.now();
+        if (latest.status !== 'active' || (latest.startsAt && Date.parse(latest.startsAt) > currentNow) || (latest.endsAt && Date.parse(latest.endsAt) <= currentNow) || (await repository.getPublication(shop, selected.id)).state !== 'active' || !(await new D1SessionStore(c.env.DB, c.env.TOKEN_ENCRYPTION_KEY).getInstalledStoreId(shop)) || !hasSubscriptionAccess(await new D1SubscriptionRepository(c.env.DB).readEntitlement(c.env.SHOPLINE_APP_KEY, shop))) return c.json({ error: 'No published campaign for this product.' }, 404);
+        return c.json({ version: 2, clientFeatures: 'gift-bundles-v1', campaign: { ...publicCampaign(selected), revision: selected.revision, ...(marketId ? { marketId } : {}), widgetTitle: copy['widget.title']?.trim() ?? '', copy,
+          ...(selected.gifts?.enabled ? { gifts: selected.gifts } : {}), ...(selected.bundles?.enabled ? { bundles: selected.bundles } : {}),
+          offerTitles: { gifts: copy['widget.gifts.title'] ?? '🎁 Free gifts with your order', bundles: copy['widget.bundles.title'] ?? 'Frequently Bought Together' },
+          catalogSource: 'theme', catalogIndex: { namespace: OFFER_INDEX_NAMESPACE, key: OFFER_INDEX_KEY, version: 1, digest },
+          offerCapability: { protocol: 'gift-bundles-v1', functionVerified: supportedOfferFunction(shop, c.env) },
+        } });
+      }
       return c.json({ campaign: { ...publicCampaign(preferred[0]), ...(marketId ? { marketId } : {}), widgetTitle: copy['widget.title']?.trim() ?? '', copy } });
     } catch { return c.json({ error: 'Campaign data is unavailable.' }, 503); }
   });
+  app.post('/api/quantity-breaks/offer-preview', bodyLimit({ maxSize: 64 * 1024 }), async c => {
+    c.header('Cache-Control', 'no-store');
+    const session = await requireShoplineSession(c.req.raw, c.env);
+    if (session instanceof Response) return session;
+    c.set('auth', session);
+    const denied = await requireSubscriptionAccess(c.env.DB, c.env.SHOPLINE_APP_KEY, session.handle);
+    if (denied) return denied;
+    const limited = await requirePublicRateLimit(c.req.raw, c.env); if (limited) return limited;
+    let body: { selection?: OfferSelection[]; marketId?: string; currencyCode?: string; countryCode?: string; locale?: string; revision?: string };
+    try { body = await c.req.json(); } catch { return c.json({ error: 'Invalid preview payload.' }, 400); }
+    if (!body || !validOfferSelection(body.selection) || typeof body.revision !== 'string' || !body.revision || body.revision.length > 128 || [body.marketId, body.currencyCode, body.countryCode, body.locale].some(value => value !== undefined && (typeof value !== 'string' || value.length > 128))) return c.json({ error: 'Invalid preview payload.' }, 400);
+    const locale = normalizeStorefrontLocale(body.locale) ?? 'en';
+    try {
+      const result = await resolveOfferPreview(session, body.selection, body);
+      if (result.retryAfter) c.header('Retry-After', String(result.retryAfter));
+      return c.json({ version: 2, revision: body.revision, locale, marketId: body.marketId ?? null, currencyCode: body.currencyCode ?? null, ...result }, result.retryAfter ? 429 : 200);
+    } catch { return c.json({ error: 'Preview Product/variant identity is unavailable.' }, 422); }
+  });
+
 }

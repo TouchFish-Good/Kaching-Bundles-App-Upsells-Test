@@ -1,7 +1,7 @@
 import type { Database } from 'sqlite3';
 
 const placeholdersByKey: Record<string, string[]> = {
-  'widget.title': [], 'widget.tier_savings_badge': ['saving_amount'], 'widget.description': [], 'widget.tier_rule': [],
+  'widget.gifts.title': [], 'widget.bundles.title': [], 'widget.title': [], 'widget.tier_savings_badge': ['saving_amount'], 'widget.description': [], 'widget.tier_rule': [],
   'widget.original': [], 'widget.savings': [], 'widget.total': [],
   'widget.add_to_cart': ['quantity', 'price'], 'widget.adding': [],
   'widget.cart_failure': [], 'widget.cart_success': ['quantity', 'lines'],
