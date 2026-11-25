@@ -124,7 +124,7 @@ func TestV2GiftTriggersAccumulateAndVariantsCountOnce(t *testing.T) {
 		})
 	}
 }
-func TestV2CapsArePerSourceProductAndIgnoreContexts(t *testing.T) {
+func TestV2CapsPoolEligibleProductsAndIgnoreContexts(t *testing.T) {
 	r := v2Rule(testOfferModule("all_eligible", offerItem("a", "ga", 2, 2, "fixed_price", 0)), "")
 	for _, q := range []int64{1, 2, 3} {
 		t.Run(fmt.Sprint(q), func(t *testing.T) {
@@ -136,7 +136,7 @@ func TestV2CapsArePerSourceProductAndIgnoreContexts(t *testing.T) {
 			assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), accessory("g", "ga", "gift", "a", "p1", q)), map[string]v2Target{"g": {wantQ, amount, "shop", false}})
 		})
 	}
-	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), testLine("m2", "p2", "20.00", "18.00", 2), accessory("a", "ga", "gift", "a", "p1", 1), accessory("b", "ga", "gift", "a", "p1", 3), accessory("c", "ga", "gift", "a", "p2", 3)), map[string]v2Target{"a": {1, "10.00", "shop", false}, "b": {1, "10.00", "shop", false}, "c": {2, "20.00", "shop", false}})
+	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), testLine("m2", "p2", "20.00", "18.00", 2), accessory("a", "ga", "gift", "a", "p1", 1), accessory("b", "ga", "gift", "a", "p1", 3), accessory("c", "ga", "gift", "a", "p2", 3)), map[string]v2Target{"a": {1, "10.00", "shop", false}, "b": {3, "30.00", "shop", false}})
 	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 1), testLine("m2", "p2", "20.00", "18.00", 1), accessory("g", "ga", "gift", "a", "p1", 2)), map[string]v2Target{})
 }
 func TestV2RejectsForgedAccessoryIdentity(t *testing.T) {
@@ -333,4 +333,82 @@ func TestV2CollectionOwnershipUsesActualMembership(t *testing.T) {
 	assertTargets(t, serializedTargets(t, []string{r}, m, accessory("g", "ga", "gift", "a", "p1", 1)), map[string]v2Target{})
 	m.Merchandise.ProductVariant.Product.InCollections = []*module.CollectionMembership{{CollectionId: pointer("c1"), IsMember: pointer(true)}}
 	assertTargets(t, serializedTargets(t, []string{r}, m, accessory("g", "ga", "gift", "a", "p1", 1)), map[string]v2Target{"g": {1, "10.00", "shop", false}})
+}
+
+func TestV2PooledCapAllowsSingleSourceAccessoryLine(t *testing.T) {
+	for _, role := range []string{"gift", "bundle"} {
+		for _, qty := range []int64{1, 2, 3} {
+			t.Run(fmt.Sprintf("%s/%d", role, qty), func(t *testing.T) {
+				item := offerItem("a", "ga", 2, 1, "fixed_price", 0)
+				gifts, bundles := "", ""
+				if role == "gift" {
+					gifts = testOfferModule("all_eligible", item)
+				} else {
+					bundles = testOfferModule("multiple", item)
+				}
+				r := v2Rule(gifts, bundles)
+				wantQ := qty
+				if wantQ > 2 {
+					wantQ = 2
+				}
+				amount := "10.00"
+				if wantQ == 2 {
+					amount = "20.00"
+				}
+				assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), testLine("m2", "p2", "20.00", "18.00", 2), accessory("g", "ga", role, "a", "p1", qty)), map[string]v2Target{"g": {wantQ, amount, "shop", false}})
+			})
+		}
+	}
+	// A valid source must itself qualify: another Product's contribution does not
+	// turn a forged or nonqualifying source into a legitimate accessory line.
+	r := v2Rule(testOfferModule("all_eligible", offerItem("a", "ga", 2, 1, "fixed_price", 0)), "")
+	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 1), testLine("m2", "p2", "20.00", "18.00", 2), accessory("g", "ga", "gift", "a", "p1", 1)), map[string]v2Target{})
+}
+func TestV2SingleSelectsOneRuleByAggregateLegalSavings(t *testing.T) {
+	a := offerItem("a", "ba", 2, 1, "percentage", 5000)
+	b := offerItem("b", "bb", 2, 1, "percentage", 5000)
+	r := v2Rule("", testOfferModule("single", b, a))
+	for _, tc := range []struct {
+		name   string
+		prices []string
+		want   map[string]v2Target
+	}{
+		// A wins source1 individually; B wins source2 and aggregate (6 > 5.5).
+		{"aggregate", []string{"10.00", "1.00", "2.00", "10.00"}, map[string]v2Target{"b1": {1, "1.00", "shop", false}, "b2": {1, "5.00", "shop", false}}},
+		// Equal aggregate reduction chooses the lower displayOrder then rule ID.
+		{"tie", []string{"10.00", "2.00", "2.00", "10.00"}, map[string]v2Target{"a1": {1, "5.00", "shop", false}, "a2": {1, "1.00", "shop", false}}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			lines := []*module.CartLineInput{accessory("a1", "ba", "bundle", "a", "p1", 1), accessory("a2", "ba", "bundle", "a", "p2", 1), accessory("b1", "bb", "bundle", "b", "p1", 1), accessory("b2", "bb", "bundle", "b", "p2", 1)}
+			for i, l := range lines {
+				l.Merchandise.ProductVariant.PriceSet.ShopMoney.Amount = tc.prices[i]
+			}
+			lines = append(lines, testLine("m1", "p1", "20.00", "18.00", 2), testLine("m2", "p2", "20.00", "18.00", 2))
+			assertTargets(t, serializedTargets(t, []string{r}, lines...), tc.want)
+		})
+	}
+	// Distinct displayOrder wins an aggregate tie even when rule IDs sort first.
+	b = strings.Replace(b, `"displayOrder":2`, `"displayOrder":1`, 1)
+	r = v2Rule("", testOfferModule("single", a, b))
+	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), testLine("m2", "p2", "20.00", "18.00", 2), accessory("a", "ba", "bundle", "a", "p1", 2), accessory("b", "bb", "bundle", "b", "p2", 2)), map[string]v2Target{"b": {2, "10.00", "shop", false}})
+}
+func TestV1NeverCountsStaleOrMalformedProtocolAccessories(t *testing.T) {
+	legacy := testRule(`[{"tierId":"two","quantity":2,"discountType":"fixed_amount","discountValue":100}]`)
+	malformed := strings.TrimSuffix(v2Rule("", ""), "}") + `,"gifts":"invalid"}`
+	for _, tc := range []struct {
+		name  string
+		rules []string
+	}{
+		{"no current v2", []string{legacy}},
+		{"malformed v2 module", []string{legacy, malformed}},
+	} {
+		for _, role := range []string{"gift", "bundle", "invalid"} {
+			t.Run(tc.name+"/"+role, func(t *testing.T) {
+				stale := accessory("stale", "p1", role, "gone-rule", "p1", 4)
+				assertTargets(t, serializedTargets(t, tc.rules, testLine("plain", "p1", "10.00", "9.00", 1), stale), map[string]v2Target{})
+				// Preserve the original v1 output for ordinary main units.
+				assertTargets(t, serializedTargets(t, tc.rules, testLine("plain", "p1", "10.00", "9.00", 2), stale), map[string]v2Target{"plain": {2, "1.00", "shop", true}})
+			})
+		}
+	}
 }

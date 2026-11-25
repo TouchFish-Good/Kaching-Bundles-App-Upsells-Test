@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mailru/easyjson"
 	"github.com/mailru/easyjson/jlexer"
 	"github.com/shoplinedev/function-extensions-template/templates/product-discount-customizations/module"
 )
@@ -195,32 +194,9 @@ func accessoryProducts(nodes []ruleNode) map[string]bool {
 	return ids
 }
 
-// In a mixed protocol cart legacy rules must not see accessory units either.
+// Protocol segregation does not depend on live campaign metadata: stale gift,
+// bundle and malformed marked lines must never become legacy main units.
 func mainRequest(req *module.ProductDiscountCustomizationFunctionRequest, nodes []ruleNode) *module.ProductDiscountCustomizationFunctionRequest {
-	hasV2 := false
-	for _, e := range nodes {
-		hasV2 = hasV2 || e.rule.SchemaVersion == 2
-	}
-	if !hasV2 {
-		// Invalid v2 metadata is still a protocol boundary for legacy main counting.
-		for _, node := range req.DiscountNodes {
-			if node == nil {
-				continue
-			}
-			for _, field := range node.Metafields {
-				if field == nil || field.Namespace == nil || *field.Namespace != "sale" || field.Key != "quantity_breaks" {
-					continue
-				}
-				var raw discountRule
-				if easyjson.Unmarshal([]byte(field.Value), &raw) == nil && raw.SchemaVersion == 2 {
-					hasV2 = true
-				}
-			}
-		}
-	}
-	if !hasV2 {
-		return req
-	}
 	copyReq := *req
 	copyCart := *req.Cart
 	copyCart.Lines = nil
@@ -512,81 +488,92 @@ func evaluateOffersV2(req *module.ProductDiscountCustomizationFunctionRequest, n
 				}
 				return items[i].RuleID < items[j].RuleID
 			})
-			for _, source := range sortedKeys(groups) {
-				var options []offerAllocation
-				for _, item := range items {
-					if !eligible(item, r.Tiers, quantities[source]) {
-						continue
-					}
-					role := "bundle"
-					if m == r.Gifts {
-						role = "gift"
-					}
-					money := moneyFor(r, item.DiscountValue, item.MarketOverrides, market)
-					a := offerAllocation{money: money}
-					remaining := item.Quantity
-					for _, l := range lines {
-						if remaining == 0 {
-							break
-						}
-						p := protocol(l)
-						if !p.valid || p.main || p.values["_qb_role"] != role || p.values["_qb_campaign"] != r.CampaignID || p.values["_qb_rule"] != item.RuleID || p.values["_qb_source_product"] != source || actualProduct(l) != item.ProductID || l.Id == nil || *l.Id == "" || ids[*l.Id] != 1 || used[*l.Id] || l.Quantity == nil || *l.Quantity <= 0 || *l.Quantity > maxSafeInteger {
-							continue
-						}
-						sku := l.Merchandise.ProductVariant.Sku
-						allowed := false
-						if sku != nil {
-							for _, v := range item.AllowedVariantIDs {
-								allowed = allowed || v == *sku
-							}
-						}
-						if !allowed {
-							continue
-						}
-						price, ok := priceFor(l, money)
-						if !ok {
-							continue
-						}
-						q := *l.Quantity
-						if q > remaining {
-							q = remaining
-						}
-						d, ok := multiply(reduction(price, money.amount, item.DiscountType, true), q)
-						if !ok || a.total > math.MaxInt64-d {
-							continue
-						}
-						remaining -= q
-						if d == 0 {
-							continue
-						}
-						a.total += d
-						a.targets = append(a.targets, lineTotal(l, q, d, money))
-					}
-					if len(a.targets) > 0 {
-						options = append(options, a)
+			var options []offerAllocation
+			for _, item := range items {
+				sources := map[string]bool{}
+				for productID, quantity := range quantities {
+					if eligible(item, r.Tiers, quantity) {
+						sources[productID] = true
 					}
 				}
-				if !sameAllocationMoney(options) {
+				if len(sources) == 0 {
+					continue
+				}
+				remaining, ok := multiply(item.Quantity, int64(len(sources)))
+				if !ok || remaining > maxSafeInteger {
 					invalid = true
 					break
 				}
-				if m.SelectionMode == "single" && len(options) > 1 {
-					best := 0
-					for i := 1; i < len(options); i++ {
-						if options[i].total > options[best].total {
-							best = i
+				role := "bundle"
+				if m == r.Gifts {
+					role = "gift"
+				}
+				money := moneyFor(r, item.DiscountValue, item.MarketOverrides, market)
+				a := offerAllocation{money: money}
+				for _, l := range lines {
+					if remaining == 0 {
+						break
+					}
+					p := protocol(l)
+					if !p.valid || p.main || p.values["_qb_role"] != role || p.values["_qb_campaign"] != r.CampaignID || p.values["_qb_rule"] != item.RuleID || !sources[p.values["_qb_source_product"]] || actualProduct(l) != item.ProductID || l.Id == nil || *l.Id == "" || ids[*l.Id] != 1 || used[*l.Id] || l.Quantity == nil || *l.Quantity <= 0 || *l.Quantity > maxSafeInteger {
+						continue
+					}
+					sku := l.Merchandise.ProductVariant.Sku
+					allowed := false
+					if sku != nil {
+						for _, v := range item.AllowedVariantIDs {
+							allowed = allowed || v == *sku
 						}
 					}
-					options = []offerAllocation{options[best]}
-				}
-				for _, a := range options {
-					for _, t := range a.targets {
-						used[*t.CartLine.Id] = true
+					if !allowed {
+						continue
 					}
-					allocations = append(allocations, a)
+					price, ok := priceFor(l, money)
+					if !ok {
+						continue
+					}
+					q := *l.Quantity
+					if q > remaining {
+						q = remaining
+					}
+					d, ok := multiply(reduction(price, money.amount, item.DiscountType, true), q)
+					if !ok || a.total > math.MaxInt64-d {
+						continue
+					}
+					remaining -= q
+					if d == 0 {
+						continue
+					}
+					a.total += d
+					a.targets = append(a.targets, lineTotal(l, q, d, money))
+				}
+				if len(a.targets) > 0 {
+					options = append(options, a)
 				}
 			}
+			if invalid || !sameAllocationMoney(options) {
+				invalid = true
+				break
+			}
+			// Single limits rule kinds for the entire module; each option already
+			// contains all legal source lines under its pooled Product quota.
+			if m.SelectionMode == "single" && len(options) > 1 {
+				best := 0
+				for i := 1; i < len(options); i++ {
+					if options[i].total > options[best].total {
+						best = i
+					}
+				}
+				options = []offerAllocation{options[best]}
+			}
+			for _, a := range options {
+				for _, target := range a.targets {
+					used[*target.CartLine.Id] = true
+				}
+				allocations = append(allocations, a)
+			}
 		}
+
 		if invalid {
 			continue
 		}
