@@ -1,0 +1,204 @@
+{
+  "source": "Local simulated editor; no SHOPLINE requests or real cart writes",
+  "console": [],
+  "screens": [
+    "after-1440",
+    "after-1440-expanded",
+    "after-390",
+    "after-320",
+    "container-400",
+    "container-600",
+    "container-700",
+    "preview-mobile390",
+    "preview-unavailable",
+    "translations-empty-title-1440"
+  ],
+  "interactions": [
+    {
+      "label": "editor-1440",
+      "pageWidth": 1440,
+      "scrollWidth": 1440,
+      "gifts": 2,
+      "bundles": 2,
+      "summary": "Accessories $30.00Total $94.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 601.59375,
+          "columns": "2",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 601.59375,
+          "columns": "2",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "Independent header controls",
+      "retained": "true",
+      "collapsed": "false"
+    },
+    {
+      "label": "editor-390",
+      "pageWidth": 390,
+      "scrollWidth": 390,
+      "gifts": 2,
+      "bundles": 2,
+      "summary": "Accessories $30.00Total $94.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 358,
+          "columns": "1",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 358,
+          "columns": "1",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "editor-320",
+      "pageWidth": 320,
+      "scrollWidth": 320,
+      "gifts": 2,
+      "bundles": 2,
+      "summary": "Accessories $30.00Total $94.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 288,
+          "columns": "1",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 288,
+          "columns": "1",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "container-400",
+      "pageWidth": 1440,
+      "scrollWidth": 1440,
+      "gifts": 2,
+      "bundles": 2,
+      "summary": "Accessories $30.00Total $94.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 400,
+          "columns": "1",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 400,
+          "columns": "1",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "container-600",
+      "pageWidth": 1440,
+      "scrollWidth": 1440,
+      "gifts": 2,
+      "bundles": 2,
+      "summary": "Accessories $30.00Total $94.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 600,
+          "columns": "2",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 600,
+          "columns": "2",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "container-700",
+      "pageWidth": 1440,
+      "scrollWidth": 1440,
+      "gifts": 2,
+      "bundles": 2,
+      "summary": "Accessories $30.00Total $94.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 700,
+          "columns": "3",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 700,
+          "columns": "3",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "mobile device",
+      "pageWidth": 390,
+      "scrollWidth": 390,
+      "gifts": 2,
+      "bundles": 0,
+      "summary": "Accessories $0.00Total $64.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 332,
+          "columns": "1",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 332,
+          "columns": "1",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "unavailable preview",
+      "pageWidth": 1440,
+      "scrollWidth": 1440,
+      "gifts": 0,
+      "bundles": 0,
+      "summary": "Accessories $0.00Total $64.00Simulated cart preview",
+      "columns": [
+        {
+          "kind": "gifts",
+          "width": 700,
+          "columns": "3",
+          "layout": "grid"
+        },
+        {
+          "kind": "bundles",
+          "width": 700,
+          "columns": "3",
+          "layout": "grid"
+        }
+      ]
+    },
+    {
+      "label": "Explicit empty translation title",
+      "giftHeading": 0,
+      "bundleHeading": "Pairs with your ritual"
+    }
+  ]
+}

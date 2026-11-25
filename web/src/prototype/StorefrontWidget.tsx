@@ -11,6 +11,10 @@ import { chooseAvailableVariant, extendSlotsWithInventory, hasPurchasableOption,
 import { renderStorefrontCopy, type StorefrontCopyKey, type StorefrontTranslations } from "./storefront-copy";
 import type { CampaignWidgetStyleConfig } from './widget-config';
 import styles from "../pages/quantity-breaks.module.css";
+import type { OfferModuleConfig } from '../../../shared/offer-core.mjs';
+import type { OfferPreviewState } from './offer-preview-client';
+import { useOfferSelection } from './offer-selection';
+import { OfferPreview, OfferReceipt } from './OfferPreview';
 
 const firstSlots: SlotSelection[] = [
   { Color: "Black", Size: "M" }, { Color: "White", Size: "L" }, { Color: "Black", Size: "S" }, { Color: "Black", Size: "L" }, { Color: "White", Size: "S" },
@@ -54,6 +58,9 @@ export type CartPreviewOutcome = 'success' | 'failure' | 'uncertain' | 'no_stock
 const cartFeedbackKeys = { success: 'widget.cart_success', failure: 'widget.cart_failure', uncertain: 'widget.cart_uncertain', no_stock: 'widget.no_stock' } as const;
 
 type WidgetProps = {
+  gifts?: OfferModuleConfig;
+  bundles?: OfferModuleConfig;
+  offerPreview?: OfferPreviewState;
   device: "desktop" | "mobile";
   accent: string;
   locale: string;
@@ -75,7 +82,7 @@ type WidgetProps = {
 
 const safeColor = (value: string, fallback: string) => /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(value) ? value : fallback;
 
-export function StorefrontWidget({ device, accent, locale, config, notify, tiers, compact = false, translations = {}, campaignConfig, previewOnly = false, previewCartOutcome, campaignProduct, previewPricing, previewMarketId, previewMessages, onPreviewPriceDemand, onRetryPreviewPrices }: WidgetProps) {
+export function StorefrontWidget({ device, accent, locale, config, notify, tiers, compact = false, translations = {}, campaignConfig, previewOnly = false, previewCartOutcome, campaignProduct, previewPricing, previewMarketId, previewMessages, onPreviewPriceDemand, onRetryPreviewPrices, gifts, bundles, offerPreview }: WidgetProps) {
   const tierChoicesRef = useRef<HTMLFieldSetElement>(null);
   const copy = (key: StorefrontCopyKey, variables?: Record<string, string | number>) => renderStorefrontCopy(key, translations, variables);
   const activeTiers = tiers?.length ? tiers : defaultTiers;
@@ -149,6 +156,11 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
   const original = marketPriceReady ? pricing.original : selected.reduce((sum, variant) => sum + Math.round((variant.compareAtPrice ?? variant.price) * 100), 0);
   const discounted = pricing.discounted;
   const previewBlocked = Boolean(previewPricing && (!marketPriceReady || previewTier.status === 'unavailable'));
+  const offers = useOfferSelection({ gifts, bundles, preview: offerPreview, tiers: activeTiers, mainProductId: campaignProduct?.id ?? '__simulated_main', mainQuantity: quantity, currencyCode: previewPricing?.currencyCode ?? 'USD', marketId: previewMarketId });
+  const combinedQuantity = quantity + offers.quantity;
+  const combinedTotal = discounted + offers.discounted;
+  const combinedOriginal = original + offers.original;
+  const combinedSafe = offers.safe && Number.isSafeInteger(combinedTotal) && Number.isSafeInteger(combinedOriginal);
   const selectedPriceFailed = selected.some(variant => previewPricing?.unavailableVariantIds?.includes(variant.id));
   const previewStatus = previewTier.status === 'unavailable'
     ? previewMessages?.conversionUnavailable ?? 'Market discount conversion is unavailable.'
@@ -192,7 +204,7 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
   const addBundle = () => {
     if (adding) return;
     if (missingSelection) {
-      setCartFeedback({ outcome: 'no_stock', quantity, lines: Object.keys(grouped).length });
+      setCartFeedback({ outcome: 'no_stock', quantity: combinedQuantity, lines: Object.keys(grouped).length + new Set(offers.lines).size });
       notify(copy("widget.no_stock"), "error");
       return;
     }
@@ -200,7 +212,7 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
     setCartFeedback(null);
     setAdding(true);
     const outcome = previewCartOutcome ?? (cartFailure ? 'failure' : 'success');
-    const feedback = { outcome, quantity, lines: Object.keys(grouped).length };
+    const feedback = { outcome, quantity: combinedQuantity, lines: Object.keys(grouped).length + new Set(offers.lines).size };
     cartTimer.current = window.setTimeout(() => {
       setAdding(false);
       setCartFeedback(feedback);
@@ -360,6 +372,7 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
               </div>;
             })}
           </fieldset>
+          <OfferPreview selection={offers} device={device} locale={locale} translations={translations} preview={offerPreview} tiers={activeTiers} onUnlock={chooseTier} mainTotal={discounted} mainReady={!previewBlocked && !missingSelection && !stockIssue} currencyCode={previewPricing?.currencyCode ?? 'USD'} />
           {!previewBlocked && (showCartVariantDetails || showPriceSummary || missingSelection) && <div className={styles.bundleSummary}>{showCartVariantDetails && Object.values(grouped).map(({ variant, quantity: count }) => {
             const itemName = Object.values(variant.options).join(' / ') || campaignProduct?.title || '';
             const itemSoldOut = isVariantSoldOut(variant) || (variant.inventoryTracker !== false && variant.inventoryPolicy !== 'continue' && count > variant.inventory);
@@ -368,11 +381,12 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
             const itemDiscounted = calculatePreviewPricing([itemBasePrice], previewTier.status === 'unavailable' ? undefined : previewTier.tier).discounted * count;
             return <div key={variant.id}><span>{itemName}{itemSoldOut ? ` (${copy('widget.sold_out')})` : ''} × {count}</span><b><strong className={styles.summarySalePrice}>{moneyFor(itemDiscounted)}</strong> {showOriginalPrices && itemDiscounted < itemOriginal && <del className={styles.summaryOriginalPrice}>{moneyFor(itemOriginal)}</del>}</b></div>;
           })}
+            {showCartVariantDetails && <OfferReceipt selection={offers} locale={locale} currencyCode={previewPricing?.currencyCode ?? 'USD'} />}
             {missingSelection && <p className={styles.stockError} role="alert">{copy("widget.no_stock")}</p>}
-            {showPriceSummary && !stockIssue && <><div className={styles.totalRow}><span>{copy("widget.original")}</span><b>{moneyFor(original)}</b></div><div className={styles.savingsRow}><span>{copy("widget.savings")}</span><b>-{moneyFor(original - discounted)}</b></div></>}
-            {showPriceSummary && !stockIssue && <div className={styles.grandTotal}><span>{copy("widget.total")}</span><b>{moneyFor(discounted)}</b></div>}
+            {showPriceSummary && !stockIssue && <><div className={styles.totalRow}><span>{copy("widget.original")}</span><b>{(combinedSafe ? moneyFor(combinedOriginal) : '…')}</b></div><div className={styles.savingsRow}><span>{copy("widget.savings")}</span><b>-{(combinedSafe ? moneyFor(combinedOriginal - combinedTotal) : '…')}</b></div></>}
+            {showPriceSummary && !stockIssue && <div className={styles.grandTotal}><span>{copy("widget.total")}</span><b>{(combinedSafe ? moneyFor(combinedTotal) : '…')}</b></div>}
           </div>}
-          <Button onClick={addBundle} disabled={previewBlocked || adding || Boolean(stockIssue) || missingSelection} aria-busy={adding} aria-label={previewBlocked ? previewStatus : stockIssue ? copy("widget.sold_out") : copy("widget.add_to_cart", { quantity, price: moneyFor(discounted) })} className={styles.addBundle}><span hidden={adding}>{previewBlocked ? previewStatus : stockIssue ? copy("widget.sold_out") : copy("widget.add_to_cart", { quantity, price: moneyFor(discounted) })}</span>{adding && <div className={styles.cartLoadingRotator}><svg aria-hidden="true" focusable="false" className="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3332 9.99935C18.3332 14.6017 14.6022 18.3327 9.99984 18.3327C5.39746 18.3327 1.6665 14.6017 1.6665 9.99935C1.6665 5.39698 5.39746 1.66602 9.99984 1.66602" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg></div>}</Button>
+          <Button onClick={addBundle} disabled={!combinedSafe || previewBlocked || adding || Boolean(stockIssue) || missingSelection} aria-busy={adding} aria-label={previewBlocked ? previewStatus : stockIssue ? copy("widget.sold_out") : copy("widget.add_to_cart", { quantity: combinedQuantity, price: (combinedSafe ? moneyFor(combinedTotal) : '…') })} className={styles.addBundle}><span hidden={adding}>{previewBlocked ? previewStatus : stockIssue ? copy("widget.sold_out") : copy("widget.add_to_cart", { quantity: combinedQuantity, price: (combinedSafe ? moneyFor(combinedTotal) : '…') })}</span>{adding && <div className={styles.cartLoadingRotator}><svg aria-hidden="true" focusable="false" className="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.3332 9.99935C18.3332 14.6017 14.6022 18.3327 9.99984 18.3327C5.39746 18.3327 1.6665 14.6017 1.6665 9.99935C1.6665 5.39698 5.39746 1.66602 9.99984 1.66602" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg></div>}</Button>
           <p className={styles.cartFeedback} data-cart-feedback role="status" aria-live="polite">{cartFeedback && copy(cartFeedbackKeys[cartFeedback.outcome], cartFeedback)}</p>
           {!previewOnly && <label className={styles.failureToggle}><input type="checkbox" checked={cartFailure} onChange={(event) => setCartFailure(event.target.checked)} /> Preview cart failure feedback</label>}
           {!previewOnly && <p className={styles.checkoutNote}>{copy("widget.checkout_note")}</p>}

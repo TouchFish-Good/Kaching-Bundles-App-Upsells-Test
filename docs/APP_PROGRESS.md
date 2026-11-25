@@ -1182,3 +1182,12 @@ Admin REST 服务请求统一改为 `v20260901`，保留原有 SDK OAuth、offli
 - 配置原测试App Secret及独立加密/内部密钥。App Key/App Secret保持测试原值；两份扩展凭证在本次操作之外更新ID后，保留新Function `754292a155d740809a5437a3f8c59231`、主题UUID `fb0f6365-4554-4c29-aca7-d439ae191804`与扩展ID `10949`，并对齐运行时代码。按新身份快照核验两份凭证、主题元数据和原SQLite未被本次操作覆盖。应用地址、回调、Worker变量和本地主题来源统一新域名；未发布SHOPLINE扩展或更新Partner后台地址。
 - 环境隔离4项、主题来源相关9项、兼容39文件/36语言、前端构建、Worker类型/dry-run通过；完整Worker在英文临时镜像51文件499项通过。线上HTTPS/首页/JS200，未授权API401，缺失资源404，OAuth跳转callback为app-test域名，无签名callback400。浏览器实际加载页面壳；无SHOPLINE会话，未宣称真实商家功能已验收。
 - Function ID对齐后Worker相关6文件72项、Express19项及类型/dry-run通过。CLI代码版本cb6654c0-0acd-4874-9ba2-b09b4ddd2067；用户添加Partner Secret后回读当前活动版本如上，正确Function/D1/域名均保留。Secret名称已确认，Partner权限与订阅尚未联调；独立管理服务binding、平台地址/回调配置、扩展发布及实店验收仍待补齐。记录docs/audits/2026-11-25-test-worker-deployment.md；用户随后明确批准本批推送至 https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git 的 main，提交 chore: deploy test worker at app-test.vswwy.cn。实际推送结果以 Git 回执为准。
+
+### 2026-11-25 Task 4：测试编辑器、双模块预览与标题翻译（本地）
+
+- 已在测试项目实现「设置 → 样式 → 赠品 → 捆绑商品」顺序；独立展开/启用开关按参考图还原，关闭保留规则并通过原活动 SaveBar 保存。复用分页选品，编辑真实款式白名单、数量、条件、优惠、标签、图片和桌面/移动样式；16 种后台语言均提供新增文案。
+- 本地模拟预览支持全部达标赠品自动纳入且不可取消、捆绑多选/取消及单选实际减免择优，款式/数量重算，主商品与附加商品明细及整数合计。设备切换保留选择；实际容器 400/600/700px 分别显示 1/2/3 列，支持单行轮播、键盘和触摸滚动。翻译页独立保存两标题，显式清空仅隐藏标题。
+- 新增 DOM 测试 17/17、相关既有回归 14/14；Web 构建及类型检查通过。完整前端 366/377，11 项失败均在 Task 4 基线 d703061 的定向复测中复现（含 Node22 JSON assert 语法、旧外观断言及 Task3 新标题对应的旧翻译断言），未声称全套通过。
+- 参考图 `docs/reference/screenshots/gifts-bundles-section-toggle-reference.png` 与实际前后 1440/390/320、容器、开关状态、轮播、翻译截图及浏览器结果保存在 `docs/local/gifts-bundles-task4/`；浏览器本轮无页面/控制台错误。模拟主商品 $64 + 已选捆绑 $30 + 赠品 $0 = $94；实际本地保存保留数量与双开关。
+- 使用认证草稿 `offer-preview`，核验请求版本/修订/locale/market/currency 并拒绝迟到响应；遵守 429 Retry-After（草稿修改亦不绕过等待）。只采信明确可售与可信价格，不使用选品库存推断；缺价/未知上下文保持不可用。未修改焦点伪类、配置、凭证或正式源码；未推送、部署、发布扩展或写商家数据。
+- 以上为本地页面与模拟数据验证，非 SHOPLINE 商品、原生主题、真实购物车或结账验收。下一未验收部分为 Task5 原生主题/购物车及后续联合验证；整个应用仍未标记完成或可上线。

@@ -177,7 +177,7 @@ function baseLocale(locale: string): string {
 export function initialTranslationDraft(locale: string, saved: StorefrontTranslations): StorefrontTranslations {
   const localized = defaults[baseLocale(locale)];
   const resolvedLocale = baseLocale(locale);
-  const extras = {
+  const extras: Partial<Record<string,string>> = {
     'widget.tier_savings_badge': tierSavingsBadgeDefaults[resolvedLocale] ?? 'Save {saving_amount}',
     'widget.checkout_note': checkoutNoteDefaults[resolvedLocale],
     ...(runtimeDefaults[resolvedLocale] ?? {}),
@@ -185,7 +185,7 @@ export function initialTranslationDraft(locale: string, saved: StorefrontTransla
   const themeWidget = themeWidgetDefaults[resolvedLocale as keyof typeof themeWidgetDefaults]?.app_block.widget;
   const initial = Object.fromEntries(storefrontCopy.map((entry) => [
     entry.key,
-    localized?.[defaultCopyOrder.indexOf(entry.key)] ?? extras[entry.key] ?? themeWidget?.[entry.key.replace('widget.', '')] ?? entry.source,
+    localized?.[defaultCopyOrder.indexOf(entry.key)] ?? extras[entry.key] ?? (themeWidget as Record<string,string> | undefined)?.[entry.key.replace('widget.', '')] ?? entry.source,
   ])) as StorefrontTranslations;
   return { ...initial, ...saved };
 }
