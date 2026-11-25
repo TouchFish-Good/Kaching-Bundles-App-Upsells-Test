@@ -34,3 +34,12 @@ export function setupOffers({ campaign = offerCampaign(), response, markup = off
   vm.runInNewContext(readFileSync(new URL('../../../theme-app-extension/public/app-block.js', import.meta.url),'utf8'), { globalThis:host, URL, Intl, console, structuredClone, setTimeout, clearTimeout, ...timers });
   return { theme: host.QuantityBreaksTheme, block: document.querySelector('.quantity-breaks-app-block'), document, window, calls, media, resize() { media.matches = !media.matches; changes.forEach(fn => fn()); } };
 }
+
+// linkedom does not implement native checkbox activation/default change events.
+// Browser QA separately exercises real click, label, Space and touch behavior.
+export function changeOfferSelection(h, ruleId) {
+  const input = h.block.querySelector(`[data-offer-rule="${ruleId}"] [data-offer-select]`);
+  if (input.disabled) return;
+  input.checked = !input.checked;
+  input.dispatchEvent(new h.window.Event('change', { bubbles: true }));
+}

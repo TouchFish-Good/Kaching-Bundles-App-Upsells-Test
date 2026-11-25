@@ -1,0 +1,50 @@
+[
+  {
+    "mode": "editor",
+    "width": 1440,
+    "file": "before-react-editor-1440.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1440,
+      "giftText": "🎁 Free gifts with your orderFree giftTravel serum$0.00$20.00Included × 1Choose an option #1UnavailableSLFree giftHydration drops$0.00$20.00Included × 1Choose an option #1UnavailableSL",
+      "bundleNumbers": 2,
+      "bundleSlots": 3
+    }
+  },
+  {
+    "mode": "editor",
+    "width": 390,
+    "file": "before-react-editor-390.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 390,
+      "giftText": "🎁 Free gifts with your orderFree giftTravel serum$0.00$20.00Included × 1Choose an option #1UnavailableSLFree giftHydration drops$0.00$20.00Included × 1Choose an option #1UnavailableSL",
+      "bundleNumbers": 2,
+      "bundleSlots": 3
+    }
+  },
+  {
+    "mode": "preview",
+    "width": 1440,
+    "file": "before-react-preview-1440.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1440,
+      "giftText": "🎁 Free gifts with your orderFree giftTravel serum$0.00$20.00Included × 1Choose an option #1UnavailableSLFree giftHydration drops$0.00$20.00Included × 1Choose an option #1UnavailableSL",
+      "bundleNumbers": 2,
+      "bundleSlots": 3
+    }
+  },
+  {
+    "mode": "preview",
+    "width": 390,
+    "file": "before-react-preview-390.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 390,
+      "giftText": "🎁 Free gifts with your orderFree giftTravel serum$0.00$20.00Included × 1Choose an option #1UnavailableSLFree giftHydration drops$0.00$20.00Included × 1Choose an option #1UnavailableSL",
+      "bundleNumbers": 2,
+      "bundleSlots": 3
+    }
+  }
+]

@@ -22,6 +22,7 @@ export type OfferMainProduct = { productId: string; quantity: number };
 export type OfferFunctionRule = Omit<OfferRule, 'label' | 'labelPosition' | 'showImage' | 'marketOverrides'> & { marketOverrides?: Record<string, { mode: 'auto_convert' } | { mode: 'specified_amount'; currencyCode: string; currencyDecimals: number; amountMinor: number }> };
 export type OfferFunctionModule = Omit<OfferModuleConfig, 'style' | 'items'> & { items: OfferFunctionRule[] };
 export function defaultOfferModule(kind: OfferModuleKind): OfferModuleConfig;
+export function normalizeOfferModules<T extends { gifts?: OfferModuleConfig; bundles?: OfferModuleConfig }>(campaign: T): T;
 export function normalizeOfferModule(raw: unknown, kind: OfferModuleKind): OfferModuleConfig;
 export function validateOfferModule(raw: unknown, kind: OfferModuleKind, tiers?: readonly OfferTier[]): string[];
 export function offerEligible(rule: Pick<OfferRule, 'trigger'>, tiers: readonly OfferTier[], mainQuantity: number): boolean;

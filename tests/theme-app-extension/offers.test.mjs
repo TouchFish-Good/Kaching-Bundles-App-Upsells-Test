@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { setupOffers,offerCampaign,offerMarkup,digest,rule } from './helpers/offer-fixture.mjs';
+import { setupOffers,offerCampaign,offerMarkup,digest,rule,changeOfferSelection } from './helpers/offer-fixture.mjs';
 import { renderOs21,os21Context } from './helpers/os21-fixture.mjs';
 
 test('native block negotiates v2 and includes cumulative immutable gifts, with multiple cancelable bundles', async () => {
@@ -8,8 +8,8 @@ test('native block negotiates v2 and includes cumulative immutable gifts, with m
   assert.equal(new URL(h.calls[0].url).searchParams.get('clientFeatures'),'gift-bundles-v1');
   assert.equal(h.block.querySelectorAll('[data-offer-role="gift"][data-included="true"]').length,2);
   assert.equal(h.block.querySelectorAll('[data-offer-role="gift"] input[type="checkbox"]').length,0);
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
-  h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();
+  changeOfferSelection(h,'c');
+  changeOfferSelection(h,'d');
   assert.equal(h.block.querySelectorAll('[data-offer-role="bundle"][data-included="true"]').length,2);
   assert.equal(h.block.querySelector('[data-bundle-total]').textContent,'$60.00');
   h.block.querySelector('[data-tier-id="t2"] .qb-tier-header').click();
@@ -27,7 +27,7 @@ test('native accessory nodes cannot contaminate main variants; missing price and
 });
 test('variant slots and selected bundle rules survive resize and revised matching campaign', async () => {
   const h=setupOffers(); await h.theme.mountBlock(h.block);
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
+  changeOfferSelection(h,'c');
   const select=h.block.querySelector('[data-offer-rule="c"] select'); Array.from(select.options).forEach(option=>option.selected=option.value==='v-c-2'); select.dispatchEvent(new h.window.Event('change'));
   h.resize();
   assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'true');
@@ -36,14 +36,14 @@ test('variant slots and selected bundle rules survive resize and revised matchin
   await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
   assert.equal(h.block.querySelector('[data-offer-rule="c"] select').value,'v-c-2');
 });
-test('huge configured gift and shopper quantity remain unavailable without per-unit allocation', async () => {
-  const campaign=offerCampaign(); campaign.gifts.items[0].quantity=4294967296;
+test('huge gift remains unavailable while valid historical bundle quantity becomes one', async () => {
+  const campaign=offerCampaign(); campaign.gifts.items[0].quantity=4294967296;campaign.bundles.items[0].quantity=4294967296;
   const h=setupOffers({campaign}); await h.theme.mountBlock(h.block);
   assert.equal(h.block.querySelector('[data-offer-rule="a"]').dataset.included,'false');
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
-  const input=h.block.querySelector('[data-offer-rule="c"] input[type="number"]'); input.value='4294967296'; input.dispatchEvent(new h.window.Event('change'));
-  assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'false');
-  assert.equal(h.block.querySelector('[data-offer-rule="c"] input[type="number"]').value,'4294967296');
+  changeOfferSelection(h,'c');
+  assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'true');
+  assert.equal(h.block.querySelector('[data-offer-rule="c"] input[type="number"]'),null);
+  assert.equal(h.block.querySelectorAll('[data-offer-rule="c"] select').length,1);
   assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false);
 });
 test('legacy and disabled offers do not request accessory scripts/catalog or add accessory UI', async () => {
@@ -117,24 +117,26 @@ test('single bundles preserve empty, canceled, ineligible and unavailable intent
   const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
   const included=()=>Array.from(h.block.querySelectorAll('[data-offer-role="bundle"][data-included="true"]'),n=>n.dataset.offerRule);
   assert.deepEqual(included(),[],'initial mount cannot opt into a paid item');
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
+  changeOfferSelection(h,'c');
   assert.deepEqual(included(),['c'],'larger saving on unchosen d cannot replace c');
   h.block.querySelector('[data-tier-id="t2"] .qb-tier-header').click();
   assert.deepEqual(included(),[],'eligible but unchosen d cannot replace now-ineligible c');
   h.block.querySelector('[data-tier-id="t4"] .qb-tier-header').click();
   assert.deepEqual(included(),['c'],'chosen rule survives temporary ineligibility');
-  const input=h.block.querySelector('[data-offer-rule="c"] input');input.value='101';input.dispatchEvent(new h.window.Event('change'));
+  const unavailable=structuredClone(campaign);unavailable.revision++;unavailable.marketId="local";unavailable.bundles.items[0].marketOverrides={local:{mode:"specified_amount",currencyCode:"JPY",amountMinor:1}};
+  await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:unavailable})}));
+
   assert.deepEqual(included(),[],'unavailable c cannot substitute ready d');h.resize();assert.deepEqual(included(),[]);
   const next=structuredClone(campaign);next.revision++;next.bundles.items=next.bundles.items.filter(r=>r.ruleId!=='c');
   await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
   assert.deepEqual(included(),[],'deleted chosen rule leaves empty selection');
-  h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();assert.deepEqual(included(),['d']);
-  h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();h.resize();assert.deepEqual(included(),[]);
+  changeOfferSelection(h,'d');assert.deepEqual(included(),['d']);
+  changeOfferSelection(h,'d');h.resize();assert.deepEqual(included(),[]);
 });
 test('single bundle monetary fallback considers only anomalous explicitly selected rules',async()=>{
   const campaign=offerCampaign();campaign.bundles.items[1].discountValue=7500;
   const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();h.block.querySelector('[data-offer-rule="d"] [data-offer-select]').click();
+  changeOfferSelection(h,'c');changeOfferSelection(h,'d');
   const next=structuredClone(campaign);next.revision++;next.bundles.selectionMode='single';
   await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
   assert.equal(h.block.querySelector('[data-offer-rule="d"]').dataset.included,'true');
@@ -146,7 +148,7 @@ test('all configured accessory Products are excluded from main eligibility, quot
     const h=setupOffers({campaign,markup:offerMarkup(campaign).replace('data-product-id="main"','data-product-id="p-a"').replace(missingNative?'data-offer-product="p-a"':'NO-MATCH','data-offer-product="absent"')});await h.theme.mountBlock(h.block);
     assert.equal(h.block.querySelectorAll('[data-included="true"]').length,0,'accessory main cannot unlock any other rule');
     assert.equal(h.block.querySelector('.qb-offer-unlock'),null,'no tier can qualify excluded main');
-    h.block.querySelectorAll('[data-offer-select]').forEach(b=>b.click());
+    for(const input of h.block.querySelectorAll('[data-offer-select]')){input.checked=true;input.dispatchEvent(new h.window.Event('change'));}
     assert.equal(h.block.querySelectorAll('.qb-offer-receipt').length,0);
     assert.equal(h.block.querySelector('[data-bundle-total]').textContent,'$40.00');
   }
@@ -154,7 +156,7 @@ test('all configured accessory Products are excluded from main eligibility, quot
 test('disabled retained accessory config does not exclude its Product from main qualification',async()=>{
   const campaign=offerCampaign();campaign.gifts.enabled=false;
   const h=setupOffers({campaign,markup:offerMarkup(campaign).replace('data-product-id="main"','data-product-id="p-a"')});await h.theme.mountBlock(h.block);
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
+  changeOfferSelection(h,'c');
   assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'true');
   assert.equal(h.block.querySelector('[data-bundle-total]').textContent,'$50.00');
 });
@@ -214,7 +216,7 @@ test('stale locale response is discarded and independent simultaneous blocks ded
 });
 test('revision resets only removed invalid rule slots and retains valid shopper choices',async()=>{
   const h=setupOffers();await h.theme.mountBlock(h.block);
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
+  changeOfferSelection(h,'c');
   const next=offerCampaign();next.revision++;next.bundles.items[0].allowedVariantIds=['v-c-2'];
   await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
   assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'true');
@@ -240,13 +242,25 @@ test('a hanging composite POST reaches an uncertain result after its deadline wi
   assert.equal(timers.length,1,'a POST deadline is armed');timers.shift()();
   const result=await pending;assert.equal(result.status,'uncertain');assert.equal(posts,1);assert.equal(reads,2);
 });
-test('selected bundles use localized Included copy and French receipt omits protocol role strings',async()=>{
+test('native checkboxes expose localized Product identity and gift status is absent in French',async()=>{
   const markup=offerMarkup().replaceAll('data-locale="en"','data-locale="fr"').replace('<div data-offer-native-catalog','<span data-qb-copy="widget.offer_included" hidden>Inclus</span><span data-qb-copy="widget.offer_select" hidden>Sélectionner</span><div data-offer-native-catalog');
   const h=setupOffers({markup});await h.theme.mountBlock(h.block);
-  assert.equal(h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').textContent,'Sélectionner');
-  h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').click();
-  assert.equal(h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').textContent,'Inclus');
+  assert.equal(h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').getAttribute('aria-label'),'Product c');
+  changeOfferSelection(h,'c');
+  assert.equal(h.block.querySelector('[data-offer-rule="c"] [data-offer-select]').checked,true);
+  assert.doesNotMatch(h.block.querySelector('[data-offer-module="gifts"]').textContent,/Inclus|Included/);
   const receipt=h.block.querySelectorAll('.qb-offer-receipt');
   assert.equal(receipt.length,3);assert.doesNotMatch(Array.from(receipt,row=>row.textContent).join(' '),/gift:|bundle:/);
   assert.equal(receipt[0].dataset.offerRole,'gift');assert.equal(receipt[2].dataset.offerRole,'bundle');
+});
+
+test('native fixed-one checkboxes include locked and disabled cards without duplicate toggle controls',async()=>{
+ const campaign=offerCampaign();campaign.bundles.items[0].quantity=3;campaign.bundles.items[0].trigger.quantity=5;campaign.tiers.push({tierId:'t6',quantity:6,discountType:'none'});
+ const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+ const card=()=>h.block.querySelector('[data-offer-rule="c"]'),input=()=>card().querySelector('[data-offer-select]');
+ assert.equal(input()?.type,'checkbox');assert.equal(input().checked,false);assert.equal(input().disabled,false);assert.match(input().getAttribute('aria-label'),/Product c/);assert.equal(card().querySelector('button'),null);assert.equal(card().querySelector('input[type="number"]'),null);assert.equal(card().querySelectorAll('select').length,1);
+ input().checked=true;input().dispatchEvent(new h.window.Event('change'));assert.equal(card().dataset.included,'true');
+ input().checked=false;input().dispatchEvent(new h.window.Event('change'));assert.equal(card().dataset.included,'false');
+ assert.doesNotMatch(h.block.querySelector('[data-offer-module="gifts"]').textContent,/Included/);
+ const unavailable=setupOffers({markup:offerMarkup().replaceAll('data-available="true"','data-available="unknown"')});await unavailable.theme.mountBlock(unavailable.block);assert.equal(unavailable.block.querySelector('[data-offer-select]').disabled,true);
 });

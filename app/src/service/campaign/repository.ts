@@ -1,3 +1,4 @@
+import { normalizeOfferModules } from '../../../../shared/offer-core.cjs';
 import type { Database } from 'sqlite3';
 import { randomUUID } from 'node:crypto';
 import type { Campaign, CampaignDraft } from './model';
@@ -72,7 +73,7 @@ export class CampaignRepository {
   }
 
   private decode(row: Row): Campaign {
-    return { ...JSON.parse(row.campaign_json) as CampaignDraft, revision: row.revision, updatedAt: row.updated_at };
+    return { ...normalizeOfferModules(JSON.parse(row.campaign_json) as CampaignDraft), revision: row.revision, updatedAt: row.updated_at };
   }
 
   async list(shopHandle: string): Promise<Campaign[]> {
@@ -95,12 +96,13 @@ export class CampaignRepository {
   async getStagedUpdate(shopHandle: string, id: string): Promise<{ candidate: CampaignDraft; expectedRevision: number; discountId: string } | null> {
     await this.ready;
     const row = await this.getRow('SELECT candidate_json, expected_revision, discount_id FROM quantity_breaks_staged_updates WHERE shop_handle = ? AND campaign_id = ?', [shopHandle, id]) as unknown as { candidate_json: string; expected_revision: number; discount_id: string } | undefined;
-    return row ? { candidate: JSON.parse(row.candidate_json) as CampaignDraft, expectedRevision: row.expected_revision, discountId: row.discount_id } : null;
+    return row ? { candidate: normalizeOfferModules(JSON.parse(row.candidate_json) as CampaignDraft), expectedRevision: row.expected_revision, discountId: row.discount_id } : null;
   }
 
   async beginUpdate(shopHandle: string, candidate: CampaignDraft, expectedRevision: number, discountId: string): Promise<void> {
     const errors = validateCampaign(candidate);
     if (errors.length) throw new CampaignValidationError(errors.join(' '));
+    candidate = normalizeOfferModules(candidate);
     await this.ready;
     await this.enqueue(async () => {
       await this.run('BEGIN IMMEDIATE');
@@ -280,6 +282,7 @@ export class CampaignRepository {
   async save(shopHandle: string, draft: CampaignDraft, expectedRevision: number): Promise<Campaign> {
     const errors = validateCampaign(draft);
     if (errors.length) throw new CampaignValidationError(errors.join(' '));
+    draft = normalizeOfferModules(draft);
     if (!shopHandle || !Number.isInteger(expectedRevision) || expectedRevision < 0) throw new CampaignValidationError('Shop and expected revision are required.');
     await this.ready;
     return this.enqueue(async () => {

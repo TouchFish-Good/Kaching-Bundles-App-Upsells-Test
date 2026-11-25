@@ -499,7 +499,11 @@ func evaluateOffersV2(req *module.ProductDiscountCustomizationFunctionRequest, n
 				if len(sources) == 0 {
 					continue
 				}
-				remaining, ok := multiply(item.Quantity, int64(len(sources)))
+				perProduct := item.Quantity
+				if m == r.Bundles {
+					perProduct = 1
+				}
+				remaining, ok := multiply(perProduct, int64(len(sources)))
 				if !ok || remaining > maxSafeInteger {
 					invalid = true
 					break

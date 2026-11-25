@@ -252,6 +252,7 @@ export function OfferModulePanel({
                   )}
                 </fieldset>
                 <div className={styles.fields}>
+                  {kind === "gifts" && (
                   <label>
                     {text("quantity")}
                     <input
@@ -263,6 +264,7 @@ export function OfferModulePanel({
                       }
                     />
                   </label>
+                  )}
                   {kind === "bundles" && (
                     <>
                       <label>

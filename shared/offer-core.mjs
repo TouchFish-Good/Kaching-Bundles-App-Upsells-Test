@@ -35,7 +35,16 @@ function normalizeOfferModule(raw, kind) {
   }
   const errors = validateOfferModule(candidate, kind);
   if (errors.length) throw new Error(errors.join(' '));
+  // Validate historical values before reducing them: malformed quantities/IDs
+  // must never become a valid discounted item by normalization.
+  if (kind === 'bundles') candidate.items = candidate.items.map(rule => ({ ...rule, quantity: 1 }));
   return candidate;
+}
+function normalizeOfferModules(campaign) {
+  return { ...campaign,
+    ...(campaign.gifts !== undefined ? { gifts: normalizeOfferModule(campaign.gifts, 'gifts') } : {}),
+    ...(campaign.bundles !== undefined ? { bundles: normalizeOfferModule(campaign.bundles, 'bundles') } : {}),
+  };
 }
 function validateOfferModule(raw, kind, tiers) {
   const errors = [];
@@ -160,6 +169,7 @@ function effectiveOfferColumns(width, layout) {
 }
 export { defaultOfferModule };
 export { normalizeOfferModule };
+export { normalizeOfferModules };
 export { validateOfferModule };
 export { offerEligible };
 export { offerUnlockTier };

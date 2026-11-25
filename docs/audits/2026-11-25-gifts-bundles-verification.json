@@ -1,5 +1,5 @@
 {
-  "status": "local Task6 complete; Task7 implementation and final independent branch review pending",
+  "status": "Tasks1–7 complete locally with disclosed baseline concerns; root task review and final independent branch review pending",
   "base": "4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7",
   "task6_base": "fe25e31a1cf274d8ed1891096eb01f037bd86def",
   "remote": "https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git",
@@ -139,7 +139,8 @@
     "exclude configured accessory Products from main authority, including ambiguous role cases — prevents circular/self-funded gift or bundle quota when same Product appears in both roles; cost if wrong is rejecting an intended same-Product accessory promotion until a verified unit-level distinction exists.",
     "follow user native all_products approach; replace provisional Storefront credential/transport dependency with test-only published shop-metafield handle index and theme-native availability/prices — official docs confirm native fields; cost is an extra idempotent publication synchronization step and OS2.1 20-handle preload boundary. Exact implementation handoff theme-catalog-ruling.md. Original business rules unchanged; no remote writes authorized.",
     "native SSR preloads scope-relevant candidates without guessing undocumented current-clock API; Worker/public response alone selects active schedule/priority — official date docs lacked server-now support, so highest-only SSR would suppress valid scheduled overlaps; cost is extra native lookups and potential OS2.1 shared20-handle exhaustion, handled unavailable with main usable. Exact follow-up appended native ruling/Task5 brief.",
-    "interpret fixed-one bundles as one unit per rule/add, retaining earlier explicitly confirmed per-distinct-main-Product pooled quota (each contributes1) — separates new config/UI quantity instruction from cart quota examples; cost if wrong is revising quota across core/Function and checkout vectors."
+    "interpret fixed-one bundles as one unit per rule/add, retaining earlier explicitly confirmed per-distinct-main-Product pooled quota (each contributes1) — separates new config/UI quantity instruction from cart quota examples; cost if wrong is revising quota across core/Function and checkout vectors.",
+    "Controller-authorized QA-artifact exception: refresh only source/shared/tests in established secret-free ASCII mirror for focused Worker tests because direct Unicode workerd cannot load node:vm; no .env/.dev.vars/real TOMLs/dependency installation or symlinks; production and identity resources remain protected."
   ],
   "task6_owned_paths": [
     "docs/APP_PROGRESS.md",
@@ -169,6 +170,10 @@
     {
       "status": "M",
       "path": "app/src/service/campaign/model.ts"
+    },
+    {
+      "status": "M",
+      "path": "app/src/service/campaign/repository.ts"
     },
     {
       "status": "M",
@@ -417,6 +422,110 @@
     {
       "status": "A",
       "path": "docs/local/gifts-bundles-task5/round1/uncertain-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-merchant-bundles-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-merchant-bundles-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-merchant-gifts-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-merchant-gifts-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-os2.1-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-os3-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-react-editor-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-react-editor-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-react-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-react-preview-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-react-preview-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/after-theme-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-os2.1-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-os2.1-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-os3-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-os3-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-react-editor-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-react-editor-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-react-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-react-preview-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-react-preview-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/before-theme-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-task7/merchant-evidence.json"
     },
     {
       "status": "A",
@@ -1011,5 +1120,123 @@
     "No merchant native rendering, metafield writes or platform cart/checkout executed.",
     "No push, deploy, extension publication or extra Storefront token.",
     "Task7 latest fixed-one/checkbox/gift-copy requirements pending."
-  ]
+  ],
+  "task7_base": "174ef368a40e8a6937ab93c50f8acca43dc8a1e4",
+  "task7": {
+    "core_legacy_roundtrip": "23/23",
+    "covering_chain_theme": "88/88",
+    "react_offer_editor": "25/25",
+    "worker_covering": "6 files102/102",
+    "worker_actual_cwd": "/var/folders/5p/nhm814x53q99sm08yw42v2940000gn/T/offer-task1-qa-2zj1i1vh/worker",
+    "go": "all ^TestV2 pass",
+    "express_covering": "9/10; named widget baseline reproduced at174ef368",
+    "builds": [
+      "Web Vite build",
+      "Web tsc --noEmit",
+      "Express tsc build",
+      "Worker tsc --noEmit"
+    ],
+    "browser": [
+      "4 theme desktop/mobile native checkbox scenarios",
+      "4 React editor/preview desktop/mobile plus single/unready",
+      "4 expanded merchant panels"
+    ],
+    "screenshots": [
+      "docs/local/gifts-bundles-task7/after-merchant-bundles-1440.png",
+      "docs/local/gifts-bundles-task7/after-merchant-bundles-390.png",
+      "docs/local/gifts-bundles-task7/after-merchant-gifts-1440.png",
+      "docs/local/gifts-bundles-task7/after-merchant-gifts-390.png",
+      "docs/local/gifts-bundles-task7/after-os2.1-1440.png",
+      "docs/local/gifts-bundles-task7/after-os2.1-390.png",
+      "docs/local/gifts-bundles-task7/after-os3-1440.png",
+      "docs/local/gifts-bundles-task7/after-os3-390.png",
+      "docs/local/gifts-bundles-task7/after-react-editor-1440.png",
+      "docs/local/gifts-bundles-task7/after-react-editor-390.png",
+      "docs/local/gifts-bundles-task7/after-react-preview-1440.png",
+      "docs/local/gifts-bundles-task7/after-react-preview-390.png",
+      "docs/local/gifts-bundles-task7/before-os2.1-1440.png",
+      "docs/local/gifts-bundles-task7/before-os2.1-390.png",
+      "docs/local/gifts-bundles-task7/before-os3-1440.png",
+      "docs/local/gifts-bundles-task7/before-os3-390.png",
+      "docs/local/gifts-bundles-task7/before-react-editor-1440.png",
+      "docs/local/gifts-bundles-task7/before-react-editor-390.png",
+      "docs/local/gifts-bundles-task7/before-react-preview-1440.png",
+      "docs/local/gifts-bundles-task7/before-react-preview-390.png"
+    ],
+    "warnings": [
+      "Direct Unicode Worker run: node:vm startup failure, no tests; authorized ASCII mirror102pass",
+      "Node SQLite experimental warning",
+      "Vite existing WebSocket port-in-use warnings in DOM harness",
+      "Vite existing chunk >500kB warning",
+      "Express baseline: campaign repository preserves independent widget styles and legacy rows, missing tierSavingsBadgeRadiusPx"
+    ],
+    "external": "No real SHOPLINE OAuth/native template/cart/checkout/Function publication validation; no push/deploy/publish/merchant writes"
+  },
+  "task7_owned_paths": [
+    "app/src/service/campaign/repository.ts",
+    "docs/APP_PROGRESS.md",
+    "docs/COMPONENTS.md",
+    "docs/DESIGN_SPEC.md",
+    "docs/REQUIREMENTS.md",
+    "docs/USER_FLOWS.md",
+    "docs/audits/2026-11-25-gifts-bundles-files.md",
+    "docs/audits/2026-11-25-gifts-bundles-local-integration.md",
+    "docs/audits/2026-11-25-gifts-bundles-verification.json",
+    "docs/local/gifts-bundles-task7/README.md",
+    "docs/local/gifts-bundles-task7/after-merchant-bundles-1440.png",
+    "docs/local/gifts-bundles-task7/after-merchant-bundles-390.png",
+    "docs/local/gifts-bundles-task7/after-merchant-gifts-1440.png",
+    "docs/local/gifts-bundles-task7/after-merchant-gifts-390.png",
+    "docs/local/gifts-bundles-task7/after-os2.1-1440.png",
+    "docs/local/gifts-bundles-task7/after-os2.1-390.png",
+    "docs/local/gifts-bundles-task7/after-os3-1440.png",
+    "docs/local/gifts-bundles-task7/after-os3-390.png",
+    "docs/local/gifts-bundles-task7/after-react-editor-1440.png",
+    "docs/local/gifts-bundles-task7/after-react-editor-390.png",
+    "docs/local/gifts-bundles-task7/after-react-evidence.json",
+    "docs/local/gifts-bundles-task7/after-react-preview-1440.png",
+    "docs/local/gifts-bundles-task7/after-react-preview-390.png",
+    "docs/local/gifts-bundles-task7/after-theme-evidence.json",
+    "docs/local/gifts-bundles-task7/before-os2.1-1440.png",
+    "docs/local/gifts-bundles-task7/before-os2.1-390.png",
+    "docs/local/gifts-bundles-task7/before-os3-1440.png",
+    "docs/local/gifts-bundles-task7/before-os3-390.png",
+    "docs/local/gifts-bundles-task7/before-react-editor-1440.png",
+    "docs/local/gifts-bundles-task7/before-react-editor-390.png",
+    "docs/local/gifts-bundles-task7/before-react-evidence.json",
+    "docs/local/gifts-bundles-task7/before-react-preview-1440.png",
+    "docs/local/gifts-bundles-task7/before-react-preview-390.png",
+    "docs/local/gifts-bundles-task7/before-theme-evidence.json",
+    "docs/local/gifts-bundles-task7/merchant-evidence.json",
+    "docs/superpowers/plans/2026-11-25-test-gifts-bundles-implementation.md",
+    "docs/superpowers/specs/2026-11-25-test-gifts-bundles-design.md",
+    "product-discount-customizations/internal/discount/accessory.go",
+    "product-discount-customizations/internal/discount/accessory_test.go",
+    "scripts/theme-offer-runtime.js",
+    "shared/offer-core.cjs",
+    "shared/offer-core.d.cts",
+    "shared/offer-core.mjs",
+    "tests/offer-modules/core.test.cjs",
+    "tests/offer-modules/cross-layer.test.mjs",
+    "tests/offer-modules/integration.test.mjs",
+    "tests/theme-app-extension/helpers/offer-fixture.mjs",
+    "tests/theme-app-extension/offers.test.mjs",
+    "theme-app-extension/compatibility/assets/app-block.js",
+    "theme-app-extension/public/app-block.js",
+    "web/src/prototype/OfferModulePanel.tsx",
+    "web/src/prototype/OfferPreview.tsx",
+    "web/src/prototype/offer-selection.ts",
+    "web/test/offer-editor.test.mjs",
+    "worker/src/db/campaigns.ts",
+    "worker/src/services/discounts.ts",
+    "worker/test/offer-modules.test.ts"
+  ],
+  "task7_secret_scan": {
+    "changed_lines_high_confidence_candidates": 0,
+    "protected_identity_or_env_paths": [],
+    "modified_css_paths": [],
+    "original_8_rulings_preserved": true,
+    "task7_paths": 57,
+    "branch_paths": 238
+  }
 }

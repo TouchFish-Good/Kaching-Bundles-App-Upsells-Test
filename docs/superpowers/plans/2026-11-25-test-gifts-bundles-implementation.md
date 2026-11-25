@@ -21,7 +21,7 @@
 - Git remote is `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`; branch `codex/gifts-bundles-test`. No push, merge, deployment, extension publication, or merchant writes without new authorization.
 - Panel order: 设置 → 样式 → 赠品 → 捆绑商品. Match the saved switch reference; switches and expand buttons are siblings.
 - Gifts are free and all eligible gifts auto-include without a shopper cancel control. Bundles support multiple selection/cancellation; retain configurable single mode and its maximum-actual-saving fallback.
-- Each eligible main Product contributes `rule.quantity` units. Different main Products do not combine to reach a trigger; variants/lines of one Product combine once. Lesser accessory quantities still discount; excess remains normal price. Gift and bundle rules have independent caps.
+- Each eligible main Product contributes the gift `rule.quantity` or exactly one bundle unit. Different main Products do not combine to reach a trigger; variants/lines of one Product combine once. Lesser accessory quantities still discount; excess remains normal price. Gift and bundle rules have independent caps.
 - Default desktop 3 columns, mobile 1; grid/carousel, independent device styles. No new/modified focus pseudoclasses.
 - Titles: `🎁 Free gifts with your order` and `Frequently Bought Together`, editable per storefront locale on translations page; explicit empty title hides only the heading.
 - Preserve v1 rules and no-extra-request behavior for legacy/disabled modules. Store-scoped Admin requests always use `shoplineAdminHeaders()`.
@@ -152,10 +152,10 @@ assert.equal(offerEligible(giftB, tiers, 4), true);
 - [ ] Present all affected files and proposed commit/push destination, ask in Chinese: 本次代码/文档已在本地更新，是否推送到 GitHub？ Do not push or deploy yet.
 
 
-### Task7：用户最新店铺交互裁定（PENDING）
+### Task7：用户最新店铺交互裁定（本地完成）
 
-**用户最新交互裁定（Task7待实施，取代此前冲突展示约定）：** 捆绑每规则固定1件，新旧配置统一为 `quantity=1`，商家和买家均无捆绑数量选择器，每规则只提供一个款式槽位；赠品配置数量仍可设置。每个合格主Product为捆绑规则贡献1件额度的既有独立额度池语义保持。赠品卡片不显示 Included/已包含/随单加入等重复状态文案；捆绑选择与取消使用原生 `input type="checkbox"`，保留单选/多选配置及锁卡点击解锁并选择。此裁定覆盖两代app-block和共享店铺预览，当前Task6未实施该UI调整，不能标记最新交互已验收。
+**用户最新交互裁定（Task7已本地验证，取代此前冲突展示约定）：** 捆绑每规则固定1件，新旧配置统一为 `quantity=1`，商家和买家均无捆绑数量选择器，每规则只提供一个款式槽位；赠品配置数量仍可设置。每个合格主Product为捆绑规则贡献1件额度的既有独立额度池语义保持。赠品卡片不显示 Included/已包含/随单加入等重复状态文案；捆绑选择与取消使用原生 `input type="checkbox"`，保留单选/多选配置及锁卡点击解锁并选择。此裁定已在Task7完成本地实现与验证：共享规范化、SQLite/D1读写、公开与Function投影、Go执行、React和两代主题一致；实际本地截图与测试见 `docs/local/gifts-bundles-task7/`。最终独立审阅及真实平台验收仍未完成。
 
-Task6只完成本地整链验证/审计及旧标题测试对齐；最终全分支独立审阅、当前全部改动清单及用户推送询问由控制器在Task7之后执行。Task6跨层测试当前通过 `[data-offer-rule="c"] [data-offer-select]` 和d选择器点击，Task7须改为实际原生checkbox交互并保持链路断言。
+Task6只完成本地整链验证/审计及旧标题测试对齐；最终全分支独立审阅、当前全部改动清单及用户推送询问由控制器在Task7之后执行。Task6跨层测试当前通过 `[data-offer-rule="c"] [data-offer-select]` 和d选择器点击，Task7已采用原生checkbox的change语义，另以真实Chromium验证点击、标签、Space、触摸及整链批量数量。
 
-Task6本地执行结果：跨层5/5、标题两文件10/10；3个旧标题断言先红后绿，剩余8个前端失败在实施前4f5cc26窄基线全部复现。正式725文件/原Git状态、测试9身份哈希一致。审计与完整清单见 [中文交付审计](../../audits/2026-11-25-gifts-bundles-local-integration.md)。Task7尚未实施，最终审阅/推送询问仍待控制器执行。
+Task6本地执行结果：跨层5/5、标题两文件10/10；3个旧标题断言先红后绿，剩余8个前端失败在实施前4f5cc26窄基线全部复现。正式725文件/原Git状态、测试9身份哈希一致。审计与完整清单见 [中文交付审计](../../audits/2026-11-25-gifts-bundles-local-integration.md)。Task7本地实现和定向验证已完成，最终审阅/推送询问仍待控制器执行。

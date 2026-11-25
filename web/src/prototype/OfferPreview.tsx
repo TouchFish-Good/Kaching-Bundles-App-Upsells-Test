@@ -194,13 +194,13 @@ function OfferGroup({
         }}
       >
         {group.cards.map((card) => {
-          const unlock = offerUnlockTier(
+          const unlock = selection.mainQualifies ? offerUnlockTier(
             card.rule,
             tiers.filter(
               (t): t is Tier & { tierId: string } =>
                 typeof t.tierId === "string",
             ),
-          );
+          ) : undefined;
           return (
             <article
               key={card.rule.ruleId}
@@ -230,59 +230,37 @@ function OfferGroup({
               {card.rule.label && card.rule.labelPosition === "below_title" && (
                 <span className={styles.inlineBadge}>{card.rule.label}</span>
               )}
-              {!card.eligible ? (
-                <button
-                  type="button"
-                  disabled={!unlock}
-                  onClick={() => {
-                    if (unlock) {
-                      onUnlock(unlock.quantity);
-                      if (group.kind === "bundles" && !card.included)
-                        selection.toggle(group.module, card.rule);
-                    }
-                  }}
-                >
-                  {text("locked")}
-                  {unlock ? ` · ${unlock.quantity}` : ""}
+              {group.kind === "bundles" && (
+                <label className={styles.check}>
+                  <input
+                    type="checkbox"
+                    aria-label={card.product?.title ?? text("bundles")}
+                    checked={card.included}
+                    disabled={!card.ready || (!card.eligible && !unlock)}
+                    onChange={(event) => {
+                      if (!card.eligible && unlock) onUnlock(unlock.quantity);
+                      selection.select(group.module, card.rule, event.currentTarget.checked);
+                    }}
+                  />
+                  {card.product?.title ?? text("bundles")}
+                  {!card.eligible && unlock ? ` · ${text("locked")} · ${unlock.quantity}` : ""}
+                </label>
+              )}
+              {!card.eligible && group.kind === "gifts" ? (
+                <button type="button" disabled={!unlock} onClick={() => unlock && onUnlock(unlock.quantity)}>
+                  {text("locked")}{unlock ? ` · ${unlock.quantity}` : ""}
                 </button>
               ) : !card.ready ? (
-                <span role="status">
-                  {text(
-                    preview?.state === "loading" ? "loading" : "unavailable",
-                  )}
-                </span>
-              ) : (
+                <span role="status">{text(preview?.state === "loading" ? "loading" : "unavailable")}</span>
+              ) : card.eligible ? (
                 <>
                   <span className={styles.price}>
-                    {formatMinorMoney(
-                      card.original - card.savings,
-                      currencyCode,
-                      locale,
-                    )}
-                    {card.savings > 0 && (
-                      <del>
-                        {formatMinorMoney(card.original, currencyCode, locale)}
-                      </del>
-                    )}
+                    {formatMinorMoney(card.original - card.savings, currencyCode, locale)}
+                    {card.savings > 0 && <del>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
                   </span>
-                  {group.kind === "bundles" ? (
-                    <label className={styles.check}>
-                      <input
-                        type="checkbox"
-                        checked={card.included}
-                        onChange={() =>
-                          selection.toggle(group.module, card.rule)
-                        }
-                      />
-                      {card.product?.title}
-                    </label>
-                  ) : (
-                    <span>
-                      {text("included")} × {card.count}
-                    </span>
-                  )}
+                  {group.kind === "gifts" && <span>× {card.count}</span>}
                 </>
-              )}
+              ) : null}
               {card.options.length > 0 &&
                 card.selected.map((variant, index) => (
                   <label key={index}>
@@ -311,21 +289,7 @@ function OfferGroup({
                     </select>
                   </label>
                 ))}
-              {group.kind === "bundles" && (
-                <label>
-                  {text("quantity")}
-                  <input
-                    type="number"
-                    min="1"
-                    value={card.count}
-                    onChange={(e) => {
-                      const n = Number(e.target.value);
-                      if (Number.isSafeInteger(n) && n >= 1)
-                        selection.setQuantity(card.rule.ruleId, n);
-                    }}
-                  />
-                </label>
-              )}
+
             </article>
           );
         })}

@@ -68,7 +68,7 @@ export function useOfferSelection({
   );
   const [choices, setChoices] = useState<string[]>([]);
   const [variants, setVariants] = useState<Record<string, string>>({});
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const mainQualifies = ![gifts, bundles].some(module => module?.enabled && module.items.some(rule => rule.productId === mainProductId));
   const groups = (
     [
       ["gifts", gifts],
@@ -90,12 +90,11 @@ export function useOfferSelection({
               )
             : undefined;
         const eligible =
-          offerEligible(rule, offerTiers, mainQuantity) &&
-          rule.productId !== mainProductId;
+          mainQualifies && offerEligible(rule, offerTiers, mainQuantity);
         const count =
           kind === "gifts"
             ? rule.quantity
-            : (quantities[rule.ruleId] ?? rule.quantity);
+            : Number.isSafeInteger(rule.quantity) && rule.quantity >= 1 ? 1 : 0;
         const options =
           product?.variants.filter((v) =>
             rule.allowedVariantIds.includes(v.id),
@@ -117,12 +116,12 @@ export function useOfferSelection({
           countPreviewable &&
           selected.length === count &&
           selected.every((v) => trustedOfferVariant(v, currencyCode));
-        const cap = mainProductId
-          ? offerQuota(rule, offerTiers, [
+        const cap = !mainQualifies ? 0 : mainProductId
+          ? offerQuota(kind === "bundles" ? { ...rule, quantity: count } : rule, offerTiers, [
               { productId: mainProductId, quantity: mainQuantity },
             ])
           : offerEligible(rule, offerTiers, mainQuantity)
-            ? rule.quantity
+            ? count
             : 0;
         const override = marketId
           ? rule.marketOverrides?.[marketId]
@@ -192,19 +191,20 @@ export function useOfferSelection({
     Number.isSafeInteger(original - savings);
   return {
     groups,
+    mainQualifies,
     original: safe ? original : 0,
     discounted: safe ? original - savings : 0,
     savings: safe ? savings : 0,
     quantity: safe ? quantity : 0,
     lines: safe ? included.flatMap((c) => c.selected.map((v) => v!.id)) : [],
     safe,
-    toggle: (module: OfferModuleConfig, rule: OfferRule) =>
+    select: (module: OfferModuleConfig, rule: OfferRule, checked: boolean) =>
       setChoices((current) =>
-        current.includes(rule.ruleId)
+        !checked
           ? current.filter((id) => id !== rule.ruleId)
           : module.selectionMode === "single"
             ? [rule.ruleId]
-            : [...current, rule.ruleId],
+            : [...current.filter((id) => id !== rule.ruleId), rule.ruleId],
       ),
     selectVariant: (
       kind: OfferModuleKind,
@@ -216,8 +216,6 @@ export function useOfferSelection({
         ...current,
         [`${kind}:${id}:${index}`]: variantId,
       })),
-    setQuantity: (id: string, count: number) =>
-      setQuantities((current) => ({ ...current, [id]: count })),
   };
 }
 export type OfferSelection = ReturnType<typeof useOfferSelection>;

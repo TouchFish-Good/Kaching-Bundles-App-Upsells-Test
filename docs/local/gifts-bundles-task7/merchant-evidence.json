@@ -1,0 +1,30 @@
+[
+  {
+    "width": 1440,
+    "kind": "gifts",
+    "quantities": 2,
+    "triggers": 2,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "kind": "bundles",
+    "quantities": 0,
+    "triggers": 2,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "kind": "gifts",
+    "quantities": 2,
+    "triggers": 2,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "kind": "bundles",
+    "quantities": 0,
+    "triggers": 2,
+    "errors": []
+  }
+]

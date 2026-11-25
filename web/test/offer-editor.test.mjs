@@ -173,6 +173,7 @@ test("editor preview automatically includes both gifts at four and only A at two
       ),
       null,
     );
+    assert.doesNotMatch(document.querySelector('[data-offer-kind="gifts"]').textContent,/Included/);
     await click(
       [...document.querySelectorAll("button")].find((b) =>
         b.textContent.includes("Two"),
@@ -422,7 +423,7 @@ test("legacy editor issues no offer-preview requests while both modules are disa
       false,
     );
   }));
-test("single mode chooses one rule by actual saving after multiple choices; excess quantity stays full price", () =>
+test("single mode chooses one explicitly selected fixed-one rule by actual saving", () =>
   harness(async ({ vite, render, click, change }) => {
     const { StorefrontWidget } = await vite.ssrLoadModule(
       "/src/prototype/StorefrontWidget.tsx",
@@ -452,14 +453,8 @@ test("single mode chooses one rule by actual saving after multiple choices; exce
         .getAttribute("data-rule-id"),
       "b",
     );
-    await change(
-      document.querySelector('[data-rule-id="b"] input[type="number"]'),
-      "3",
-    );
-    assert.match(
-      document.querySelector("[data-offer-summary]").textContent,
-      /22\.00/,
-    );
+    assert.equal(document.querySelector('[data-rule-id="b"] input[type="number"]'), null);
+    assert.match(document.querySelector("[data-offer-summary]").textContent, /2\.00/);
   }));
 test("grid and carousel honor independent devices, keep choices and support keyboard scrolling", () =>
   harness(async ({ vite, render, click }) => {
@@ -1015,24 +1010,39 @@ test("large persisted gift quantities fail unavailable before expanding unit con
     }
   }));
 
-test("large buyer bundle quantity stays editable and cannot allocate or quote truncated units", () =>
-  harness(async ({ vite, render, click, change }) => {
+test("historical bundle quantity renders one variant slot and no shopper quantity input", () =>
+  harness(async ({ vite, render, click }) => {
     const { StorefrontWidget } = await vite.ssrLoadModule("/src/prototype/StorefrontWidget.tsx");
-    await render(StorefrontWidget, {
-      ...base, bundles: moduleFor("bundles", [rule("a")]), offerPreview: { state: "ready", products },
-    });
-    await click(document.querySelector('[data-offer-kind="bundles"] input[type="checkbox"]'));
-    const input = () => document.querySelector('[data-offer-kind="bundles"] input[type="number"]');
-    await change(input(), "4294967296");
-    const card = document.querySelector('[data-rule-id="a"]');
-    assert.equal(input().value, "4294967296");
-    assert.equal(card.dataset.included, "false");
-    assert.match(card.textContent, /unavailable/i);
-    assert.equal(card.querySelectorAll("select").length, 0);
-    await change(input(), "2");
-    assert.equal(card.dataset.included, "true");
-    assert.equal(card.querySelectorAll("select").length, 2);
+    for(const quantity of [3,4294967296]){
+      await render(StorefrontWidget, {...base,bundles:moduleFor("bundles",[{...rule("a"),quantity}]),offerPreview:{state:"ready",products}});
+      const card=()=>document.querySelector('[data-rule-id="a"]');
+      if(!card().querySelector('input[type="checkbox"]').checked)await click(card().querySelector('input[type="checkbox"]'));
+      assert.equal(card().dataset.included,"true");assert.equal(card().querySelector('input[type="number"]'),null);assert.equal(card().querySelectorAll('select').length,1);
+    }
   }));
+
+test("locked bundle native checkbox unlocks and selects once while unready remains disabled", () =>
+  harness(async ({vite,render,click})=>{
+    const {StorefrontWidget}=await vite.ssrLoadModule("/src/prototype/StorefrontWidget.tsx");
+    const props={...base,tiers:base.tiers.map(t=>({...t,recommended:t.quantity===2})),bundles:moduleFor("bundles",[rule("a",3)]),offerPreview:{state:"ready",products}};
+    await render(StorefrontWidget,props);
+    const card=()=>document.querySelector('[data-rule-id="a"]'),input=()=>card().querySelector('input[type="checkbox"]');
+    assert.ok(input());assert.equal(input().checked,false);assert.equal(input().disabled,false);assert.match(input().getAttribute('aria-label'),/Product a/);assert.equal(card().querySelector('button'),null);
+    await click(input().closest('label'));assert.equal(input().checked,true);assert.equal(card().dataset.included,'true');
+    await click(input());assert.equal(input().checked,false);
+    await render(StorefrontWidget,{...props,offerPreview:{state:'loading',products:[]}});assert.equal(input().disabled,true);
+  }));
+
+test("merchant bundle controls retain main threshold and variants but quantity editor is gift-only",()=>
+ harness(async({vite,render,click})=>{
+ const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');
+ for(const kind of ['bundles','gifts']){
+ await render(OfferModulePanel,{key:kind,kind,value:moduleFor(kind,[rule('a')]),onChange:()=>{},tiers:base.tiers,locale:'en',fetcher:async()=>json({products:pickerProducts(),missingIds:[],nextPageInfo:null}),currencyCode:'USD',onDraftError:()=>{}});
+ await click(document.querySelector('[aria-expanded]'));await settle();
+ const quantityLabels=[...document.querySelectorAll('[data-offer-panel] label')].filter(l=>l.firstChild?.textContent==='Quantity');
+ assert.equal(quantityLabels.length,kind==='gifts'?1:0);assert.ok([...document.querySelectorAll('label')].some(l=>l.textContent.includes('Main product quantity')));
+ }
+ }));
 
 test("picker deselection clears removed drafts and keeps retained rule errors", () =>
   harness(async ({ vite, render, click, change }) => {
@@ -1106,3 +1116,21 @@ test("unsafe aggregate quote exposes no partial accessory quantity or cart lines
     assert.equal(selection.original, 0);
     assert.equal(selection.discounted, 0);
   }));
+
+test('every enabled accessory Product is excluded from React main eligibility and unlock',()=>harness(async({vite,render,click})=>{
+ const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');
+ const gifts=moduleFor('gifts',[rule('a'),rule('b',3)]),bundles=moduleFor('bundles',[rule('c')]);
+ const props={...base,campaignProduct:{...products[0],variants:products[0].variants.map(v=>({...v,price:10}))},gifts,bundles,offerPreview:{state:'ready',products}};
+ await render(StorefrontWidget,props);assert.equal(document.querySelectorAll('[data-included="true"]').length,0);
+ assert.equal(document.querySelectorAll('[data-offer-kind="gifts"] button:not(:disabled)').length,0);
+ assert.equal(document.querySelector('[data-offer-kind="bundles"] input[type="checkbox"]').disabled,true);
+ await render(StorefrontWidget,{...props,gifts:{...gifts,enabled:false}});const input=document.querySelector('[data-offer-kind="bundles"] input[type="checkbox"]');assert.equal(input.disabled,false);await click(input);assert.equal(input.checked,true);
+}));
+
+test('rechecking a previously chosen locked bundle unlocks and retains that explicit choice',()=>harness(async({vite,render,click})=>{
+ const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');
+ await render(StorefrontWidget,{...base,bundles:moduleFor('bundles',[rule('a',3)]),offerPreview:{state:'ready',products}});
+ const input=()=>document.querySelector('[data-rule-id="a"] input[type="checkbox"]');await click(input());assert.equal(input().checked,true);
+ await click([...document.querySelectorAll('button')].find(b=>b.textContent.includes('Two')));assert.equal(input().checked,false);
+ await click(input());assert.equal(input().checked,true);
+}));

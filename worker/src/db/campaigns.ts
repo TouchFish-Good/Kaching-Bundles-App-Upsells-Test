@@ -1,3 +1,4 @@
+import { normalizeOfferModules } from '../../../shared/offer-core.mjs';
 import { campaignForActivation, campaignWithConfirmedEnd, campaignsConflict, validateCampaign, type Campaign, type CampaignDraft, type CampaignScope, type CampaignStatus } from '../domain/campaign';
 
 export class CampaignValidationError extends Error {}
@@ -31,7 +32,7 @@ export class D1CampaignRepository {
   }
 
   private decode(row: Row): Campaign {
-    const campaign = JSON.parse(row.campaign_json) as CampaignDraft;
+    const campaign = normalizeOfferModules(JSON.parse(row.campaign_json) as CampaignDraft);
     return { ...campaign, combinesWith: { ...campaign.combinesWith, productDiscounts: campaign.combinesWith?.productDiscounts ?? false }, revision: row.revision, updatedAt: row.updated_at };
   }
 
@@ -313,13 +314,14 @@ export class D1CampaignRepository {
        FROM quantity_breaks_staged_updates WHERE shop_handle = ? AND campaign_id = ?`,
     ).bind(shopHandle, id).first<StagedUpdateRow>();
     if (!row) return null;
-    const candidate = JSON.parse(row.candidate_json) as CampaignDraft;
+    const candidate = normalizeOfferModules(JSON.parse(row.candidate_json) as CampaignDraft);
     return { candidate: { ...candidate, combinesWith: { ...candidate.combinesWith, productDiscounts: candidate.combinesWith?.productDiscounts ?? false } }, expectedRevision: row.expected_revision, discountId: row.discount_id };
   }
 
   async save(shopHandle: string, draft: CampaignDraft, expectedRevision: number): Promise<Campaign> {
     const errors = validateCampaign(draft);
     if (errors.length) throw new CampaignValidationError(errors.join(' '));
+    draft = normalizeOfferModules(draft);
     if (!shopHandle || !Number.isInteger(expectedRevision) || expectedRevision < 0) {
       throw new CampaignValidationError('Shop and expected revision are required.');
     }
@@ -496,7 +498,7 @@ export class D1CampaignRepository {
       }
       const startsAt = candidate.startsAt ? Date.parse(candidate.startsAt) : Number.NaN;
       const replacement: CampaignDraft = {
-        ...candidate,
+        ...normalizeOfferModules(candidate),
         id: `local-${crypto.randomUUID()}`,
         status: Number.isFinite(startsAt) && startsAt > replacementNow ? 'scheduled' : 'active',
         scope: candidate.scope.kind === 'collections'
@@ -702,7 +704,7 @@ export class D1CampaignRepository {
       if (publication.state !== 'active' || publication.discountId !== discountId || !['active', 'scheduled'].includes(current.status)) {
         throw new CampaignConflictError('Campaign is not published with the confirmed platform discount.');
       }
-      const stagedCandidate: CampaignDraft = { ...candidate, status: nextStatus ?? current.status };
+      const stagedCandidate: CampaignDraft = { ...normalizeOfferModules(candidate), status: nextStatus ?? current.status };
       const errors = validateCampaign(stagedCandidate);
       if (errors.length) throw new CampaignValidationError(errors.join(' '));
       const existing = await this.rows(shopHandle);

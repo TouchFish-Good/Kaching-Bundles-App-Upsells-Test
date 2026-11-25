@@ -1,0 +1,70 @@
+[
+  {
+    "version": "3",
+    "width": 1440,
+    "file": "before-os3-1440.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1440,
+      "giftText": [
+        "Product aIncluded$0.00$20.00SL",
+        "Product bIncluded$0.00$20.00SL",
+        "Product a / S × 1$0.00",
+        "Product b / S × 1$0.00"
+      ],
+      "bundleNumbers": 2,
+      "checkboxes": 0
+    }
+  },
+  {
+    "version": "3",
+    "width": 390,
+    "file": "before-os3-390.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 390,
+      "giftText": [
+        "Product aIncluded$0.00$20.00SL",
+        "Product bIncluded$0.00$20.00SL",
+        "Product a / S × 1$0.00",
+        "Product b / S × 1$0.00"
+      ],
+      "bundleNumbers": 2,
+      "checkboxes": 0
+    }
+  },
+  {
+    "version": "2.1",
+    "width": 1440,
+    "file": "before-os2.1-1440.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 1440,
+      "giftText": [
+        "Product aIncluded$0.00$20.00SL",
+        "Product bIncluded$0.00$20.00SL",
+        "Product a / S × 1$0.00",
+        "Product b / S × 1$0.00"
+      ],
+      "bundleNumbers": 2,
+      "checkboxes": 0
+    }
+  },
+  {
+    "version": "2.1",
+    "width": 390,
+    "file": "before-os2.1-390.png",
+    "errors": [],
+    "metrics": {
+      "scrollWidth": 390,
+      "giftText": [
+        "Product aIncluded$0.00$20.00SL",
+        "Product bIncluded$0.00$20.00SL",
+        "Product a / S × 1$0.00",
+        "Product b / S × 1$0.00"
+      ],
+      "bundleNumbers": 2,
+      "checkboxes": 0
+    }
+  }
+]

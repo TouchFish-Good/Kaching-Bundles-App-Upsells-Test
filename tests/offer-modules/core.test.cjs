@@ -90,3 +90,13 @@ for(const quantity of [Number.MAX_SAFE_INTEGER+1,0.5,NaN,Infinity,-1,0,undefined
   assert.equal(core.offerQuota(offer,tiers,[invalid,valid]),0,'malformed row before valid row');
  });
 }
+
+test('valid historical bundle quantities normalize to one only after strict validation',()=>{
+ for(const quantity of [2,4294967296,Number.MAX_SAFE_INTEGER]){
+ const raw=moduleConfig('bundles');raw.items[0].quantity=quantity;const expected=structuredClone(raw);expected.items[0].quantity=1;
+ assert.deepEqual(core.normalizeOfferModule(raw,'bundles'),expected);assert.equal(raw.items[0].quantity,quantity);
+ const gift=moduleConfig();gift.items[0].quantity=quantity;assert.equal(core.normalizeOfferModule(gift,'gifts').items[0].quantity,quantity);
+ }
+ for(const quantity of [0,-1,1.5,Number.MAX_SAFE_INTEGER+1,'2',null,undefined]){const raw=moduleConfig('bundles');raw.items[0].quantity=quantity;assert.throws(()=>core.normalizeOfferModule(raw,'bundles'));}
+ const bad=moduleConfig('bundles');bad.items[0].quantity=3;bad.items[0].productId=5;assert.throws(()=>core.normalizeOfferModule(bad,'bundles'));
+});

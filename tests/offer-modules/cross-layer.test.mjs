@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import { sqliteD1 } from './helpers/sqlite-d1.mjs';
-import { offerCampaign, offerMarkup, setupOffers, digest } from '../theme-app-extension/helpers/offer-fixture.mjs';
+import { offerCampaign, offerMarkup, setupOffers, digest, changeOfferSelection } from '../theme-app-extension/helpers/offer-fixture.mjs';
 
 let vite, modules;
 before(async () => {
@@ -27,14 +27,20 @@ async function savedShop({ disabled = false } = {}) {
   await new D1SessionStore(database, bindings.TOKEN_ENCRYPTION_KEY).upsert({ handle, storeId: '900001', installed: true, accessToken: 'synthetic-only', refreshToken: 'synthetic-only', scope: 'read_products', expiresAt: '2099-01-01T00:00:00Z' });
   await new D1SubscriptionRepository(database).writeEntitlement({ appKey: bindings.SHOPLINE_APP_KEY, handle, state: 'active', featureKeys: ['quantity_breaks_access'], activeSubscriptionId: 'local-sub', activeSpuKey: 'ultra', validFrom: null, validUntil: null, graceUntil: null, autoRecurring: true, absenceConfirmations: 0 });
   const fixture = offerCampaign();
+  fixture.bundles.items.forEach(rule => { rule.quantity = 3; });
   const campaign = { id: fixture.id, name: 'Local integration', status: 'draft', startsAt: '2020-01-01T00:00:00Z', scope: { kind: 'products', productIds: ['main', 'main-2'], excludedProductIds: [] }, tiers: fixture.tiers.map((tier, displayOrder) => ({ ...tier, displayOrder })), combinesWith: { orderDiscounts: false, productDiscounts: false, shippingDiscounts: false }, gifts: fixture.gifts, bundles: fixture.bundles };
   if (disabled) { campaign.gifts.enabled = false; campaign.bundles.enabled = false; }
   const repository = new D1CampaignRepository(database);
   await repository.save(handle, campaign, 0);
+  const stored = await database.prepare("SELECT campaign_json FROM quantity_breaks_campaigns WHERE shop_handle = ? AND id = ?").bind(handle, campaign.id).first();
+  assert.ok(JSON.parse(stored.campaign_json).bundles.items.every(rule => rule.quantity === 1), "persisted canonical bundle quantity");
+  // Seed actual historical JSON locally, proving read compatibility without a remote migration.
+  await database.prepare("UPDATE quantity_breaks_campaigns SET campaign_json = ? WHERE shop_handle = ? AND id = ?").bind(JSON.stringify(campaign), handle, campaign.id).run();
   const lease = await repository.beginPublication(handle, campaign.id, 1, 'publish');
   // Local repository acknowledgement only; no platform publication is performed.
   await repository.finishPublication(handle, campaign.id, 1, 'publish', 'local-discount', lease.owner);
   const saved = await repository.get(handle, campaign.id);
+  assert.ok(saved.bundles.items.every(rule => rule.quantity === 1), "save/read canonical bundle quantity");
   const translations = new D1TranslationRepository(database);
   const pending = [];
   async function response(locale = 'en', negotiate = true) {
@@ -73,7 +79,7 @@ async function cartFromPublic(response, quantity) {
   } });
   await h.theme.mountBlock(h.block);
   h.block.querySelector(`[data-tier-id="t${quantity}"] .qb-tier-header`).click();
-  for (const id of ['c', 'd']) h.block.querySelector(`[data-offer-rule="${id}"] [data-offer-select]`).click();
+  for (const id of ['c', 'd']) changeOfferSelection(h,id);
   h.block.querySelector('[data-add-bundle]').click();
   for (let i = 0; i < 100 && !batch; i++) await new Promise(resolve => setImmediate(resolve));
   assert.ok(batch, 'mounted widget must submit the actual composite batch');
@@ -88,6 +94,8 @@ for (const [quantity, roles, discounts] of [
   try {
     const response = await local.response();
     assert.equal(response.campaign.revision, local.saved.revision);
+    assert.ok(response.campaign.bundles.items.every(rule => rule.quantity === 1));
+    assert.ok(local.rule.bundles.items.every(rule => rule.quantity === 1));
     assert.deepEqual(response.campaign.gifts, local.saved.gifts);
     assert.equal(response.campaign.offerCapability.functionVerified, true);
     const { batch } = await cartFromPublic(response, quantity);
@@ -143,7 +151,7 @@ test('saved locale title and explicit empty heading reach the actual theme witho
   } finally { local.database.close(); }
 });
 
-test('both saved disabled modules and nonnegotiating clients preserve v1 and main-only requests', async () => {
+test('both saved disabled modules and nonnegotiating clients preserve v1 and main-only widget initialization', async () => {
   for (const disabled of [false, true]) {
     const local = await savedShop({ disabled });
     try {

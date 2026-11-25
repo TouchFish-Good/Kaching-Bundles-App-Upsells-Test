@@ -158,6 +158,7 @@
       return quote;
     }
     function render(quantity) {
+      const focusedRule=doc.activeElement?.matches?.('[data-offer-select]') && container.contains(doc.activeElement) ? doc.activeElement.closest('[data-offer-rule]')?.dataset.offerRule : null;
       container.replaceChildren();
       const allCards=[];
       for (const {kind,module} of groups) {
@@ -179,13 +180,13 @@
           const actual=ref && native.products.get(rule.productId);
           const product=actual && actual.handle===ref.handle && ref.variantIds.length===new Set(ref.variantIds).size && rule.allowedVariantIds.every(id=>ref.variantIds.includes(id)) ? actual : null;
           const eligible=mainQualifies && OfferCore.offerEligible(rule,campaign.tiers,quantity);
-          const choice=state.choices.get(rule.ruleId) || {selected:false,quantity:rule.quantity,slots:[]}; state.choices.set(rule.ruleId,choice);
+          const choice=state.choices.get(rule.ruleId) || {selected:false,slots:[]}; state.choices.set(rule.ruleId,choice);
           if(choice.productId && choice.productId!==rule.productId)choice.slots=[];
           choice.productId=rule.productId;
           // Revisions can remove a configured variant. Preserve every still
           // whitelisted slot, reset only those whose identity became invalid.
           choice.slots=choice.slots.map(id=>rule.allowedVariantIds.includes(id)?id:undefined);
-          const count=kind==='gifts'?rule.quantity:choice.quantity;
+          const count=rule.quantity;
           const options=product?.variants.filter(v=>rule.allowedVariantIds.includes(v.id)) || [];
           const renderable=Number.isSafeInteger(count) && count>0 && count<=100;
           const selected=renderable?Array.from({length:count},(_,i)=>{
@@ -215,20 +216,29 @@
           if(rule.showImage && image && /^(https?:|data:image\/)/.test(image)){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
           card.append(element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable')));
           if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-offer-label-below',rule.label));
-          if(!c.eligible) {
-            const tier=mainQualifies && OfferCore.offerUnlockTier(rule,campaign.tiers);
-            if(tier){const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.addEventListener('click',()=>{if(kind==='bundles'){if(module.selectionMode==='single')cards.forEach(other=>other.choice.selected=false);choice.selected=true;}chooseTier(tier);});card.append(unlock);}
-          } else if(kind==='gifts') card.append(element(doc,'span','qb-offer-state',c.ready?copy('widget.offer_included','Included'):copy('widget.offer_unavailable','Unavailable')));
-          else {
-            const toggle=element(doc,'button','qb-offer-select',c.included?copy('widget.offer_included','Included'):copy('widget.offer_select','Select'));toggle.type='button';toggle.dataset.offerSelect='';toggle.setAttribute('aria-pressed',String(c.included));toggle.disabled=!c.ready;
-            toggle.addEventListener('click',()=>{if(module.selectionMode==='single'){cards.forEach(other=>other.choice.selected=false);}choice.selected=!c.included;rerender();});card.append(toggle);
-            const label=element(doc,'label','qb-offer-quantity',copy('widget.offer_quantity','Quantity'));
-            const input=element(doc,'input');input.type='number';input.min='1';input.step='1';input.value=String(choice.quantity);input.setAttribute('aria-label',copy('widget.offer_quantity','Quantity'));
-            input.addEventListener('change',()=>{choice.quantity=Number(input.value);rerender();});label.append(input);card.append(label);
+          const tier=!c.eligible && mainQualifies && OfferCore.offerUnlockTier(rule,campaign.tiers);
+          if(kind==='bundles') {
+            const label=element(doc,'label','qb-offer-select');
+            const toggle=element(doc,'input');toggle.type='checkbox';toggle.dataset.offerSelect='';toggle.checked=c.included;
+            toggle.setAttribute('aria-label',c.product?.title || copy('widget.offer_select','Select'));
+            toggle.disabled=!c.ready || (!c.eligible && !tier);
+            toggle.addEventListener('change',()=>{
+              if(toggle.disabled)return;
+              const selected=toggle.checked;
+              if(module.selectionMode==='single' && selected)cards.forEach(other=>other.choice.selected=false);
+              choice.selected=selected;
+              if(!c.eligible && tier && selected)chooseTier(tier);else rerender();
+            });
+            label.append(toggle,doc.createTextNode(c.product?.title || copy('widget.offer_select','Select')));
+            if(tier)label.append(doc.createTextNode(' · '+copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity})));
+            card.append(label);
+          } else if(!c.eligible && tier) {
+            const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.disabled=!c.ready;unlock.addEventListener('click',()=>chooseTier(tier));card.append(unlock);
           }
+          if(!c.ready)card.append(element(doc,'span','qb-offer-state',copy('widget.offer_unavailable','Unavailable')));
           if(c.ready){
             const prices=element(doc,'div','qb-offer-prices');prices.append(element(doc,'b','',moneyMinor(c.original-c.savings,currency,locale)));if(c.savings>0)prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));card.append(prices);
-          } else if(c.eligible)card.append(element(doc,'span','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));
+          }
           if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-offer-variant');select.dataset.offerSlot=String(i);select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
           grid.append(card);
         }
@@ -241,6 +251,7 @@
       const safe=[original,savings,count,original-savings].every(safeAmount);
       quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
       if(!safe){invalidate();container.append(element(doc,'p','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));}
+      if(focusedRule)for(const input of container.querySelectorAll('[data-offer-select]'))if(input.closest('[data-offer-rule]')?.dataset.offerRule===focusedRule)input.focus({preventScroll:true});
       return quote;
     }
     return {container,render,invalidate,get quote(){return quote;},hasModules:groups.length>0,enabled:groups.length>0 && trusted};

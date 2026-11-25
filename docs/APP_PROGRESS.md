@@ -1236,3 +1236,13 @@ Admin REST 服务请求统一改为 `v20260901`，保留原有 SDK OAuth、offli
 - 三项由Task3新增标题引起的旧断言先红后绿修正；两文件10/10通过，实际编辑/清空两标题保留商品预览，翻译字段16项。原8项前端失败在实施前4f5cc26窄复测逐项复现；Go原有重叠活动失败与主题10px/8px旧断言仍保留，未将完整套件标为全绿。
 - 正式725份文件哈希与原Git状态一致；原6项及扩展9项测试身份哈希一致，无焦点伪类变化。完整文件清单、8条原序裁定、截图和验证证据见[中文审计](audits/2026-11-25-gifts-bundles-local-integration.md)。任务本地提交，未推送、部署、发布或写真实商家数据。
 - 最新用户交互裁定见本设计/需求顶部，Task7 PENDING：捆绑新旧规则固定1件，商家/买家均无数量控件且单款式槽位（赠品数量配置保留）；去除赠品重复状态字样，捆绑使用原生checkbox；本Task6只记录，不声称实现。Task4/5截图代表此前实现，Task7须重新保存实际交互/视觉证据；最终全分支独立审阅在Task7之后，由控制器执行。
+
+
+## 2026-11-25 Task7：固定一件捆绑与原生复选框（本地完成）
+
+- 捆绑每规则固定1件；旧有效quantity>1先严格校验后统一为1，覆盖实际SQLite/D1读取、保存、暂存更新和公开/Function投影；不执行远程数据迁移。赠品配置数量及主商品trigger.quantity保持。
+- 商家与买家捆绑数量输入移除；每规则一个款式槽位。React和OS3/OS2.1采用原生checkbox选择/取消、单选/多选、锁卡最低可达档位解锁并选择；原生change按checked赋值，重勾锁卡不误取消。赠品移除重复Included状态，保留可配置标签/数量及异常反馈。
+- 修正React预览所有启用配件Product排除主资格的既有规则；主题重绘仅在checkbox原本持有键盘焦点时恢复焦点，未改任何focus CSS。持续不确定事务保护及不同主Product各贡献1件的额度池保留。
+- 新核心/旧配置/整链/主题覆盖88/88、React25/25、Worker受影响6文件102/102、Go所有TestV2通过；Express受影响2文件9/10，既有`campaign repository preserves independent widget styles and legacy rows`缺tierSavingsBadgeRadiusPx，在Task7基准174ef368重现。Web build/typecheck、Express build、Worker typecheck与canonical/theme drift通过。既有全套失败历史仍见审计，未宣称全绿。
+- 保留20张前后及展开商家规则桌面/移动截图与5份browser JSON（见docs/local/gifts-bundles-task7）。真实Chromium验证Space连续切换、标签/触摸取消、单选/多选、锁定/不可用、resize/remount和一次五行模拟POST。参考截图仍为既有Shopify管理面板header；无未见参考的完整店铺视觉等价宣称。
+- 所有接口/购物车为本地合成；正式环境只读，无推送、部署、发布或真实商家写入。最终任务审阅与整个分支独立审阅由控制器继续，整个应用/真实平台尚未验收。

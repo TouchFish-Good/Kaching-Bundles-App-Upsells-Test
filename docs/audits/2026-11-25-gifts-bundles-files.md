@@ -1,13 +1,14 @@
 # 测试分支完整文件清单
 
-基准 `4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7`；截至Task6本地交付，后续Task7另行刷新。Git目标 `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。
+基准 `4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7`；截至Task7本地实现和定向验证，最终独立审阅由控制器继续。Git目标 `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。
 
-共211条：新增95、修改116、删除0。包括已提交Tasks1–5及本轮审阅的新文档/测试，不包含ignored临时工作区、凭据或依赖。
+共238条：新增121、修改117、删除0。包含Tasks1–7已提交及本轮审阅文件；不含ignored报告/QA临时文件、凭据或依赖。
 
 | 变更 | 仓库内完整路径 |
 | --- | --- |
 | M | `app/src/service/campaign/discount-adapter.ts` |
 | M | `app/src/service/campaign/model.ts` |
+| M | `app/src/service/campaign/repository.ts` |
 | M | `app/src/service/campaign/validate.ts` |
 | M | `app/src/service/translations.ts` |
 | M | `docs/APP_PROGRESS.md` |
@@ -70,6 +71,32 @@
 | A | `docs/local/gifts-bundles-task5/round1/uncertain-os2.1-390.png` |
 | A | `docs/local/gifts-bundles-task5/round1/uncertain-os3-1440.png` |
 | A | `docs/local/gifts-bundles-task5/round1/uncertain-os3-390.png` |
+| A | `docs/local/gifts-bundles-task7/README.md` |
+| A | `docs/local/gifts-bundles-task7/after-merchant-bundles-1440.png` |
+| A | `docs/local/gifts-bundles-task7/after-merchant-bundles-390.png` |
+| A | `docs/local/gifts-bundles-task7/after-merchant-gifts-1440.png` |
+| A | `docs/local/gifts-bundles-task7/after-merchant-gifts-390.png` |
+| A | `docs/local/gifts-bundles-task7/after-os2.1-1440.png` |
+| A | `docs/local/gifts-bundles-task7/after-os2.1-390.png` |
+| A | `docs/local/gifts-bundles-task7/after-os3-1440.png` |
+| A | `docs/local/gifts-bundles-task7/after-os3-390.png` |
+| A | `docs/local/gifts-bundles-task7/after-react-editor-1440.png` |
+| A | `docs/local/gifts-bundles-task7/after-react-editor-390.png` |
+| A | `docs/local/gifts-bundles-task7/after-react-evidence.json` |
+| A | `docs/local/gifts-bundles-task7/after-react-preview-1440.png` |
+| A | `docs/local/gifts-bundles-task7/after-react-preview-390.png` |
+| A | `docs/local/gifts-bundles-task7/after-theme-evidence.json` |
+| A | `docs/local/gifts-bundles-task7/before-os2.1-1440.png` |
+| A | `docs/local/gifts-bundles-task7/before-os2.1-390.png` |
+| A | `docs/local/gifts-bundles-task7/before-os3-1440.png` |
+| A | `docs/local/gifts-bundles-task7/before-os3-390.png` |
+| A | `docs/local/gifts-bundles-task7/before-react-editor-1440.png` |
+| A | `docs/local/gifts-bundles-task7/before-react-editor-390.png` |
+| A | `docs/local/gifts-bundles-task7/before-react-evidence.json` |
+| A | `docs/local/gifts-bundles-task7/before-react-preview-1440.png` |
+| A | `docs/local/gifts-bundles-task7/before-react-preview-390.png` |
+| A | `docs/local/gifts-bundles-task7/before-theme-evidence.json` |
+| A | `docs/local/gifts-bundles-task7/merchant-evidence.json` |
 | A | `docs/reference/screenshots/gifts-bundles-section-toggle-reference.png` |
 | A | `docs/superpowers/plans/2026-11-25-test-gifts-bundles-implementation.md` |
 | M | `docs/superpowers/specs/2026-11-24-gifts-bundles-design.md` |
@@ -217,51 +244,3 @@
 | A | `worker/test/offer-preview.test.ts` |
 | A | `worker/test/offer-publication.test.ts` |
 | A | `worker/test/offer-storefront.test.ts` |
-
-## 已提交截图完整列表
-
-- [docs/local/gifts-bundles-task4/after-1440-expanded.png](../../docs/local/gifts-bundles-task4/after-1440-expanded.png)
-- [docs/local/gifts-bundles-task4/after-1440-offers.png](../../docs/local/gifts-bundles-task4/after-1440-offers.png)
-- [docs/local/gifts-bundles-task4/after-1440.png](../../docs/local/gifts-bundles-task4/after-1440.png)
-- [docs/local/gifts-bundles-task4/after-320.png](../../docs/local/gifts-bundles-task4/after-320.png)
-- [docs/local/gifts-bundles-task4/after-390.png](../../docs/local/gifts-bundles-task4/after-390.png)
-- [docs/local/gifts-bundles-task4/before-1440.png](../../docs/local/gifts-bundles-task4/before-1440.png)
-- [docs/local/gifts-bundles-task4/before-320.png](../../docs/local/gifts-bundles-task4/before-320.png)
-- [docs/local/gifts-bundles-task4/before-390.png](../../docs/local/gifts-bundles-task4/before-390.png)
-- [docs/local/gifts-bundles-task4/carousel-mobile390.png](../../docs/local/gifts-bundles-task4/carousel-mobile390.png)
-- [docs/local/gifts-bundles-task4/container-400.png](../../docs/local/gifts-bundles-task4/container-400.png)
-- [docs/local/gifts-bundles-task4/container-600.png](../../docs/local/gifts-bundles-task4/container-600.png)
-- [docs/local/gifts-bundles-task4/container-700.png](../../docs/local/gifts-bundles-task4/container-700.png)
-- [docs/local/gifts-bundles-task4/fix1-huge-unavailable.png](../../docs/local/gifts-bundles-task4/fix1-huge-unavailable.png)
-- [docs/local/gifts-bundles-task4/header-off.png](../../docs/local/gifts-bundles-task4/header-off.png)
-- [docs/local/gifts-bundles-task4/header-on-collapsed.png](../../docs/local/gifts-bundles-task4/header-on-collapsed.png)
-- [docs/local/gifts-bundles-task4/header-reopened.png](../../docs/local/gifts-bundles-task4/header-reopened.png)
-- [docs/local/gifts-bundles-task4/preview-mobile390.png](../../docs/local/gifts-bundles-task4/preview-mobile390.png)
-- [docs/local/gifts-bundles-task4/preview-unavailable.png](../../docs/local/gifts-bundles-task4/preview-unavailable.png)
-- [docs/local/gifts-bundles-task4/translations-empty-title-1440.png](../../docs/local/gifts-bundles-task4/translations-empty-title-1440.png)
-- [docs/local/gifts-bundles-task5/after-os2.1-1440.png](../../docs/local/gifts-bundles-task5/after-os2.1-1440.png)
-- [docs/local/gifts-bundles-task5/after-os2.1-320.png](../../docs/local/gifts-bundles-task5/after-os2.1-320.png)
-- [docs/local/gifts-bundles-task5/after-os2.1-390.png](../../docs/local/gifts-bundles-task5/after-os2.1-390.png)
-- [docs/local/gifts-bundles-task5/after-os3-1440.png](../../docs/local/gifts-bundles-task5/after-os3-1440.png)
-- [docs/local/gifts-bundles-task5/after-os3-320.png](../../docs/local/gifts-bundles-task5/after-os3-320.png)
-- [docs/local/gifts-bundles-task5/after-os3-390.png](../../docs/local/gifts-bundles-task5/after-os3-390.png)
-- [docs/local/gifts-bundles-task5/before-os2.1-1440.png](../../docs/local/gifts-bundles-task5/before-os2.1-1440.png)
-- [docs/local/gifts-bundles-task5/before-os2.1-320.png](../../docs/local/gifts-bundles-task5/before-os2.1-320.png)
-- [docs/local/gifts-bundles-task5/before-os2.1-390.png](../../docs/local/gifts-bundles-task5/before-os2.1-390.png)
-- [docs/local/gifts-bundles-task5/before-os3-1440.png](../../docs/local/gifts-bundles-task5/before-os3-1440.png)
-- [docs/local/gifts-bundles-task5/before-os3-320.png](../../docs/local/gifts-bundles-task5/before-os3-320.png)
-- [docs/local/gifts-bundles-task5/before-os3-390.png](../../docs/local/gifts-bundles-task5/before-os3-390.png)
-- [docs/local/gifts-bundles-task5/carousel-os3-390.png](../../docs/local/gifts-bundles-task5/carousel-os3-390.png)
-- [docs/local/gifts-bundles-task5/container-400.png](../../docs/local/gifts-bundles-task5/container-400.png)
-- [docs/local/gifts-bundles-task5/container-600.png](../../docs/local/gifts-bundles-task5/container-600.png)
-- [docs/local/gifts-bundles-task5/container-700.png](../../docs/local/gifts-bundles-task5/container-700.png)
-- [docs/local/gifts-bundles-task5/dynamic-independent-blocks-390.png](../../docs/local/gifts-bundles-task5/dynamic-independent-blocks-390.png)
-- [docs/local/gifts-bundles-task5/round1/single-after-os2.1-390.png](../../docs/local/gifts-bundles-task5/round1/single-after-os2.1-390.png)
-- [docs/local/gifts-bundles-task5/round1/single-after-os3-390.png](../../docs/local/gifts-bundles-task5/round1/single-after-os3-390.png)
-- [docs/local/gifts-bundles-task5/round1/single-before-os2.1-390.png](../../docs/local/gifts-bundles-task5/round1/single-before-os2.1-390.png)
-- [docs/local/gifts-bundles-task5/round1/single-before-os3-390.png](../../docs/local/gifts-bundles-task5/round1/single-before-os3-390.png)
-- [docs/local/gifts-bundles-task5/round1/uncertain-os2.1-1440.png](../../docs/local/gifts-bundles-task5/round1/uncertain-os2.1-1440.png)
-- [docs/local/gifts-bundles-task5/round1/uncertain-os2.1-390.png](../../docs/local/gifts-bundles-task5/round1/uncertain-os2.1-390.png)
-- [docs/local/gifts-bundles-task5/round1/uncertain-os3-1440.png](../../docs/local/gifts-bundles-task5/round1/uncertain-os3-1440.png)
-- [docs/local/gifts-bundles-task5/round1/uncertain-os3-390.png](../../docs/local/gifts-bundles-task5/round1/uncertain-os3-390.png)
-- [docs/reference/screenshots/gifts-bundles-section-toggle-reference.png](../../docs/reference/screenshots/gifts-bundles-section-toggle-reference.png)

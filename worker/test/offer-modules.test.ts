@@ -24,7 +24,7 @@ it('D1 create/update/read retains exact independent accessory configs and disabl
   first.gifts!.enabled = false; first.bundles!.items[0].quantity = 2;
   await repository.save('shop-a', first, 1);
   const read = await repository.get('shop-a', 'offer');
-  expect(read?.gifts).toEqual(first.gifts); expect(read?.bundles).toEqual(first.bundles);
+  expect(read?.gifts).toEqual(first.gifts); expect(read?.bundles).toEqual({ ...first.bundles, items: first.bundles!.items.map(rule => ({ ...rule, quantity: 1 })) });
   expect(await repository.get('shop-b', 'offer')).toBeNull();
 });
 it('D1 rejects malformed saves and revalidates enabled modules before publication', async () => {

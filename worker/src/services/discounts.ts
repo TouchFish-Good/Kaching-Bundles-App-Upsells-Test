@@ -6,6 +6,7 @@ import { shoplineAdminHeaders } from './shopline-admin-request-headers';
 import { hasEnabledOffers, offerSelections, trustedCurrencyDecimals } from './offer-config';
 import { verifiedOfferReferences } from './offer-index';
 export { hasEnabledOffers, offerSelections } from './offer-config';
+import { normalizeOfferModules } from '../../../shared/offer-core.mjs';
 import type { OfferModuleConfig } from '../../../shared/offer-core.mjs';
 
 const ADMIN_VERSION = 'v20260901';
@@ -101,6 +102,7 @@ function assertCompatibleOfferMoney(campaign: CampaignDraft): void {
 }
 
 export function buildDiscountRule(campaign: CampaignDraft, currency: string): Record<string, unknown> {
+  campaign = normalizeOfferModules(campaign);
   const errors = validateCampaign(campaign);
   if (errors.length) throw new Error(errors.join(' '));
   const enabled = hasEnabledOffers(campaign);

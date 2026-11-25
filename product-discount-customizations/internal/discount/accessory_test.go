@@ -174,7 +174,7 @@ func TestV2AccessoriesNeverBecomeMainAndIndependentCaps(t *testing.T) {
 	assertTargets(t, serializedTargets(t, []string{r}, fakeMain, accessory("g", "ga", "gift", "a", "ga", 1), accessory("b", "gb", "bundle", "b", "ga", 2)), map[string]v2Target{})
 	forged := accessory("forged", "p1", "garbage", "a", "p1", 4)
 	assertTargets(t, serializedTargets(t, []string{r}, forged, accessory("g", "ga", "gift", "a", "p1", 1)), map[string]v2Target{})
-	assertTargets(t, serializedTargets(t, []string{r}, testLine("main", "p1", "20.00", "18.00", 2), accessory("g", "ga", "gift", "a", "p1", 2), accessory("b", "gb", "bundle", "b", "p1", 3)), map[string]v2Target{"g": {1, "10.00", "shop", false}, "b": {2, "10.00", "shop", false}})
+	assertTargets(t, serializedTargets(t, []string{r}, testLine("main", "p1", "20.00", "18.00", 2), accessory("g", "ga", "gift", "a", "p1", 2), accessory("b", "gb", "bundle", "b", "p1", 3)), map[string]v2Target{"g": {1, "10.00", "shop", false}, "b": {1, "5.00", "shop", false}})
 }
 func TestV2BundlesMultipleAndSingleActualSavings(t *testing.T) {
 	a := offerItem("a", "ba", 2, 1, "percentage", 9000)
@@ -290,7 +290,7 @@ func TestV2QuantityOperatorsAndCapsReduction(t *testing.T) {
 		r := v2Rule("", testOfferModule("multiple", item))
 		want := map[string]v2Target{}
 		if tc.discount {
-			want["b"] = v2Target{2, "20.00", "shop", false}
+			want["b"] = v2Target{1, "10.00", "shop", false}
 		}
 		assertTargets(t, serializedTargets(t, []string{r}, testLine("m", "p1", "20.00", "18.00", tc.qty), accessory("b", "bb", "bundle", "b", "p1", 3)), want)
 	}
@@ -411,4 +411,10 @@ func TestV1NeverCountsStaleOrMalformedProtocolAccessories(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestV2LegacyBundleQuantityFixedOne(t *testing.T) {
+	r := v2Rule("", testOfferModule("multiple", offerItem("b", "gb", 2, 3, "percentage", 5000)))
+	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), accessory("b", "gb", "bundle", "b", "p1", 3)), map[string]v2Target{"b": {1, "5.00", "shop", false}})
+	assertTargets(t, serializedTargets(t, []string{r}, testLine("m1", "p1", "20.00", "18.00", 2), testLine("m2", "p2", "20.00", "18.00", 2), accessory("b", "gb", "bundle", "b", "p1", 3)), map[string]v2Target{"b": {2, "10.00", "shop", false}})
 }
