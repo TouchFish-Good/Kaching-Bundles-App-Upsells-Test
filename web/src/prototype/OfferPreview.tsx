@@ -107,7 +107,18 @@ function OfferGroup({
 }) {
   const root = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const revealTimer = useRef<ReturnType<typeof setTimeout>>();
+  const cancelReveal = () => clearTimeout(revealTimer.current);
+  useEffect(() => cancelReveal, []);
   const [width, setWidth] = useState(0);
+  const [bounds, setBounds] = useState({ previous: false, next: false });
+  const updateBounds = () => {
+    const el = track.current;
+    if (el) {
+      const position = el.ownerDocument.defaultView?.getComputedStyle(el).direction === "rtl" ? -el.scrollLeft : el.scrollLeft;
+      setBounds({ previous: position > 1, next: position + el.clientWidth < el.scrollWidth - 1 });
+    }
+  };
   const style = group.module.style[device];
   useEffect(() => {
     const el = root.current;
@@ -125,11 +136,33 @@ function OfferGroup({
     translations,
   );
   const carousel = style.layout.mode === "carousel";
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    updateBounds();
+    const observer = new ResizeObserver(updateBounds);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [carousel, width, columns, group.cards.length]);
   const scroll = (direction: number) =>
     track.current?.scrollBy({
-      left: direction * (track.current.clientWidth + style.layout.columnGapPx),
+      left: direction * (track.current.ownerDocument.defaultView?.getComputedStyle(track.current).direction === "rtl" ? -1 : 1) * (track.current.clientWidth + style.layout.columnGapPx),
       behavior: "smooth",
     });
+  const revealCard = (target: Element | null) => {
+    const el = track.current;
+    const card = target?.closest("article");
+    if (!carousel || !el || !card || !el.contains(card)) return;
+    const a = card.getBoundingClientRect(), b = el.getBoundingClientRect();
+    const left = a.left < b.left ? a.left - b.left : a.right > b.right ? a.right - b.right : 0;
+    if (left) el.scrollBy({ left, behavior: "instant" });
+  };
+  const scheduleReveal = (target: Element) => {
+    cancelReveal();
+    revealTimer.current = setTimeout(() => {
+      if (target.ownerDocument.activeElement === target) revealCard(target);
+    }, 350);
+  };
   const css = {
     "--offer-columns": columns,
     "--offer-column-gap": `${style.layout.columnGapPx}px`,
@@ -158,6 +191,7 @@ function OfferGroup({
             <button
               type="button"
               aria-label={`${text("previous")} ${text(group.kind)}`}
+              disabled={!bounds.previous}
               onClick={() => scroll(-1)}
             >
               <ChevronLeft size={16} />
@@ -165,6 +199,7 @@ function OfferGroup({
             <button
               type="button"
               aria-label={`${text("next")} ${text(group.kind)}`}
+              disabled={!bounds.next}
               onClick={() => scroll(1)}
             >
               <ChevronRight size={16} />
@@ -185,11 +220,23 @@ function OfferGroup({
         tabIndex={carousel ? 0 : undefined}
         role={carousel ? "region" : undefined}
         aria-label={carousel ? title || text(group.kind) : undefined}
+        onScroll={updateBounds}
+        onPointerDown={cancelReveal}
+        onTouchStart={cancelReveal}
+        onWheel={cancelReveal}
+        onFocusCapture={(event) => revealCard(event.target as Element)}
+        onKeyUp={(event) => {
+          if (event.target !== event.currentTarget && ["ArrowLeft", "ArrowRight"].includes(event.key)) scheduleReveal(event.target as Element);
+        }}
         onKeyDown={(e) => {
-          if (e.target !== e.currentTarget || !carousel) return;
+          if (!carousel) return;
+          if (e.target !== e.currentTarget) {
+            if (["ArrowLeft", "ArrowRight"].includes(e.key)) scheduleReveal(e.target as Element);
+            return;
+          }
           if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
             e.preventDefault();
-            scroll(e.key === "ArrowRight" ? 1 : -1);
+            scroll((e.key === "ArrowRight" ? 1 : -1) * (e.currentTarget.ownerDocument.defaultView?.getComputedStyle(e.currentTarget).direction === "rtl" ? -1 : 1));
           }
         }}
       >

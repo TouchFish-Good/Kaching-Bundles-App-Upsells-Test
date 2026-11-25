@@ -85,7 +85,11 @@ const safeColor = (value: string, fallback: string) => /^#[0-9a-fA-F]{6}([0-9a-f
 export function StorefrontWidget({ device, accent, locale, config, notify, tiers, compact = false, translations = {}, campaignConfig, previewOnly = false, previewCartOutcome, campaignProduct, previewPricing, previewMarketId, previewMessages, onPreviewPriceDemand, onRetryPreviewPrices, gifts, bundles, offerPreview }: WidgetProps) {
   const tierChoicesRef = useRef<HTMLFieldSetElement>(null);
   const copy = (key: StorefrontCopyKey, variables?: Record<string, string | number>) => renderStorefrontCopy(key, translations, variables);
-  const activeTiers = tiers?.length ? tiers : defaultTiers;
+  const activeTiers = useMemo(() => {
+    const source = tiers?.length ? tiers : defaultTiers;
+    const excluded = [gifts, bundles].some(module => module?.enabled && module.items.some(rule => rule.productId === campaignProduct?.id));
+    return excluded ? source.map(tier => ({ ...tier, discountType: 'none' as const, discountValue: 0, discountPercent: 0, marketOverrides: undefined })) : source;
+  }, [tiers, gifts, bundles, campaignProduct?.id]);
   const catalog = useMemo<Variant[]>(() => {
     if (!campaignProduct) return variants;
     const productVariants = Array.isArray(campaignProduct.variants) ? campaignProduct.variants : [];

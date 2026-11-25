@@ -1,6 +1,6 @@
 # Component Inventory
 
-**用户最新交互裁定（Task7已本地验证，取代此前冲突展示约定）：** 捆绑每规则固定1件，新旧配置统一为 `quantity=1`，商家和买家均无捆绑数量选择器，每规则只提供一个款式槽位；赠品配置数量仍可设置。每个合格主Product为捆绑规则贡献1件额度的既有独立额度池语义保持。赠品卡片不显示 Included/已包含/随单加入等重复状态文案；捆绑选择与取消使用原生 `input type="checkbox"`，保留单选/多选配置及锁卡点击解锁并选择。此裁定已在Task7完成本地实现与验证：共享规范化、SQLite/D1读写、公开与Function投影、Go执行、React和两代主题一致；实际本地截图与测试见 `docs/local/gifts-bundles-task7/`。最终独立审阅及真实平台验收仍未完成。
+**用户最新交互裁定（Task7已本地验证，取代此前冲突展示约定）：** 捆绑每规则固定1件，新旧配置统一为 `quantity=1`，商家和买家均无捆绑数量选择器，每规则只提供一个款式槽位；赠品配置数量仍可设置。每个合格主Product为捆绑规则贡献1件额度的既有独立额度池语义保持。赠品卡片不显示 Included/已包含/随单加入等重复状态文案；捆绑选择与取消使用原生 `input type="checkbox"`，保留单选/多选配置及锁卡点击解锁并选择。此裁定已在Task7完成本地实现与验证：共享规范化、SQLite/D1读写、公开与Function投影、Go执行、React和两代主题一致；实际本地截图与测试见 `docs/local/gifts-bundles-task7/`。全分支独立审阅已完成；整合修复的一次定向复审及真实平台验收仍未完成。
 
 ## 测试环境双模块组件（2026-11-25，本地已实现）
 
@@ -71,3 +71,8 @@ Variant 选择进一步依赖 `ProductVariantCatalog`：它提供 `options`、`v
 `CampaignOverlapGuard` 只能对本应用持久化的活动做确定性阻止；它不能凭空检测未授权的第三方优惠规则。`CurrencyAndCombinationPolicy` 必须把平台能力状态传入 UI：市场金额未开通时禁用配置；`presentmentFixedAmount` 时所有叠加控件均为只读关闭；店铺币种模式下可将 Order / shipping 选择映射至已确认的 Function 自动折扣叠加配置。
 
 翻译数据应以活动默认语言和 `WidgetTranslation[locale]` 分离存储，而不是复制整份活动配置。`WidgetTranslation` 只包含可见文案；价格、Product/Variant 数据和 Function 规则保持语言无关。`LocalePreviewSelector` 使用确定性的 locale 解析器，返回 `requestedLocale`、`resolvedLocale`、`fallbackSource`，使预览和 storefront 的回退语义一致。
+
+
+## 最终独立审阅整合修复（2026-11-26）
+
+本地补齐已确认行为：设置/样式页签；捆绑固定减免/固定价的既有认证市场金额配置及精确金额草稿校验；公共V1/V2跨已发布有效活动统一排除启用附件Product，React/主题主档位价格与Go保持原价；仅Product/Variant和市场上下文变化请求附件价格；轮播真实边界禁用、原生嵌套控件键盘安全、焦点可见与RTL/手动浏览。捆绑固定1件/原生checkbox、赠品数量/自动累计及一次POST/不确定事务规则保持。详见 [交付审计](audits/2026-11-25-gifts-bundles-local-integration.md) 与最终修复截图。全分支审阅已完成并提出上述修复；一次定向复审及真实平台验收仍待完成，不代表整应用完成。

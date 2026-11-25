@@ -847,8 +847,8 @@ test("offer picker retains paged choices and merchants edit real variant whiteli
     );
     await click(variant);
     assert.deepEqual(current.items[0].allowedVariantIds, ["al"]);
-    const style = document.querySelector("[data-offer-panel] details");
-    style.open = true;
+    await click([...document.querySelectorAll('[role="tab"]')].find(button => button.textContent === "Style"));
+    const style = document.querySelector('[data-offer-panel] [role="tabpanel"]');
     await click(
       [...style.querySelectorAll("button")].find(
         (b) => b.textContent === "Mobile",
@@ -1133,4 +1133,63 @@ test('rechecking a previously chosen locked bundle unlocks and retains that expl
  const input=()=>document.querySelector('[data-rule-id="a"] input[type="checkbox"]');await click(input());assert.equal(input().checked,true);
  await click([...document.querySelectorAll('button')].find(b=>b.textContent.includes('Two')));assert.equal(input().checked,false);
  await click(input());assert.equal(input().checked,true);
+}));
+
+
+test('visual and disabled draft edits preserve canonical enabled price demand',()=>harness(async({vite,render})=>{
+ const {useOfferPreview}=await vite.ssrLoadModule('/src/prototype/offer-preview-client.ts');let calls=0,state;
+ function Probe(p){state=useOfferPreview(p.gifts,p.bundles,p.context,p.fetcher);return null;}
+ const fetcher=async(_,opts)=>{calls++;return json({version:2,...JSON.parse(opts.body),products});};
+ const gifts=moduleFor('gifts',[rule('a'),rule('b')]),bundles={...moduleFor('bundles',[rule('c')]),enabled:false};
+ const props={gifts,bundles,context:{marketId:'primary',currencyCode:'USD',countryCode:'US',locale:'en'},fetcher};
+ await render(Probe,props);await settle();assert.equal(calls,1);
+ const styled=structuredClone(gifts);styled.style.desktop.layout.columns=3;styled.items[0].label='Visual only';styled.items.reverse();styled.items[0].allowedVariantIds.reverse();
+ await render(Probe,{...props,gifts:styled,bundles:{...bundles,items:[]}});await settle();assert.equal(calls,1,'visual/reorder/disabled drafts must reuse prices');assert.equal(state.state,'ready');
+ await render(Probe,{...props,context:{...props.context,countryCode:'CA'}});await settle();assert.equal(calls,2);
+ await render(Probe,{...props,gifts:moduleFor('gifts',[rule('c')])});await settle();assert.equal(calls,3);
+}));
+
+test('accessory Product has full main tier prices in React preview',()=>harness(async({vite,render})=>{
+ const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');
+ const props={...base,tiers:base.tiers.map(t=>({...t,discountPercent:50})),campaignProduct:{...pickerProducts()[0],variants:pickerProducts()[0].variants.map(v=>({...v,price:10}))},gifts:moduleFor('gifts',[rule('a')]),offerPreview:{state:'ready',products}};
+ await render(StorefrontWidget,props);assert.match(document.querySelector('[data-offer-summary]').textContent,/\$40\.00/);assert.doesNotMatch(document.querySelector('[data-offer-summary]').textContent,/\$20\.00/);
+}));
+
+test('bundle market amounts reuse authenticated markets and Settings Style tabs',()=>harness(async({vite,render,click,change})=>{
+ const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');let current=moduleFor('bundles',[{...rule('a'),discountType:'fixed_amount',discountValue:100}]),draftError='';
+ const market={id:'jp',name:'Japan',enabled:true,currencyCode:'JPY',regionCurrencyCodes:['JPY'],specifiedAmountSupported:true};
+ const mixed={...market,id:'mixed',name:'Mixed',currencyCode:null,regionCurrencyCodes:['USD','CAD'],specifiedAmountSupported:false};
+ function Form(){const [value,setValue]=React.useState(current);current=value;return React.createElement(OfferModulePanel,{kind:'bundles',value,onChange:setValue,tiers:base.tiers,locale:'en',currencyCode:'USD',fetcher,markets:{state:'ready',data:{shopCurrencyCode:'USD',markets:[market,mixed]}},onRetryMarkets:()=>{},onDraftError:e=>{draftError=e;}});}
+ const fetcher=async()=>json({products:pickerProducts(),missingIds:[]});await render(Form,{});await click(document.querySelector('[aria-expanded]'));await settle();
+ assert.equal(document.querySelectorAll('[role="tab"]').length,2);assert.equal(document.querySelector('[role="tab"][aria-selected="true"]').textContent,'Settings');
+ const mode=document.querySelector('[data-offer-market="jp"] select');assert.ok(mode,'merchant market mode is available');assert.equal(document.querySelector('[data-offer-market="mixed"] select').disabled,true);
+ await change(mode,'specified_amount');const amount=document.querySelector('[data-offer-market="jp"] input');await change(amount,'123');assert.deepEqual(current.items[0].marketOverrides.jp,{mode:'specified_amount',currencyCode:'JPY',amountMinor:123});
+ await change(amount,'123.5');assert.ok(draftError);assert.equal(current.items[0].marketOverrides.jp.amountMinor,123);
+ await change(amount,'9007199254740992');assert.ok(draftError);await change(amount,'200');assert.equal(draftError,'');
+ await click([...document.querySelectorAll('[role="tab"]')].find(e=>e.textContent==='Style'));assert.equal(document.querySelector('[data-offer-market]'),null);assert.ok(document.querySelector('[role="tabpanel"] label'));
+ await click([...document.querySelectorAll('[role="tab"]')].find(e=>e.textContent==='Settings'));assert.equal(document.querySelector('[data-offer-market="jp"] input').value,'200');
+ const discount=[...document.querySelectorAll('label')].find(l=>l.firstChild?.textContent==='Discount').querySelector('select');await change(discount,'fixed_price');assert.equal(current.items[0].marketOverrides,undefined);
+}));
+
+test('React carousel buttons follow actual scroll boundaries and nested keys remain native',()=>harness(async({vite,render})=>{
+ const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');const bundles=moduleFor('bundles',[rule('a'),rule('b'),rule('c')]);bundles.style.desktop.layout.mode='carousel';
+ await render(StorefrontWidget,{...base,bundles,offerPreview:{state:'ready',products}});const track=document.querySelector('[data-offer-kind="bundles"] [role="region"]');
+ Object.defineProperties(track,{clientWidth:{value:300},scrollWidth:{value:900},scrollLeft:{value:0,writable:true}});await act(()=>track.dispatchEvent(new window.Event('scroll',{bubbles:true})));
+ const buttons=document.querySelectorAll('[data-offer-kind="bundles"] button');assert.equal(buttons[0].disabled,true);assert.equal(buttons[1].disabled,false);
+ track.scrollLeft=600;await act(()=>track.dispatchEvent(new window.Event('scroll',{bubbles:true})));assert.equal(buttons[0].disabled,false);assert.equal(buttons[1].disabled,true);
+ const select=track.querySelector('select'),e=new window.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true});select.dispatchEvent(e);assert.equal(e.defaultPrevented,false);
+}));
+
+test('market draft errors stay isolated and removed rules clear only owned errors',()=>harness(async({vite,render,click,change})=>{
+ const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');let current=moduleFor('bundles',['a','b'].map(id=>({...rule(id),discountType:'fixed_price',discountValue:100}))),error='';
+ const markets={state:'ready',data:{shopCurrencyCode:'USD',markets:['jp','ca'].map(id=>({id,name:id,enabled:true,currencyCode:id==='jp'?'JPY':'CAD',regionCurrencyCodes:[],specifiedAmountSupported:true}))}};
+ const fetcher=async()=>json({products:pickerProducts(),missingIds:[]});function Form(){const [value,setValue]=React.useState(current);current=value;return React.createElement(OfferModulePanel,{kind:'bundles',value,onChange:setValue,tiers:base.tiers,locale:'en',fetcher,currencyCode:'USD',markets,onDraftError:e=>error=e});}
+ await render(Form,{});await click(document.querySelector('[aria-expanded]'));await settle();
+ const rules=()=>[...document.querySelectorAll('[data-offer-panel] fieldset')].filter(el=>el.querySelector('[data-offer-market]'));
+ const mode=(i,id)=>rules()[i].querySelector(`[data-offer-market="${id}"] select`),amount=(i,id)=>rules()[i].querySelector(`[data-offer-market="${id}"] input`);
+ await change(mode(0,'jp'),'specified_amount');await change(amount(0,'jp'),'1.1');await change(mode(0,'ca'),'specified_amount');await change(amount(0,'ca'),'2.25');assert.ok(error,'valid CA cannot clear invalid JP');
+ await change(mode(1,'jp'),'specified_amount');await change(amount(1,'jp'),'3.5');
+ await click(rules()[0].querySelector('button'));assert.equal(current.items.length,1);assert.ok(error,'removing A retains B market error');
+ await change(amount(0,'jp'),'300');assert.equal(error,'');assert.equal(current.items[0].marketOverrides.jp.amountMinor,300);
+ await change(mode(0,'ca'),'specified_amount');assert.ok(error,'empty specified draft blocks saving');await change(mode(0,'ca'),'auto_convert');assert.equal(error,'');
 }));

@@ -108,7 +108,15 @@ export function useOfferPreview(
   const demand = [gifts, bundles]
     .filter((m) => m?.enabled)
     .flatMap((m) => m!.items);
-  const key = demand.length ? JSON.stringify([gifts, bundles, context]) : "";
+  const requested = new Map<string, Set<string>>();
+  for (const rule of demand) {
+    const ids = requested.get(rule.productId) ?? new Set<string>();
+    rule.allowedVariantIds.forEach(id => ids.add(id));
+    requested.set(rule.productId, ids);
+  }
+  const selectionsKey = [...requested].sort(([a], [b]) => a.localeCompare(b))
+    .map(([productId, ids]) => [productId, [...ids].sort()] as const);
+  const key = demand.length ? JSON.stringify([selectionsKey, context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]) : "";
   const sequence = useRef(0);
   const retryUntil = useRef(0);
   const [result, setResult] = useState<{
@@ -121,11 +129,7 @@ export function useOfferPreview(
     const revision = `draft-${++sequence.current}`;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const items = new Map<string, Set<string>>();
-    for (const rule of demand) {
-      const ids = items.get(rule.productId) ?? new Set<string>();
-      rule.allowedVariantIds.forEach((id) => ids.add(id));
-      items.set(rule.productId, ids);
-    }
+    for (const [productId, ids] of selectionsKey) items.set(productId, new Set(ids));
     const selections = [...items].flatMap(([productId, ids]) => {
       const all = [...ids];
       return Array.from({ length: Math.ceil(all.length / 100) }, (_, i) => ({

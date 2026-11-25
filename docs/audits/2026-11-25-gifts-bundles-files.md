@@ -1,8 +1,8 @@
 # 测试分支完整文件清单
 
-基准 `4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7`；截至Task7本地实现和定向验证，最终独立审阅由控制器继续。Git目标 `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。
+基准 `4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7`；截至2026-11-26最终审阅整合修复，本地验证完成，一次定向复审与真实平台验收待执行。Git目标 `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。
 
-共238条：新增121、修改117、删除0。包含Tasks1–7已提交及本轮审阅文件；不含ignored报告/QA临时文件、凭据或依赖。
+共254条：新增137、修改117、删除0。包含Tasks1–7和本轮修复、文档与14PNG/JSON/README；不含ignored报告/QA临时文件、凭据或依赖。
 
 | 变更 | 仓库内完整路径 |
 | --- | --- |
@@ -19,6 +19,22 @@
 | A | `docs/audits/2026-11-25-gifts-bundles-files.md` |
 | A | `docs/audits/2026-11-25-gifts-bundles-local-integration.md` |
 | A | `docs/audits/2026-11-25-gifts-bundles-verification.json` |
+| A | `docs/local/gifts-bundles-final-fix/README.md` |
+| A | `docs/local/gifts-bundles-final-fix/browser-evidence.json` |
+| A | `docs/local/gifts-bundles-final-fix/merchant-market-1440.png` |
+| A | `docs/local/gifts-bundles-final-fix/merchant-market-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/merchant-settings-1440.png` |
+| A | `docs/local/gifts-bundles-final-fix/merchant-settings-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/merchant-style-1440.png` |
+| A | `docs/local/gifts-bundles-final-fix/merchant-style-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/react-carousel-1440.png` |
+| A | `docs/local/gifts-bundles-final-fix/react-carousel-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/react-rtl-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/theme-rtl-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/theme2.1-carousel-1440.png` |
+| A | `docs/local/gifts-bundles-final-fix/theme2.1-carousel-390.png` |
+| A | `docs/local/gifts-bundles-final-fix/theme3-carousel-1440.png` |
+| A | `docs/local/gifts-bundles-final-fix/theme3-carousel-390.png` |
 | A | `docs/local/gifts-bundles-task4/README.md` |
 | A | `docs/local/gifts-bundles-task4/after-1440-expanded.png` |
 | A | `docs/local/gifts-bundles-task4/after-1440-offers.png` |

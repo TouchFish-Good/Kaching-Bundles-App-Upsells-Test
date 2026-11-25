@@ -1,5 +1,5 @@
 {
-  "status": "Tasks1–7 complete locally with disclosed baseline concerns; root task review and final independent branch review pending",
+  "status": "Tasks1–7 and consolidated final-review fixes locally verified; one scoped re-review and external platform acceptance pending",
   "base": "4f5cc26bf89c83f4e3fd42105cebdf93a65d8fb7",
   "task6_base": "fe25e31a1cf274d8ed1891096eb01f037bd86def",
   "remote": "https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git",
@@ -140,7 +140,15 @@
     "follow user native all_products approach; replace provisional Storefront credential/transport dependency with test-only published shop-metafield handle index and theme-native availability/prices — official docs confirm native fields; cost is an extra idempotent publication synchronization step and OS2.1 20-handle preload boundary. Exact implementation handoff theme-catalog-ruling.md. Original business rules unchanged; no remote writes authorized.",
     "native SSR preloads scope-relevant candidates without guessing undocumented current-clock API; Worker/public response alone selects active schedule/priority — official date docs lacked server-now support, so highest-only SSR would suppress valid scheduled overlaps; cost is extra native lookups and potential OS2.1 shared20-handle exhaustion, handled unavailable with main usable. Exact follow-up appended native ruling/Task5 brief.",
     "interpret fixed-one bundles as one unit per rule/add, retaining earlier explicitly confirmed per-distinct-main-Product pooled quota (each contributes1) — separates new config/UI quantity instruction from cart quota examples; cost if wrong is revising quota across core/Function and checkout vectors.",
-    "Controller-authorized QA-artifact exception: refresh only source/shared/tests in established secret-free ASCII mirror for focused Worker tests because direct Unicode workerd cannot load node:vm; no .env/.dev.vars/real TOMLs/dependency installation or symlinks; production and identity resources remain protected."
+    "Task7 may refresh changed non-secret source/shared/tests in the existing synthetic ASCII QA mirror for focused Worker tests, as already used Tasks1/3 — workerd cannot start from Unicode checkout path; no production or credential/config identity writes — cost if wrong is temporary QA artifact drift outside checkout; record mirror/startup evidence and keep secrets out.",
+    "defer real native metafield permission/visibility/template/all_products acceptance until authorized merchant execution — local synthetic rendering cannot establish platform behavior — cost if wrong is later deployment/render integration rework, capability fails closed.",
+    "keep Function sku-to-variant and line-total/WASM capability unverified and default-off — no actual platform input/output evidence exists — cost is new offer publication remains unavailable until verified.",
+    "defer actual cart property echo/splitting/market charging/checkout acceptance to authorized real test — synthetic responses are insufficient — cost if wrong is real commerce integration defects remaining to discover before enabling.",
+    "retain unavailable non-primary Admin draft pricing instead of inventing market prices — trusted contextual source is not verified — cost is limited market preview even though override configuration is supported.",
+    "assess available header reference and actual local screenshots without claiming unseen full-card fidelity — only header reference was supplied — cost if wrong is visual rework after a fuller reference is provided.",
+    "retain disclosed prefeature frontend/Go overlap/theme-gap/Express failures outside this feature fixwave — evidence does not establish introduced defects and Express baseline proof is partial — cost is existing test debt remains, never claim full suite green.",
+    "retain same-Product accessory exclusion and OS2.1 shared20handle handling — already accepted anti-cycle/native platform constraints — cost is unsupported same-Product promotions and unavailable extras when handle capacity is exhausted.",
+    "preserve documented per-block in-memory uncertain transaction scope across render/remount, without adding full-navigation persistence — full navigation durability was not accepted scope and real echo semantics remain unverified — cost is manual reload/retry may require further duplicate-prevention work after platform testing."
   ],
   "task6_owned_paths": [
     "docs/APP_PROGRESS.md",
@@ -214,6 +222,70 @@
     {
       "status": "A",
       "path": "docs/audits/2026-11-25-gifts-bundles-verification.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/README.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/browser-evidence.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/merchant-market-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/merchant-market-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/merchant-settings-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/merchant-settings-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/merchant-style-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/merchant-style-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/react-carousel-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/react-carousel-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/react-rtl-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/theme-rtl-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/theme2.1-carousel-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/theme2.1-carousel-390.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/theme3-carousel-1440.png"
+    },
+    {
+      "status": "A",
+      "path": "docs/local/gifts-bundles-final-fix/theme3-carousel-390.png"
     },
     {
       "status": "A",
@@ -1119,7 +1191,7 @@
   "scope_limits": [
     "No merchant native rendering, metafield writes or platform cart/checkout executed.",
     "No push, deploy, extension publication or extra Storefront token.",
-    "Task7 latest fixed-one/checkbox/gift-copy requirements pending."
+    "Task7 fixed-one/checkbox/gift-copy implemented and locally verified; final-fix scoped re-review and actual SHOPLINE acceptance remain pending."
   ],
   "task7_base": "174ef368a40e8a6937ab93c50f8acca43dc8a1e4",
   "task7": {
@@ -1238,5 +1310,150 @@
     "original_8_rulings_preserved": true,
     "task7_paths": 57,
     "branch_paths": 238
+  },
+  "final_fix": {
+    "date": "2026-11-26 Asia/Shanghai",
+    "base": "a657ddc7617e6daca99612da71a7ddc5cf0bec65",
+    "review": "4 Important + 3 Minor addressed locally; scoped re-review pending",
+    "react": "30/30 + final carousel1/1",
+    "worker": "26/26 existing secret-free ASCII mirror",
+    "cross_layer": "6/6 actual Go codec",
+    "theme": "59/59",
+    "build_types": "Web build and Web/Worker typecheck pass",
+    "screenshots": "docs/local/gifts-bundles-final-fix",
+    "rulings_count": 17,
+    "platform_limits": "unchanged; no merchant/native compilation/WASM/cart/checkout acceptance",
+    "warnings": "existing SQLite experimental, Vite WebSocket and chunk-size warnings retained",
+    "owned_paths": [
+      "docs/APP_PROGRESS.md",
+      "docs/COMPONENTS.md",
+      "docs/DESIGN_SPEC.md",
+      "docs/REQUIREMENTS.md",
+      "docs/USER_FLOWS.md",
+      "docs/audits/2026-11-25-gifts-bundles-files.md",
+      "docs/audits/2026-11-25-gifts-bundles-local-integration.md",
+      "docs/audits/2026-11-25-gifts-bundles-verification.json",
+      "docs/local/gifts-bundles-final-fix/README.md",
+      "docs/local/gifts-bundles-final-fix/browser-evidence.json",
+      "docs/local/gifts-bundles-final-fix/merchant-market-1440.png",
+      "docs/local/gifts-bundles-final-fix/merchant-market-390.png",
+      "docs/local/gifts-bundles-final-fix/merchant-settings-1440.png",
+      "docs/local/gifts-bundles-final-fix/merchant-settings-390.png",
+      "docs/local/gifts-bundles-final-fix/merchant-style-1440.png",
+      "docs/local/gifts-bundles-final-fix/merchant-style-390.png",
+      "docs/local/gifts-bundles-final-fix/react-carousel-1440.png",
+      "docs/local/gifts-bundles-final-fix/react-carousel-390.png",
+      "docs/local/gifts-bundles-final-fix/react-rtl-390.png",
+      "docs/local/gifts-bundles-final-fix/theme-rtl-390.png",
+      "docs/local/gifts-bundles-final-fix/theme2.1-carousel-1440.png",
+      "docs/local/gifts-bundles-final-fix/theme2.1-carousel-390.png",
+      "docs/local/gifts-bundles-final-fix/theme3-carousel-1440.png",
+      "docs/local/gifts-bundles-final-fix/theme3-carousel-390.png",
+      "docs/superpowers/plans/2026-11-25-test-gifts-bundles-implementation.md",
+      "docs/superpowers/specs/2026-11-25-test-gifts-bundles-design.md",
+      "scripts/theme-offer-runtime.js",
+      "tests/offer-modules/cross-layer.test.mjs",
+      "tests/theme-app-extension/offers.test.mjs",
+      "theme-app-extension/compatibility/assets/app-block.js",
+      "theme-app-extension/public/app-block.js",
+      "web/src/prototype/CampaignEditor.tsx",
+      "web/src/prototype/OfferModulePanel.tsx",
+      "web/src/prototype/OfferPreview.tsx",
+      "web/src/prototype/StorefrontWidget.tsx",
+      "web/src/prototype/offer-preview-client.ts",
+      "web/src/prototype/offers.module.css",
+      "web/test/offer-editor.test.mjs",
+      "worker/src/routes/storefront.ts",
+      "worker/test/offer-storefront.test.ts"
+    ],
+    "browser": "10 scenarios: merchant2 + carousel6 + RTL2, all pass; native keys, focus, boundaries and manual scroll",
+    "manual_scroll_policy": "Keyboard-settled reveal is canceled on pointer/touch/wheel; no reveal on each scroll.",
+    "logs": [
+      {
+        "log": "final-fix-ui-final.log",
+        "command": "cwd web: Node22 --test test/offer-editor.test.mjs",
+        "summary": "30/30 pass",
+        "sha256": "a0b27235ddeb30582088ec4480f18310be4b2c24b8b208e0d02eab82cb79ed2a"
+      },
+      {
+        "log": "final-fix-ui-carousel-last.log",
+        "command": "cwd web: Node22 --test --test-name-pattern=React\\ carousel test/offer-editor.test.mjs",
+        "summary": "1/1 pass after final reveal timer",
+        "sha256": "ffacde94f04fd5a778fe0b53a8b6509447d1cfa6fdc30d49af5f05bd59488f15"
+      },
+      {
+        "log": "final-fix-worker-final.log",
+        "command": "cwd existing ASCII mirror/worker: Node22 node_modules/vitest/vitest.mjs run test/offer-storefront.test.ts test/offer-publication.test.ts",
+        "summary": "2 files26/26 pass",
+        "sha256": "0dee7f2722b64f769e13ae3726da4e105576e033a00fea995e03725ac33f7221"
+      },
+      {
+        "log": "final-fix-cross-green.log",
+        "command": "PATH=Go+Node22 node --test tests/offer-modules/cross-layer.test.mjs",
+        "summary": "6/6 pass real codec",
+        "sha256": "5ef954a7a3f34b1f5d26c04b52c50b29167c1ce59f8b3913d026a0ad9b9cfed5"
+      },
+      {
+        "log": "final-fix-theme-final.log",
+        "command": "Node22 --test tests/theme-app-extension/offers.test.mjs tests/theme-app-extension/cart-refresh.test.mjs tests/theme-app-extension/os3-cart-refresh.test.mjs tests/theme-app-extension/os21.test.mjs",
+        "summary": "59/59 pass",
+        "sha256": "6d5b9a7775c162488cc4a142ea5042948a35e8cf2df356c61b944f53c866df52"
+      },
+      {
+        "log": "final-fix-theme-last.log",
+        "command": "Node22 --test --test-name-pattern=accessory\\ Product\\ main\\ quote|theme\\ carousel\\ nested tests/theme-app-extension/offers.test.mjs",
+        "summary": "2/2 pass after final reveal timer",
+        "sha256": "5a94551427029d6783407e00f26861aa4fd15d3bfcb1741e3f8a8fe9a6035626"
+      },
+      {
+        "log": "final-fix-browser-final-pass.log",
+        "command": "Node22 .superpowers/sdd/2026-11-25-test-gifts-bundles-implementation/final-fix-browser-qa.mjs",
+        "summary": "10 scenarios pass",
+        "sha256": "d834e5e184d9912e9914c9da1e1df8071a8a583626310583f89221377b058a92"
+      },
+      {
+        "log": "final-fix-web-build-final.log",
+        "command": "cwd web: PATH=Node22 npm run build",
+        "summary": "exit0; existing chunk-size warning",
+        "sha256": "60cd6179af719bef2df75897ce31b8d6784c50245a06a7c1daa06c68cfb41bac"
+      },
+      {
+        "log": "final-fix-web-types-final.log",
+        "command": "cwd web: PATH=Node22 npx tsc --noEmit",
+        "summary": "exit0",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "log": "final-fix-worker-types.log",
+        "command": "cwd worker: PATH=Node22 npm run typecheck",
+        "summary": "exit0",
+        "sha256": "a2da9fa8cc48b2c912bb7ea3515c1282f0049e8e7e3173845549ff0f8fbdf04a"
+      }
+    ],
+    "protection": {
+      "high_confidence_added_line_secret_hits": 0,
+      "protected_config_identity_paths": [],
+      "focus_css_paths": [],
+      "all_17_rulings_exact": true,
+      "new_files_reviewed": [
+        "docs/local/gifts-bundles-final-fix/README.md",
+        "docs/local/gifts-bundles-final-fix/browser-evidence.json",
+        "docs/local/gifts-bundles-final-fix/merchant-market-1440.png",
+        "docs/local/gifts-bundles-final-fix/merchant-market-390.png",
+        "docs/local/gifts-bundles-final-fix/merchant-settings-1440.png",
+        "docs/local/gifts-bundles-final-fix/merchant-settings-390.png",
+        "docs/local/gifts-bundles-final-fix/merchant-style-1440.png",
+        "docs/local/gifts-bundles-final-fix/merchant-style-390.png",
+        "docs/local/gifts-bundles-final-fix/react-carousel-1440.png",
+        "docs/local/gifts-bundles-final-fix/react-carousel-390.png",
+        "docs/local/gifts-bundles-final-fix/react-rtl-390.png",
+        "docs/local/gifts-bundles-final-fix/theme-rtl-390.png",
+        "docs/local/gifts-bundles-final-fix/theme2.1-carousel-1440.png",
+        "docs/local/gifts-bundles-final-fix/theme2.1-carousel-390.png",
+        "docs/local/gifts-bundles-final-fix/theme3-carousel-1440.png",
+        "docs/local/gifts-bundles-final-fix/theme3-carousel-390.png"
+      ],
+      "deletions": []
+    }
   }
 }

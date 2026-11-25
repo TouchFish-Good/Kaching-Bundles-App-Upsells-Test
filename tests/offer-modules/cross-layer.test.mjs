@@ -17,7 +17,7 @@ before(async () => {
 });
 after(async () => { await vite?.close(); });
 
-async function savedShop({ disabled = false } = {}) {
+async function savedShop({ disabled = false, mutate } = {}) {
   const [{ applyMigrations }, { D1CampaignRepository }, { D1SessionStore }, { D1SubscriptionRepository }, { D1TranslationRepository }, { default: worker }, { buildDiscountRule }] = modules;
   const database = sqliteD1();
   await applyMigrations(database);
@@ -30,6 +30,7 @@ async function savedShop({ disabled = false } = {}) {
   fixture.bundles.items.forEach(rule => { rule.quantity = 3; });
   const campaign = { id: fixture.id, name: 'Local integration', status: 'draft', startsAt: '2020-01-01T00:00:00Z', scope: { kind: 'products', productIds: ['main', 'main-2'], excludedProductIds: [] }, tiers: fixture.tiers.map((tier, displayOrder) => ({ ...tier, displayOrder })), combinesWith: { orderDiscounts: false, productDiscounts: false, shippingDiscounts: false }, gifts: fixture.gifts, bundles: fixture.bundles };
   if (disabled) { campaign.gifts.enabled = false; campaign.bundles.enabled = false; }
+  mutate?.(campaign);
   const repository = new D1CampaignRepository(database);
   await repository.save(handle, campaign, 0);
   const stored = await database.prepare("SELECT campaign_json FROM quantity_breaks_campaigns WHERE shop_handle = ? AND id = ?").bind(handle, campaign.id).first();
@@ -43,10 +44,10 @@ async function savedShop({ disabled = false } = {}) {
   assert.ok(saved.bundles.items.every(rule => rule.quantity === 1), "save/read canonical bundle quantity");
   const translations = new D1TranslationRepository(database);
   const pending = [];
-  async function response(locale = 'en', negotiate = true) {
+  async function response(locale = 'en', negotiate = true, expectedStatus = 200) {
     const query = new URLSearchParams({ shop: handle, productId: 'main', locale, ...(negotiate ? { clientFeatures: 'gift-bundles-v1' } : {}) });
     const result = await worker.fetch(new Request(`https://local.invalid/public/quantity-breaks/campaign?${query}`), bindings, { waitUntil(promise) { pending.push(promise); } });
-    assert.equal(result.status, 200);
+    assert.equal(result.status, expectedStatus);
     await Promise.all(pending.splice(0));
     return result.json();
   }
@@ -165,4 +166,14 @@ test('both saved disabled modules and nonnegotiating clients preserve v1 and mai
       if (disabled) { assert.equal(local.rule.schemaVersion, 1); assert.equal(local.rule.gifts, undefined); }
     } finally { local.database.close(); }
   }
+});
+
+test('effective accessory exclusion agrees from public protocols through actual Go main price output',async()=>{
+ const local=await savedShop({mutate:c=>{c.gifts.items[0].productId='main';c.tiers.forEach(t=>{t.discountType='percentage';t.discountValue=50;});}});
+ try{
+ for(const negotiate of [false,true])await local.response('en',negotiate,404);
+ const batch=[{id:'v-main',quantity:4,properties:[]}];assert.deepEqual(evaluate(local.rule,batch),[],'Go charges full $40 main price for accessory Product');
+ const ordinary=structuredClone(local.rule);delete ordinary.gifts;delete ordinary.bundles;ordinary.schemaVersion=1;ordinary.scope.excludedProductIds=[];
+ assert.deepEqual(evaluate(ordinary,batch,request=>{request.discountNodes.push({priceRuleId:'accessory-other',metafields:[{namespace:'sale',key:'quantity_breaks',type:'json',value:JSON.stringify(local.rule)}]});return request;}),[],'cross-campaign accessory node also prevents legacy main discounts');
+ }finally{local.database.close();}
 });

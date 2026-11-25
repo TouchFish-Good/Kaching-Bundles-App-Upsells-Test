@@ -143,7 +143,8 @@
   padding: 6px 10px;
   cursor: pointer;
 }
-.device button[aria-pressed="true"] {
+.device button[aria-pressed="true"],
+.device button[aria-selected="true"] {
   background: #171717;
   color: #fff;
 }
@@ -323,3 +324,18 @@
 .receipt strong {
   flex-shrink: 0;
 }
+
+.marketAmounts {
+  grid-column: 1 / -1;
+  min-width: 0;
+  border-top: 1px solid var(--border, #dedede);
+  padding-top: 12px;
+}
+.marketRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+  min-width: 0;
+}
+.marketRow span, .marketRow small { overflow-wrap: anywhere; }

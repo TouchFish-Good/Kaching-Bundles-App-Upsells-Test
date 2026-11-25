@@ -1246,3 +1246,8 @@ Admin REST 服务请求统一改为 `v20260901`，保留原有 SDK OAuth、offli
 - 新核心/旧配置/整链/主题覆盖88/88、React25/25、Worker受影响6文件102/102、Go所有TestV2通过；Express受影响2文件9/10，既有`campaign repository preserves independent widget styles and legacy rows`缺tierSavingsBadgeRadiusPx，在Task7基准174ef368重现。Web build/typecheck、Express build、Worker typecheck与canonical/theme drift通过。既有全套失败历史仍见审计，未宣称全绿。
 - 保留20张前后及展开商家规则桌面/移动截图与5份browser JSON（见docs/local/gifts-bundles-task7）。真实Chromium验证Space连续切换、标签/触摸取消、单选/多选、锁定/不可用、resize/remount和一次五行模拟POST。参考截图仍为既有Shopify管理面板header；无未见参考的完整店铺视觉等价宣称。
 - 所有接口/购物车为本地合成；正式环境只读，无推送、部署、发布或真实商家写入。最终任务审阅与整个分支独立审阅由控制器继续，整个应用/真实平台尚未验收。
+
+
+## 最终独立审阅整合修复（2026-11-26）
+
+本地补齐已确认行为：设置/样式页签；捆绑固定减免/固定价的既有认证市场金额配置及精确金额草稿校验；公共V1/V2跨已发布有效活动统一排除启用附件Product，React/主题主档位价格与Go保持原价；仅Product/Variant和市场上下文变化请求附件价格；轮播真实边界禁用、原生嵌套控件键盘安全、焦点可见与RTL/手动浏览。捆绑固定1件/原生checkbox、赠品数量/自动累计及一次POST/不确定事务规则保持。详见 [交付审计](audits/2026-11-25-gifts-bundles-local-integration.md) 与最终修复截图。全分支审阅已完成并提出上述修复；一次定向复审及真实平台验收仍待完成，不代表整应用完成。

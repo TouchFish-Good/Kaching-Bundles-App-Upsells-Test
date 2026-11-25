@@ -489,8 +489,8 @@ export function CampaignEditor({ campaign, campaigns, onCancel, onSave, notify, 
         <CampaignStyleEditor device={activeStyleDevice} value={activeStyle} onChange={changeActiveStyle} autoOpenColor={submitted ? invalidActiveColorKey : undefined} />
       </EditorPanel>
 
-      <OfferModulePanel kind="gifts" value={gifts} onChange={setGifts} tiers={tiers} locale={i18n.language ?? 'en'} fetcher={fetcher} currencyCode={shopCurrencyCode} onDraftError={setGiftDraftError} />
-      <OfferModulePanel kind="bundles" value={bundles} onChange={setBundles} tiers={tiers} locale={i18n.language ?? 'en'} fetcher={fetcher} currencyCode={shopCurrencyCode} onDraftError={setBundleDraftError} />
+      <OfferModulePanel kind="gifts" value={gifts} onChange={setGifts} tiers={tiers} locale={i18n.language ?? 'en'} fetcher={fetcher} currencyCode={shopCurrencyCode} markets={markets} onRetryMarkets={() => setMarketRefresh(count => count + 1)} onDraftError={setGiftDraftError} />
+      <OfferModulePanel kind="bundles" value={bundles} onChange={setBundles} tiers={tiers} locale={i18n.language ?? 'en'} fetcher={fetcher} currencyCode={shopCurrencyCode} markets={markets} onRetryMarkets={() => setMarketRefresh(count => count + 1)} onDraftError={setBundleDraftError} />
       {submitted && offerValidation && <p role="alert">{offerValidation}</p>}
       <DndContext sensors={[dragSensor]} collisionDetection={closestCenter} onDragEnd={handleTierDragEnd}><SortableContext items={tiers.map((tier) => tier.tierId)} strategy={verticalListSortingStrategy}><div className={styles.offerPanels}>{tiers.map((tier, index) => <SortableTierRow tier={tier} key={tier.tierId} label={tierDragText('reorderTier', tier)} hint={ct('reorderTierHint')} onKeyboardMove={(direction) => { const target = tiers[index + direction]; if (target) moveTier(tier.tierId, target.tierId); }}><div className={styles.tierPanelWithActions}><EditorPanel title={`${ct('offerBar')}#${index + 1}  ${tier.label || ct('untitledCampaign')}`} panelRef={(node) => { tierPanelRefs.current[index] = node; }}>
         <div className={styles.tierEditRow}>

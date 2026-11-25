@@ -11,6 +11,8 @@ import { Toggle } from "./ui";
 import { OfferStyleEditor } from "./OfferStyleEditor";
 import { offerText } from "./offer-messages";
 import { formatMoneyInput, parseMoney } from "./money";
+import { campaignText } from "./campaign-editor-messages";
+import type { MarketsResponse } from "./market-config";
 import styles from "./offers.module.css";
 type Props = {
   kind: OfferModuleKind;
@@ -21,6 +23,8 @@ type Props = {
   fetcher: typeof fetch;
   currencyCode: string;
   onDraftError: (value: string) => void;
+  markets?: { state: "loading" | "ready" | "error"; data?: MarketsResponse };
+  onRetryMarkets?: () => void;
 };
 export function OfferModulePanel({
   kind,
@@ -31,7 +35,10 @@ export function OfferModulePanel({
   fetcher,
   currencyCode,
   onDraftError,
+  markets,
+  onRetryMarkets,
 }: Props) {
+  const [tab, setTab] = useState<"settings" | "style">("settings");
   const [expanded, setExpanded] = useState(false);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [products, setProducts] = useState<Record<string, Product>>({});
@@ -44,6 +51,7 @@ export function OfferModulePanel({
   latest.current = value;
   const text = (key: Parameters<typeof offerText>[1]) => offerText(locale, key);
   const title = text(kind);
+  const ct = (key: Parameters<typeof campaignText>[1]) => campaignText(locale, key);
   const ids = [...new Set(value.items.map((r) => r.productId))];
   useEffect(() => {
     if (!expanded || !value.enabled || !ids.length) return;
@@ -93,7 +101,7 @@ export function OfferModulePanel({
     const retained = new Set(items.map((rule) => rule.ruleId));
     const retainDrafts = (drafts: Record<string, string>) =>
       Object.fromEntries(
-        Object.entries(drafts).filter(([id]) => retained.has(id)),
+        Object.entries(drafts).filter(([id]) => [...retained].some(ruleId => id === ruleId || id.startsWith(`${ruleId}:market:`))),
       );
     const nextErrors = retainDrafts(errors);
     setErrors(nextErrors);
@@ -144,6 +152,25 @@ export function OfferModulePanel({
     setErrors(next);
     onDraftError(Object.values(next)[0] ?? "");
   };
+  const clearDraft = (key: string, allMarkets = false) => {
+    const keep = ([id]: [string, string]) => id !== key && !(allMarkets && id.startsWith(`${key}:market:`));
+    setAmounts(current => Object.fromEntries(Object.entries(current).filter(keep)));
+    const next = Object.fromEntries(Object.entries(errors).filter(keep));
+    setErrors(next);
+    onDraftError(Object.values(next)[0] ?? "");
+  };
+  const marketAmount = (rule: OfferRule, marketId: string, currency: string, input: string) => {
+    const key = `${rule.ruleId}:market:${marketId}`;
+    setAmounts(current => ({ ...current, [key]: input }));
+    const next = { ...errors };
+    try {
+      const amountMinor = parseMoney(input, currency, ct("marketAmount"));
+      patch(rule.ruleId, { marketOverrides: { ...rule.marketOverrides, [marketId]: { mode: "specified_amount", currencyCode: currency, amountMinor } } });
+      delete next[key];
+    } catch { next[key] = text("invalid"); }
+    setErrors(next);
+    onDraftError(Object.values(next)[0] ?? "");
+  };
   return (
     <section className={styles.panel} data-offer-panel={kind}>
       <header className={styles.panelHeader}>
@@ -174,6 +201,16 @@ export function OfferModulePanel({
       </header>
       {value.enabled && expanded && (
         <div id={`offer-config-${kind}`} className={styles.panelBody}>
+          <div role="tablist" aria-label={title} className={styles.device}>
+            {(["settings", "style"] as const).map(name => <button key={name} type="button" role="tab" id={`offer-${kind}-${name}-tab`} aria-selected={tab === name} aria-controls={`offer-${kind}-${name}`} tabIndex={tab === name ? 0 : -1} onClick={() => setTab(name)} onKeyDown={event => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              const next = event.key === "Home" ? "settings" : event.key === "End" ? "style" : name === "settings" ? "style" : "settings";
+              setTab(next);
+              document.getElementById(`offer-${kind}-${next}-tab`)?.focus();
+            }}>{ct(name)}</button>)}
+          </div>
+          {tab === "settings" && <div role="tabpanel" id={`offer-${kind}-settings`} aria-labelledby={`offer-${kind}-settings-tab`}>
           {kind === "gifts" ? (
             <p>{text("allEligible")}</p>
           ) : (
@@ -278,11 +315,7 @@ export function OfferModulePanel({
                               discountValue: 0,
                               marketOverrides: undefined,
                             });
-                            setAmounts((a) => ({ ...a, [rule.ruleId]: "0" }));
-                            const next = { ...errors };
-                            delete next[rule.ruleId];
-                            setErrors(next);
-                            onDraftError(Object.values(next)[0] ?? "");
+                            clearDraft(rule.ruleId, true);
                           }}
                         >
                           {(
@@ -324,6 +357,35 @@ export function OfferModulePanel({
                       </label>
                     </>
                   )}
+                  {kind === "bundles" && rule.discountType !== "percentage" && <div className={styles.marketAmounts}>
+                    <strong>{ct("marketAmounts")}</strong><p>{ct("marketConversion")}</p>
+                    {(!markets || markets.state === "loading") && <p role="status">{ct("loadingMarkets")}</p>}
+                    {markets?.state === "error" && <p role="alert">{ct("marketUnavailable")} <button type="button" onClick={onRetryMarkets}>{text("retry")}</button></p>}
+                    {markets?.state === "ready" && !markets.data?.markets.length && <p>{ct("noMarkets")}</p>}
+                    {markets?.state === "ready" && markets.data?.markets.map(market => {
+                      const override = rule.marketOverrides?.[market.id] ?? { mode: "auto_convert" as const };
+                      const key = `${rule.ruleId}:market:${market.id}`;
+                      const supported = market.enabled && market.specifiedAmountSupported && !!market.currencyCode;
+                      return <div key={market.id} data-offer-market={market.id} className={styles.marketRow}>
+                        <strong>{market.name}</strong><span>{market.currencyCode ?? (market.regionCurrencyCodes.join(" / ") || ct("currencyUnavailable"))}{market.enabled ? "" : ` · ${ct("disabled")}`}</span>
+                        <label>{ct("amountMode")}<select value={override.mode} disabled={!supported} onChange={event => {
+                          if (event.target.value === "auto_convert") {
+                            patch(rule.ruleId, { marketOverrides: { ...rule.marketOverrides, [market.id]: { mode: "auto_convert" } } });
+                            clearDraft(key);
+                          } else {
+                            // Keep an empty draft visibly invalid until an exact amount is entered.
+                            patch(rule.ruleId, { marketOverrides: { ...rule.marketOverrides, [market.id]: { mode: "specified_amount", currencyCode: market.currencyCode!, amountMinor: 0 } } });
+                            setAmounts(current => ({ ...current, [key]: "" }));
+                            const next = { ...errors, [key]: text("invalid") };
+                            setErrors(next);
+                            onDraftError(Object.values(next)[0] ?? "");
+                          }
+                        }}><option value="auto_convert">{ct("autoConvert")}</option><option value="specified_amount">{ct("specifyAmount")}</option></select></label>
+                        {override.mode === "specified_amount" && market.currencyCode && <label>{ct("marketAmount")} ({market.currencyCode})<input type="text" inputMode="decimal" disabled={!supported} value={amounts[key] ?? (override.amountMinor === undefined ? "" : formatMoneyInput(override.amountMinor, market.currencyCode))} aria-invalid={!!errors[key]} onChange={event => marketAmount(rule, market.id, market.currencyCode!, event.target.value)} />{errors[key] && <span role="alert">{errors[key]}</span>}</label>}
+                        {!market.specifiedAmountSupported && <small>{ct("specifiedUnavailable")}</small>}
+                      </div>;
+                    })}
+                  </div>}
                   <label>
                     {text("condition")}
                     <select
@@ -470,8 +532,8 @@ export function OfferModulePanel({
               </fieldset>
             );
           })}
-          <details>
-            <summary>{text("style")}</summary>
+          </div>}
+          {tab === "style" && <div role="tabpanel" id={`offer-${kind}-style`} aria-labelledby={`offer-${kind}-style-tab`}>
             <div
               className={styles.device}
               role="group"
@@ -495,7 +557,7 @@ export function OfferModulePanel({
                 onChange({ ...value, style: { ...value.style, [device]: s } })
               }
             />
-          </details>
+          </div>}
         </div>
       )}
     </section>

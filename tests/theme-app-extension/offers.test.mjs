@@ -264,3 +264,15 @@ test('native fixed-one checkboxes include locked and disabled cards without dupl
  assert.doesNotMatch(h.block.querySelector('[data-offer-module="gifts"]').textContent,/Included/);
  const unavailable=setupOffers({markup:offerMarkup().replaceAll('data-available="true"','data-available="unknown"')});await unavailable.theme.mountBlock(unavailable.block);assert.equal(unavailable.block.querySelector('[data-offer-select]').disabled,true);
 });
+
+test('accessory Product main quote does not advertise any tier savings',async()=>{
+ const campaign=offerCampaign();campaign.gifts.items[0].productId='main';campaign.tiers.forEach(t=>{t.discountType='percentage';t.discountValue=5000;});const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+ assert.equal(h.block.querySelector('[data-bundle-total]').textContent,'$40.00');assert.equal(h.block.querySelector('[data-tier-id="t2"] .qb-tier-price').textContent,'$20.00');
+});
+test('theme carousel nested select arrows stay native and buttons track scroll boundaries',async()=>{
+ const campaign=offerCampaign();campaign.bundles.style.desktop.layout.mode='carousel';const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+ const section=h.block.querySelector('[data-offer-module="bundles"]'),grid=section.querySelector('.qb-offer-grid');
+ const select=grid.querySelector('select'),event=new h.window.Event('keydown',{bubbles:true,cancelable:true});Object.defineProperty(event,'key',{value:'ArrowRight'});select.dispatchEvent(event);assert.equal(event.defaultPrevented,false);
+ Object.defineProperties(grid,{clientWidth:{value:300},scrollWidth:{value:900},scrollLeft:{value:0,writable:true}});grid.dispatchEvent(new h.window.Event('scroll'));const buttons=section.querySelectorAll('.qb-offer-nav button');assert.equal(buttons[0].disabled,true);assert.equal(buttons[1].disabled,false);
+ grid.scrollLeft=600;grid.dispatchEvent(new h.window.Event('scroll'));assert.equal(buttons[0].disabled,false);assert.equal(buttons[1].disabled,true);
+});

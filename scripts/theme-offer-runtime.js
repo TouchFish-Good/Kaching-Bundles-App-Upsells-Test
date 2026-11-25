@@ -158,7 +158,10 @@
       return quote;
     }
     function render(quantity) {
-      const focusedRule=doc.activeElement?.matches?.('[data-offer-select]') && container.contains(doc.activeElement) ? doc.activeElement.closest('[data-offer-rule]')?.dataset.offerRule : null;
+      const focused=container.contains(doc.activeElement) ? doc.activeElement : null;
+      const focusedRule=focused?.closest?.('[data-offer-rule]')?.dataset.offerRule;
+      const focusedSlot=focused?.dataset?.offerSlot;
+      const scrollPositions=new Map(Array.from(container.querySelectorAll('[data-offer-module]'),section=>[section.dataset.offerModule,section.querySelector('.qb-offer-grid')?.scrollLeft || 0]));
       container.replaceChildren();
       const allCards=[];
       for (const {kind,module} of groups) {
@@ -242,16 +245,36 @@
           if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-offer-variant');select.dataset.offerSlot=String(i);select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
           grid.append(card);
         }
-        grid.tabIndex=0;grid.addEventListener('keydown',event=>{if(device.layout.mode==='carousel' && ['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();grid.scrollBy?.({left:(event.key==='ArrowRight'?1:-1)*Math.max(220,width),behavior:'smooth'});}});
-        if(device.layout.mode==='carousel'){const nav=element(doc,'div','qb-offer-nav');for(const [label,direction] of [[copy('widget.offer_previous','Previous'),-1],[copy('widget.offer_next','Next'),1]]){const b=element(doc,'button','',label);b.type='button';b.addEventListener('click',()=>grid.scrollBy?.({left:direction*Math.max(220,width),behavior:'smooth'}));nav.append(b);}section.append(nav);}
-        section.append(grid);container.append(section);allCards.push(...cards);
+        const carousel=device.layout.mode==='carousel';
+        const navButtons=[];
+        const rtl=()=>scope.getComputedStyle?.(grid).direction==='rtl';
+        const updateBounds=()=>{const position=rtl()?-grid.scrollLeft:grid.scrollLeft;navButtons.forEach((button,index)=>{button.disabled=index===0 ? !(position>1) : !(position+grid.clientWidth<grid.scrollWidth-1);});};
+        const reveal=target=>{
+          if(!carousel)return;
+          const card=target.closest?.('[data-offer-rule]');
+          if(!card || !grid.getBoundingClientRect || !card.getBoundingClientRect)return;
+          const a=card.getBoundingClientRect(),b=grid.getBoundingClientRect();
+          const left=a.left<b.left?a.left-b.left:a.right>b.right?a.right-b.right:0;
+          if(left)grid.scrollBy?.({left,behavior:'instant'});
+        };
+        if(carousel)grid.tabIndex=0;
+        let revealTimer;
+        const cancelReveal=()=>clearTimeout(revealTimer);
+        const scheduleReveal=target=>{cancelReveal();revealTimer=setTimeout(()=>{if(grid.isConnected && doc.activeElement===target)reveal(target);},350);};
+        grid.addEventListener('keydown',event=>{if(carousel && ['ArrowLeft','ArrowRight'].includes(event.key)){if(event.target===grid){event.preventDefault();grid.scrollBy?.({left:(event.key==='ArrowRight'?1:-1)*Math.max(220,grid.clientWidth || width),behavior:'smooth'});}else scheduleReveal(event.target);}});
+        grid.addEventListener('keyup',event=>{if(event.target!==grid && ['ArrowLeft','ArrowRight'].includes(event.key))scheduleReveal(event.target);});
+        for(const name of ['pointerdown','touchstart','wheel'])grid.addEventListener(name,cancelReveal,{passive:true});
+        grid.addEventListener('focusin',event=>reveal(event.target));
+        grid.addEventListener('scroll',updateBounds);
+        if(carousel){const nav=element(doc,'div','qb-offer-nav');for(const [label,direction] of [[copy('widget.offer_previous','Previous'),-1],[copy('widget.offer_next','Next'),1]]){const b=element(doc,'button','',label);b.type='button';b.disabled=true;b.addEventListener('click',()=>grid.scrollBy?.({left:direction*(rtl()?-1:1)*Math.max(220,grid.clientWidth || width),behavior:'smooth'}));nav.append(b);navButtons.push(b);}section.append(nav);}
+        section.append(grid);container.append(section);grid.scrollLeft=scrollPositions.get(kind) || 0;updateBounds();allCards.push(...cards);
       }
       const included=allCards.filter(c=>c.included);
       const original=included.reduce((n,c)=>n+c.original,0),savings=included.reduce((n,c)=>n+c.savings,0),count=included.reduce((n,c)=>n+c.count,0);
       const safe=[original,savings,count,original-savings].every(safeAmount);
       quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
       if(!safe){invalidate();container.append(element(doc,'p','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));}
-      if(focusedRule)for(const input of container.querySelectorAll('[data-offer-select]'))if(input.closest('[data-offer-rule]')?.dataset.offerRule===focusedRule)input.focus({preventScroll:true});
+      if(focusedRule)for(const input of container.querySelectorAll('[data-offer-select],[data-offer-slot]'))if(input.closest('[data-offer-rule]')?.dataset.offerRule===focusedRule && (focusedSlot===undefined ? input.hasAttribute('data-offer-select') : input.dataset.offerSlot===focusedSlot))input.focus({preventScroll:true});
       return quote;
     }
     return {container,render,invalidate,get quote(){return quote;},hasModules:groups.length>0,enabled:groups.length>0 && trusted};

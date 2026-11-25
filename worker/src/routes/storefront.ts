@@ -12,7 +12,7 @@ import { D1SubscriptionRepository } from '../db/subscriptions';
 import { hasSubscriptionAccess } from './subscription-access';
 import { normalizeStorefrontLocale } from '../services/locales';
 import { resolveStorefrontMarketId } from '../services/storefront-market';
-import { hasEnabledOffers, offerConfigDigest, validOfferSelection, type OfferSelection } from '../services/offer-config';
+import { hasEnabledOffers, offerConfigDigest, offerSelections, validOfferSelection, type OfferSelection } from '../services/offer-config';
 import { supportedOfferFunction } from '../services/discounts';
 import { OFFER_INDEX_NAMESPACE, OFFER_INDEX_KEY } from '../services/offer-index';
 import { resolveOfferPreview } from '../services/offer-preview';
@@ -97,12 +97,15 @@ export function registerStorefrontRoutes(app: App): void {
       }
       const now = v2 ? (c.env.now?.() ?? Date.now()) : Date.now();
       const repository = new D1CampaignRepository(c.env.DB);
-      const candidates: Campaign[] = [];
+      // Function excludes accessory Products across every live published node,
+      // including when this request negotiates only legacy main pricing.
+      const published: Campaign[] = [];
       for (const campaign of await repository.list(shop)) {
-        if (campaign.status !== 'active' || campaign.scope.excludedProductIds?.includes(productId) || (campaign.startsAt && Date.parse(campaign.startsAt) > now) || (campaign.endsAt && Date.parse(campaign.endsAt) <= now)) continue;
-        if ((!os21 || campaign.scope.kind !== 'collections') && !includesProduct(campaign.scope, productId, collections)) continue;
-        if ((await repository.getPublication(shop, campaign.id)).state === 'active') candidates.push(campaign);
+        if (campaign.status !== 'active' || (campaign.startsAt && Date.parse(campaign.startsAt) > now) || (campaign.endsAt && Date.parse(campaign.endsAt) <= now)) continue;
+        if ((await repository.getPublication(shop, campaign.id)).state === 'active') published.push(campaign);
       }
+      if (published.some(campaign => offerSelections(campaign).some(selection => selection.productId === productId))) return c.json({ error: 'No published campaign for this product.' }, 404);
+      const candidates = published.filter(campaign => !campaign.scope.excludedProductIds?.includes(productId) && ((os21 && campaign.scope.kind === 'collections') || includesProduct(campaign.scope, productId, collections)));
       if (os21 && !candidates.some(campaign => campaign.scope.kind === 'products' && includesProduct(campaign.scope, productId)) && candidates.some(campaign => campaign.scope.kind === 'collections')) {
         collections = { complete: true, ids: await resolveStorefrontCollections(shop, productId, c.env, v2) };
       }

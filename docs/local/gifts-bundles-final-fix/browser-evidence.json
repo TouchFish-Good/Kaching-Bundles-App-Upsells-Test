@@ -1,0 +1,168 @@
+[
+  {
+    "tag": "merchant-1440",
+    "settingsStyleTabs": true,
+    "JPY123": true,
+    "mixedDisabled": true,
+    "documentWidth": 1440,
+    "errors": []
+  },
+  {
+    "tag": "react-carousel-1440",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 712,
+      "width": 700,
+      "extent": 2836,
+      "direction": "ltr"
+    },
+    "errors": []
+  },
+  {
+    "tag": "theme3-carousel-1440",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 216,
+      "width": 700,
+      "extent": 916,
+      "direction": "ltr"
+    },
+    "errors": []
+  },
+  {
+    "tag": "theme2.1-carousel-1440",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 216,
+      "width": 700,
+      "extent": 916,
+      "direction": "ltr"
+    },
+    "errors": []
+  },
+  {
+    "tag": "merchant-390",
+    "settingsStyleTabs": true,
+    "JPY123": true,
+    "mixedDisabled": true,
+    "documentWidth": 390,
+    "errors": []
+  },
+  {
+    "tag": "react-carousel-390",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 344,
+      "width": 332,
+      "extent": 1364,
+      "direction": "ltr"
+    },
+    "errors": []
+  },
+  {
+    "tag": "theme3-carousel-390",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 0,
+      "width": 358,
+      "extent": 916,
+      "direction": "ltr"
+    },
+    "errors": []
+  },
+  {
+    "tag": "theme2.1-carousel-390",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 0,
+      "width": 358,
+      "extent": 916,
+      "direction": "ltr"
+    },
+    "errors": []
+  },
+  {
+    "tag": "react-rtl-390",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": -344,
+      "width": 332,
+      "extent": 1364,
+      "direction": "rtl"
+    }
+  },
+  {
+    "tag": "theme-rtl-390",
+    "initialPreviousDisabled": true,
+    "initialNextEnabled": true,
+    "lastNextDisabled": true,
+    "focusedFirstVisible": true,
+    "focusedLastVisible": true,
+    "nativeVariantArrow": true,
+    "variantFocusRetained": true,
+    "trackKeyboardScroll": true,
+    "manualScrollWithFocusedSelect": true,
+    "pos": {
+      "left": 0,
+      "width": 358,
+      "extent": 916,
+      "direction": "rtl"
+    }
+  }
+]

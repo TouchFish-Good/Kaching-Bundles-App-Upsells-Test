@@ -96,3 +96,20 @@ it.each(['reference','currency','market','variant'])('bounds preview retry delay
   const response=await previewRequest();expect(response.status).toBe(429);const body=await response.json() as any;if(expected==='date'){expect(Number(response.headers.get('Retry-After'))).toBeGreaterThanOrEqual(119);expect(Number(response.headers.get('Retry-After'))).toBeLessThanOrEqual(120);expect(body.retryAfter).toBe(Number(response.headers.get('Retry-After')));}else{expect(response.headers.get('Retry-After')).toBe(String(expected));expect(body).toMatchObject({retryAfter:expected});}
  }
 });
+
+it.each(['','gift-bundles-v1'])('excludes enabled accessory Products globally for public protocol %s',async clientFeatures=>{
+ const repository=new D1CampaignRepository(bindings.DB);
+ await bindings.DB.prepare("UPDATE quantity_breaks_campaigns SET campaign_json=json_set(campaign_json,'$.scope.productIds',json(?),'$.tiers[0].discountType','percentage','$.tiers[0].discountValue',50) WHERE shop_handle=?").bind(JSON.stringify(['main','gift-product']),shop).run();
+ expect((await request('campaign',{productId:'gift-product',clientFeatures})).status).toBe(404);
+ const other=offerDraft();other.id='other';other.status='draft';other.scope={kind:'products',productIds:['cross'],excludedProductIds:[]};other.gifts!.items[0].productId='main';
+ await repository.save(shop,other,0);expect((await request('campaign',{clientFeatures})).status,'unsaved/unpublished other campaign must not exclude').toBe(200);
+ const lease=await repository.beginPublication(shop,other.id,1,'publish');await repository.finishPublication(shop,other.id,1,'publish','other-discount',lease.owner);
+ expect((await request('campaign',{clientFeatures})).status,'published accessory in another campaign excludes main').toBe(404);
+ for(const field of ['future','expired','disabled','paused']){
+ const c=await repository.get(shop,other.id);if(!c)throw Error();delete c.endsAt;c.startsAt='2020-01-01T00:00:00Z';c.gifts!.enabled=true;
+ if(field==='future')c.startsAt='2099-01-01T00:00:00Z';if(field==='expired')c.endsAt='2020-01-02T00:00:00Z';if(field==='disabled')c.gifts!.enabled=false;
+ await bindings.DB.prepare('UPDATE quantity_breaks_campaigns SET campaign_json=? WHERE shop_handle=? AND id=?').bind(JSON.stringify(c),shop,other.id).run();
+ if(field==='paused')await bindings.DB.prepare("UPDATE quantity_breaks_publications SET state='paused' WHERE shop_handle=? AND campaign_id=?").bind(shop,other.id).run();
+ expect((await request('campaign',{clientFeatures})).status,field).toBe(200);
+ }
+});
