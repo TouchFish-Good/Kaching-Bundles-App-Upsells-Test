@@ -82,3 +82,11 @@ test('nested style omissions inherit device defaults without replacing explicit 
  assert.equal(normalized.style.desktop.layout.columns,3);assert.equal(normalized.style.desktop.image.radiusPx,0);
  assert.equal(normalized.style.mobile.layout.columns,1);assert.equal(normalized.style.mobile.layout.columnGapPx,0);
 });
+for(const quantity of [Number.MAX_SAFE_INTEGER+1,0.5,NaN,Infinity,-1,0,undefined]){
+ test(`quota fails closed on contributing Product quantity ${String(quantity)}`,()=>{
+  const offer=rule({trigger:{type:'quantity',operator:'eq',quantity:3}});
+  const valid={productId:'A',quantity:3},invalid={productId:'A',quantity};
+  assert.equal(core.offerQuota(offer,tiers,[valid,invalid]),0,'valid row before malformed row');
+  assert.equal(core.offerQuota(offer,tiers,[invalid,valid]),0,'malformed row before valid row');
+ });
+}

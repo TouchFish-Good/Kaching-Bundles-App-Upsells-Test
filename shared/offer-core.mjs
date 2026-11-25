@@ -131,7 +131,9 @@ function offerQuota(rule, tiers, mainProducts) {
   if (!integer(rule?.quantity, 1) || !Array.isArray(mainProducts)) return 0;
   const quantities = new Map();
   for (const item of mainProducts) {
-    if (!id(item?.productId) || item.productId === rule.productId || !integer(item.quantity, 1)) continue;
+    if (!id(item?.productId) || item.productId === rule.productId) continue;
+    // Dropping a malformed row can falsely satisfy eq or highest-tier triggers.
+    if (!integer(item.quantity, 1)) return 0;
     const total = (quantities.get(item.productId) ?? 0) + item.quantity;
     if (!integer(total, 1)) return 0;
     quantities.set(item.productId, total);
