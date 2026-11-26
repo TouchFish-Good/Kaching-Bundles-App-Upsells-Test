@@ -360,3 +360,17 @@
 .panel .badgePositions label { flex-direction: row; align-items: center; }
 
 .variantDialogList li > label { display: grid; grid-template-columns: 20px 32px minmax(0, 1fr); align-items: center; }
+
+/* Compact offer cards retain three columns in the editor's product-width preview. */
+.arrows button:disabled { opacity: .35; cursor: not-allowed; }
+.cards { padding-top: max(8px, calc(var(--offer-badge-size, 11px) * .7 + 3px)); }
+.savings { font-size: 12px; }
+.card[data-locked="true"] > :not(.lockOverlay) { opacity: .5; }
+.card .lockOverlay {
+  position: absolute; inset: 0; z-index: 2; border: 0; border-radius: inherit;
+  background: #eeeeee80; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; color: #667085; font: inherit; font-size: 13px; cursor: pointer;
+}
+.card .lockOverlay:disabled { cursor: not-allowed; }
+.group[data-card-layout="list"] .card > .lockOverlay { grid-column: auto; }

@@ -1,0 +1,50 @@
+{
+  "method": "CUA Chrome browser; synthetic local catalog, no store mutations",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "verified": {
+    "headerDeviceSwitchLeftOfEnable": true,
+    "fullWidthPurpleTabs": true,
+    "customTierListNoQuantityEditor": true,
+    "desktop400pxThreeColumns": true,
+    "mobileDefaultOneColumn": true,
+    "bundleCheckboxSelectCancel": true,
+    "discountOriginalSavingsVisible": true,
+    "badgesVisible": true,
+    "noVisibleChooseOptionCaption": true,
+    "lockedContentOpacity": 0.5,
+    "frostedOverlay": true,
+    "filledLock": true,
+    "clickLockChangesTierAndSelectsBundle": true,
+    "reactCarouselStartEndDisabled": true,
+    "nativeOs21CarouselStartEndDisabled": true,
+    "nativeOs3LockSelect": true
+  },
+  "nativeCarousel": {
+    "before": {
+      "width": 343,
+      "scrollWidth": 343,
+      "cardWidths": [
+        165.5,
+        165.5
+      ]
+    },
+    "after": {
+      "width": 343,
+      "scrollWidth": 698,
+      "cardWidths": [
+        343,
+        343
+      ]
+    }
+  },
+  "limits": "Local browser fixtures verify presentation and interaction. Live Admin resolver is tested separately. No test Worker deployment, actual platform theme rendering, live cart or checkout verification in this batch."
+}

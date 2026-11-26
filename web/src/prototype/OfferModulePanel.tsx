@@ -17,6 +17,7 @@ import { formatMoneyInput, parseMoney } from "./money";
 import { campaignText } from "./campaign-editor-messages";
 import type { MarketsResponse } from "./market-config";
 import styles from "./offers.module.css";
+import controls from "./offer-module-controls.module.css";
 type Props = {
   kind: OfferModuleKind;
   value: OfferModuleConfig;
@@ -132,7 +133,14 @@ export function OfferModulePanel({
         showImage: true,
         discountType: kind === "gifts" ? "fixed_price" : "percentage",
         discountValue: 0,
-        trigger: { type: "quantity", operator: "gte", quantity: 2 },
+        trigger: {
+          type: "tiers",
+          tierIds: (() => {
+            const valid = tiers.filter(tier => !!tier.tierId);
+            const matching = valid.filter(tier => tier.quantity >= 2);
+            return (matching.length ? matching : valid.slice(0, 1)).map(tier => tier.tierId!);
+          })(),
+        },
       } as OfferRule;
     });
     replaceItems(items);
@@ -196,6 +204,10 @@ export function OfferModulePanel({
           )}
           <span>{title}</span>
         </button>
+        {expanded && tab === "style" && <div className={shared.styleDeviceToggle} role="group" aria-label={`${title} ${text("style")}`}>
+          <button type="button" aria-pressed={device === "desktop"} onClick={() => setDevice("desktop")}>PC</button>
+          <button type="button" aria-pressed={device === "mobile"} onClick={() => setDevice("mobile")}>{text("mobile")}</button>
+        </div>}
         <Toggle
           label={title}
           checked={value.enabled}
@@ -204,7 +216,7 @@ export function OfferModulePanel({
       </header>
       {expanded && (
         <div id={`offer-config-${kind}`} className={styles.panelBody}>
-          <div role="tablist" aria-label={title} className={styles.device}>
+          <div role="tablist" aria-label={title} className={controls.tabs}>
             {(["settings", "style"] as const).map(name => <button key={name} type="button" role="tab" id={`offer-${kind}-${name}-tab`} aria-selected={tab === name} aria-controls={`offer-${kind}-${name}`} tabIndex={tab === name ? 0 : -1} onClick={() => setTab(name)} onKeyDown={event => {
               if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
               event.preventDefault();
@@ -397,22 +409,6 @@ export function OfferModulePanel({
           })}
           </div>}
           {tab === "style" && <div role="tabpanel" id={`offer-${kind}-style`} aria-labelledby={`offer-${kind}-style-tab`}>
-            <div
-              className={styles.device}
-              role="group"
-              aria-label={`${title} ${text("style")}`}
-            >
-              {(["desktop", "mobile"] as const).map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  aria-pressed={device === d}
-                  onClick={() => setDevice(d)}
-                >
-                  {text(d)}
-                </button>
-              ))}
-            </div>
             <OfferStyleEditor
               locale={locale}
               value={value.style[device]}

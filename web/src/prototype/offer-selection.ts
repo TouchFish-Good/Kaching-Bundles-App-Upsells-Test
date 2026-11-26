@@ -148,6 +148,9 @@ export function useOfferSelection({
                 0,
               )
             : 0;
+        // Display the configured offer before unlock without including it in any quote/cart totals.
+        const potentialSavings = ready && discountReady
+          ? selected.reduce((n, v) => n + offerDiscountMinor(v!.price!.amountMinor, rule, override), 0) : 0;
         const safeMoney =
           Number.isSafeInteger(original) && Number.isSafeInteger(savings);
         return {
@@ -164,6 +167,7 @@ export function useOfferSelection({
           count,
           original: safeMoney ? original : 0,
           savings: safeMoney ? savings : 0,
+          potentialSavings: safeMoney && Number.isSafeInteger(potentialSavings) ? potentialSavings : 0,
           included:
             safeMoney &&
             ((kind === "gifts" && eligible && ready && discountReady) ||

@@ -55,23 +55,33 @@ export async function resolveOfferPreview(session: AuthContext, selections: Offe
   let retry = pricing.retryAfter;
   const variantDeadline = AbortSignal.timeout(8_000);
   // Unsupported pricing never prevents an exact availability query. A rate limit does stop further requests.
-  for (const product of products) for (const variant of product.variants) {
-    if (retry) { variant.unavailableReason = 'rate_limited'; continue; }
-    try {
-      const response = await fetch(`https://${session.handle}.myshopline.com/admin/graph/v20260901/graphql.json`, { method: 'POST', headers: shoplineAdminHeaders(session.accessToken), body: JSON.stringify({ query: OPERATION, variables: { id: variant.id } }), signal: variantDeadline });
-      if (response.status === 429) { await response.body?.cancel(); retry = shoplineAdminRetryAfter(response.headers.get('Retry-After')); variant.unavailableReason = 'rate_limited'; continue; }
-      if (!response.ok) { await response.body?.cancel(); continue; }
-      const payload: unknown = await response.json();
-      if (!object(payload) || (Array.isArray(payload.errors) && payload.errors.length) || !object(payload.data) || !object(payload.data.productVariant)) continue;
-      const resolved = payload.data.productVariant;
-      if (resolved.id !== variant.id || resolved.productId !== product.id) { variant.unavailableReason = 'identity_unverified'; continue; }
-      variant.availability = resolved.availableForSale === true ? 'available' : resolved.availableForSale === false ? 'sold_out' : 'unknown';
-      variant.price = pricing.currency ? money(resolved.price, pricing.currency) : null;
-      // Keep legacy available as the priced/usable flag for existing API consumers.
-      variant.available = variant.availability === 'available' && variant.price !== null;
-      variant.unavailableReason = pricing.reason ?? (variant.availability === 'sold_out' ? 'sold_out' : variant.availability === 'unknown' ? 'availability_unknown' : variant.price === null ? 'price_unavailable' : undefined);
-    } catch { /* Failed availability remains unknown; verified REST metadata is retained. */ }
+  const queue = products.flatMap(product => product.variants.map(variant => ({ product, variant })));
+  let next = 0;
+  async function resolveQueuedVariants(): Promise<void> {
+    while (next < queue.length) {
+      const { product, variant } = queue[next++];
+      if (retry) { variant.unavailableReason = 'rate_limited'; continue; }
+      if (variantDeadline.aborted) continue;
+      try {
+        // REST catalog identities stay unchanged in the app; Admin GraphQL requires typed SHOPLINE GIDs.
+        const variantGid = `gid://shopline/ProductVariant/${variant.id}`;
+        const productGid = `gid://shopline/Product/${product.id}`;
+        const response = await fetch(`https://${session.handle}.myshopline.com/admin/graph/v20260901/graphql.json`, { method: 'POST', headers: shoplineAdminHeaders(session.accessToken), body: JSON.stringify({ query: OPERATION, variables: { id: variantGid } }), signal: variantDeadline });
+        if (response.status === 429) { retry = Math.max(retry ?? 0, shoplineAdminRetryAfter(response.headers.get('Retry-After'))); variant.unavailableReason = 'rate_limited'; await response.body?.cancel(); continue; }
+        if (!response.ok) { await response.body?.cancel(); continue; }
+        const payload: unknown = await response.json();
+        if (!object(payload) || (Array.isArray(payload.errors) && payload.errors.length) || !object(payload.data) || !object(payload.data.productVariant)) continue;
+        const resolved = payload.data.productVariant;
+        if (resolved.id !== variantGid || resolved.productId !== productGid) { variant.unavailableReason = 'identity_unverified'; continue; }
+        variant.availability = resolved.availableForSale === true ? 'available' : resolved.availableForSale === false ? 'sold_out' : 'unknown';
+        variant.price = pricing.currency ? money(resolved.price, pricing.currency) : null;
+        // Keep legacy available as the priced/usable flag for existing API consumers.
+        variant.available = variant.availability === 'available' && variant.price !== null;
+        variant.unavailableReason = pricing.reason ?? (variant.availability === 'sold_out' ? 'sold_out' : variant.availability === 'unknown' ? 'availability_unknown' : variant.price === null ? 'price_unavailable' : undefined);
+      } catch { /* Failed availability remains unknown; verified REST metadata is retained. */ }
+    }
   }
+  await Promise.all(Array.from({ length: Math.min(4, queue.length) }, () => resolveQueuedVariants()));
   for (const product of products) {
     product.available = product.variants.some(variant => variant.available);
     product.availability = product.variants.some(variant => variant.availability === 'available') ? 'available'

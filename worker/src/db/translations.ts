@@ -1,4 +1,5 @@
 const placeholdersByKey: Record<string, string[]> = {
+  'widget.offer_locked': [],
   'widget.gifts.title': [], 'widget.bundles.title': [], 'widget.title': [], 'widget.tier_savings_badge': ['saving_amount'], 'widget.description': [], 'widget.tier_rule': [], 'widget.original': [], 'widget.savings': [], 'widget.total': [],
   'widget.add_to_cart': ['quantity', 'price'], 'widget.add_to_cart_quantity': ['quantity'], 'widget.adding': [], 'widget.cart_failure': [], 'widget.cart_success': ['quantity', 'lines'],
   'widget.stock_shortage': ['item', 'quantity', 'available'], 'widget.no_stock': [], 'widget.sold_out': [], 'widget.color': [], 'widget.size': [], 'widget.checkout_note': [],

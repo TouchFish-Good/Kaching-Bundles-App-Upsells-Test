@@ -142,9 +142,10 @@ function OfferGroup({
     const el = track.current;
     if (!el) return;
     updateBounds();
+    const frame = window.requestAnimationFrame?.(updateBounds);
     const observer = new ResizeObserver(updateBounds);
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); if (frame !== undefined) window.cancelAnimationFrame(frame); };
   }, [carousel, width, columns, group.cards.length]);
   const scroll = (direction: number) =>
     track.current?.scrollBy({
@@ -259,12 +260,14 @@ function OfferGroup({
                 typeof t.tierId === "string",
             ),
           ) : undefined;
+          const displayedSavings = card.eligible ? card.savings : card.potentialSavings;
           return (
             <article
               key={card.rule.ruleId}
               className={`${styles.card} ${card.included ? styles.included : ""}`}
               data-rule-id={card.rule.ruleId}
               data-included={card.included}
+              data-locked={!card.eligible}
             >
               {card.rule.label && card.rule.labelPosition === "corner" && (
                 <span className={styles.badge}>{card.rule.label}</span>
@@ -291,41 +294,36 @@ function OfferGroup({
                     type="checkbox"
                     aria-label={card.product?.title ?? text("bundles")}
                     checked={card.checked}
-                    disabled={!card.selectable || (!card.eligible && !unlock)}
+                    disabled={!card.selectable || !card.eligible}
                     onChange={(event) => {
                       if (!card.eligible && unlock) onUnlock(unlock.quantity);
                       selection.select(group.module, card.rule, event.currentTarget.checked);
                     }}
                   />
                   <strong className={styles.productTitle}>{card.product?.title ?? text("bundles")}</strong>
-                  {!card.eligible && unlock ? ` · ${text("locked")} · ${unlock.quantity}` : ""}
                 </label>
               )}
               {card.rule.label && card.rule.labelPosition === "below_title" && (
                 <span className={styles.inlineBadge}>{card.rule.label}</span>
               )}
-              {!card.eligible && group.kind === "gifts" ? (
-                <button type="button" disabled={!unlock} onClick={() => unlock && onUnlock(unlock.quantity)}>
-                  {text("locked")}{unlock ? ` · ${unlock.quantity}` : ""}
-                </button>
-              ) : !card.ready ? (
+              {!card.ready ? (
                 <span role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
-              ) : card.eligible ? (
+              ) : (
                 <>
                   <span className={styles.price}>
-                    {formatMinorMoney(card.original - card.savings, currencyCode, locale)}
-                    {card.savings > 0 && <del>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
+                    {formatMinorMoney(card.original - displayedSavings, currencyCode, locale)}
+                    {displayedSavings > 0 && <del>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
                   </span>
+                  <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>
                   {group.kind === "gifts" && <span>× {card.count}</span>}
                 </>
-              ) : null}
+              )}
               {card.options.length > 0 &&
                 card.selected.map((variant, index) => (
                   <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>
-                    {renderStorefrontCopy("widget.choose_option", translations)}{" "}
-                    #{index + 1}
                     <select
                       aria-label={`${text(group.kind)} ${card.product?.title} ${renderStorefrontCopy("widget.choose_option", translations)} ${index + 1}`}
+                      disabled={!card.eligible}
                       value={variant?.id ?? ""}
                       onChange={(e) =>
                         selection.selectVariant(
@@ -346,6 +344,11 @@ function OfferGroup({
                   </label>
                 ))}
 
+              {!card.eligible && <button type="button" className={styles.lockOverlay} data-offer-lock disabled={!unlock} aria-label={`${text("locked")} ${card.product?.title ?? text(group.kind)}`} onClick={() => {
+                if (!unlock) return;
+                onUnlock(unlock.quantity);
+                if (group.kind === "bundles") selection.select(group.module, card.rule, true);
+              }}><svg width="42" height="56" viewBox="0 0 48 56" aria-hidden="true"><path d="M12 23V15a12 12 0 0 1 24 0v8" fill="none" stroke="currentColor" strokeWidth="5" /><path d="M7 22h34a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4Zm17 9a4 4 0 0 0-2 7.46V44a2 2 0 0 0 4 0v-5.54A4 4 0 0 0 24 31Z" fill="currentColor" fillRule="evenodd" /></svg><span>{renderStorefrontCopy("widget.offer_locked", translations)}</span></button>}
             </article>
           );
         })}

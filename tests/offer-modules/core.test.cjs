@@ -73,8 +73,8 @@ test('money computes exact integer savings and fails closed for absent/unsafe pr
 });
 test('columns clamp grid and carousel to real container widths without mutating configured count',()=>{
  for(const mode of ['grid','carousel']){const layout={mode,columns:3,columnGapPx:12,rowGapPx:12};
- assert.equal(core.effectiveOfferColumns(700,layout),3);assert.equal(core.effectiveOfferColumns(600,layout),2);
- assert.equal(core.effectiveOfferColumns(400,layout),1);assert.equal(core.effectiveOfferColumns(320,layout),1);
+ assert.equal(core.effectiveOfferColumns(700,layout),3);assert.equal(core.effectiveOfferColumns(600,layout),3);
+ assert.equal(core.effectiveOfferColumns(400,layout),3);assert.equal(core.effectiveOfferColumns(320,layout),2);
  assert.equal(core.effectiveOfferColumns(0,layout),1);assert.equal(layout.columns,3);}
 });
 test('nested style omissions inherit device defaults without replacing explicit values',()=>{

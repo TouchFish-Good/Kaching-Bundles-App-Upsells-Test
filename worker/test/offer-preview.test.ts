@@ -26,14 +26,17 @@ function upstream(mode = 'valid') {
       return Response.json({ markets: [{ id: 'primary', primary: true, enabled: true, regions: [{ code: 'US' }] }] });
     }
     if (!target.includes('/admin/graph/')) throw new Error('Unexpected upstream path');
-    if (JSON.parse(String(init?.body)).variables.id !== variantId) throw new Error('Wrong selected variant identity');
+    // Match the live Admin contract: bare REST IDs return HTTP 200 plus GraphQL errors.
+    if (JSON.parse(String(init?.body)).variables.id !== 'gid://shopline/ProductVariant/900719925474099312345') {
+      return Response.json({ data: { productVariant: null }, errors: [{ message: 'GID domain not as expected' }] });
+    }
     if (mode === 'rate') return rate();
     if (mode === 'failure') throw new Error('upstream unavailable');
     if (mode === 'graphql-errors') return Response.json({ errors: [{ message: 'Unavailable' }] });
     if (mode === 'http-failure') return new Response('', { status: 503 });
     return Response.json({ data: { productVariant: {
-      id: mode === 'identity' ? 'other' : variantId,
-      productId: mode === 'ownership' ? 'other-product' : 'gift-product',
+      id: mode === 'identity' ? 'gid://shopline/ProductVariant/other' : mode === 'wrong-domain' ? 'gid://shopify/ProductVariant/900719925474099312345' : mode === 'wrong-type' ? 'gid://shopline/Product/900719925474099312345' : 'gid://shopline/ProductVariant/900719925474099312345',
+      productId: mode === 'ownership' ? 'gid://shopline/Product/other-product' : 'gid://shopline/Product/gift-product',
       title: 'Graph title', availableForSale: mode === 'unavailable' ? false : mode === 'unknown' ? undefined : true,
       price: mode === 'no-price' ? null : mode === 'invalid-price' ? '12.345' : mode === 'jpy' ? '1200' : '12.34',
       selectedOptions: [{ name: 'Size', value: 'Graph option' }],
@@ -43,7 +46,7 @@ function upstream(mode = 'valid') {
 
 afterEach(() => vi.unstubAllGlobals());
 
-it('returns exact Admin availability separately from trusted default-currency money', async () => {
+it('resolves Admin GIDs while preserving exact REST identities and trusted default-currency money', async () => {
   const fetcher = upstream(); vi.stubGlobal('fetch', fetcher);
   const result = await resolveOfferPreview(session, selection, context);
   expect(result.products[0]).toMatchObject({ id: 'gift-product', title: 'Actual gift', imageUrl: 'https://example.com/gift.png', optionNames: ['Size'], identityVerified: true, available: true, availability: 'available', variants: [{ ...metadata, available: true, availability: 'available', price: { amountMinor: 1234, currencyCode: 'USD', currencyDecimals: 2 } }] });
@@ -71,11 +74,11 @@ it('labels sold out only after an exact Admin response explicitly says unavailab
   expect(result.products[0]).toMatchObject({ availability: 'sold_out', unavailableReason: 'sold_out', variants: [{ ...metadata, availability: 'sold_out', available: false, unavailableReason: 'sold_out' }] });
 });
 
-it.each(['identity', 'ownership', 'unknown', 'failure', 'http-failure', 'graphql-errors'])('keeps %s unknown and preserves verified REST metadata', async mode => {
+it.each(['identity', 'ownership', 'wrong-domain', 'wrong-type', 'unknown', 'failure', 'http-failure', 'graphql-errors'])('keeps %s unknown and preserves verified REST metadata', async mode => {
   vi.stubGlobal('fetch', upstream(mode));
   const result = await resolveOfferPreview(session, selection, context);
   expect(result.products[0]).toMatchObject({ availability: 'unknown', available: false, variants: [{ ...metadata, availability: 'unknown', available: false }] });
-  expect(result.products[0].variants[0].unavailableReason).toBe(mode === 'identity' || mode === 'ownership' ? 'identity_unverified' : 'availability_unknown');
+  expect(result.products[0].variants[0].unavailableReason).toBe(['identity', 'ownership', 'wrong-domain', 'wrong-type'].includes(mode) ? 'identity_unverified' : 'availability_unknown');
   if (mode !== 'unknown') expect(result.products[0].variants[0].price).toBeNull();
 });
 
@@ -110,4 +113,73 @@ it.each(['rate', 'currency-rate', 'market-rate', 'product-rate'])('retains bound
   if (mode === 'product-rate') expect(result.products).toEqual([]);
   else expect(result.products[0]).toMatchObject({ availability: 'unknown', available: false, unavailableReason: 'rate_limited', variants: [{ ...metadata, availability: 'unknown', available: false, price: null, unavailableReason: 'rate_limited' }] });
   if (mode !== 'rate') expect(fetcher.mock.calls.filter(([url]) => String(url).includes('/admin/graph/'))).toHaveLength(0);
+});
+
+function deferred() {
+  let resolve!: () => void;
+  const promise = new Promise<void>(done => { resolve = done; });
+  return { promise, resolve };
+}
+
+function concurrentUpstream(rateLimitFirst = false, rateLimitSecond = false) {
+  const ids = Array.from({ length: 9 }, (_, index) => `variant-${index + 1}`);
+  const first = deferred(), others = deferred(), cancellation = deferred();
+  const started: string[] = [], completed: string[] = [];
+  let active = 0, maximumActive = 0;
+  const base = upstream();
+  const fetcher = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+    const target = String(url);
+    if (target.includes('/products/products.json')) return Response.json({ products: [{ id: 'gift-product', handle: 'gift', title: 'Actual gift', variants: ids.map(id => ({ id, product_id: 'gift-product', title: id })) }] });
+    if (!target.includes('/admin/graph/')) return base(url, init);
+    const id = JSON.parse(String(init?.body)).variables.id as string;
+    started.push(id); active++; maximumActive = Math.max(maximumActive, active);
+    try {
+      if (rateLimitFirst && (id === 'gid://shopline/ProductVariant/variant-1' || (rateLimitSecond && id === 'gid://shopline/ProductVariant/variant-2'))) return new Response(new ReadableStream({ cancel: () => cancellation.promise }), { status: 429, headers: { 'Retry-After': rateLimitSecond && id === 'gid://shopline/ProductVariant/variant-1' ? '11' : '7' } });
+      await (id === 'gid://shopline/ProductVariant/variant-1' ? first.promise : others.promise);
+      completed.push(id);
+      return Response.json({ data: { productVariant: { id, productId: 'gid://shopline/Product/gift-product', availableForSale: true, price: '12.34' } } });
+    } finally { active--; }
+  });
+  return { ids, first, others, cancellation, started, completed, fetcher, maximumActive: () => maximumActive };
+}
+
+it('resolves later variants while the first is pending with at most four requests in flight', async () => {
+  const source = concurrentUpstream(); vi.stubGlobal('fetch', source.fetcher);
+  const pending = resolveOfferPreview(session, [{ productId: 'gift-product', variantIds: source.ids }], context);
+  try {
+    await vi.waitFor(() => expect(source.started).toHaveLength(4), { timeout: 200, interval: 5 });
+    source.others.resolve();
+    await vi.waitFor(() => expect(source.completed).toHaveLength(8), { timeout: 200, interval: 5 });
+    expect(source.maximumActive()).toBeLessThanOrEqual(4);
+  } finally { source.first.resolve(); source.others.resolve(); }
+  const result = await pending;
+  expect(result.products[0].variants.map(variant => [variant.id, variant.availability, variant.price?.amountMinor])).toEqual(source.ids.map(id => [id, 'available', 1234]));
+});
+
+it('stops scheduling queued variants after a rate limit while retaining in-flight results', async () => {
+  const source = concurrentUpstream(true); vi.stubGlobal('fetch', source.fetcher);
+  const pending = resolveOfferPreview(session, [{ productId: 'gift-product', variantIds: source.ids }], context);
+  try {
+    await vi.waitFor(() => expect(source.started).toHaveLength(4), { timeout: 200, interval: 5 });
+    source.others.resolve();
+    await vi.waitFor(() => expect(source.completed).toHaveLength(3), { timeout: 200, interval: 5 });
+    expect(source.started).toHaveLength(4);
+  } finally { source.first.resolve(); source.others.resolve(); source.cancellation.resolve(); }
+  const result = await pending;
+  expect(source.started).toHaveLength(4);
+  expect(result.retryAfter).toBe(7);
+  expect(result.products[0].variants.slice(4)).toEqual(source.ids.slice(4).map(id => expect.objectContaining({ id, availability: 'unknown', price: null, unavailableReason: 'rate_limited' })));
+  expect(result.products[0].variants.slice(1, 4).every(variant => variant.available)).toBe(true);
+});
+
+it('preserves the longest retry-after across concurrent rate limits', async () => {
+  const source = concurrentUpstream(true, true); vi.stubGlobal('fetch', source.fetcher);
+  const pending = resolveOfferPreview(session, [{ productId: 'gift-product', variantIds: source.ids }], context);
+  try {
+    await vi.waitFor(() => expect(source.started).toHaveLength(4), { timeout: 200, interval: 5 });
+    source.others.resolve();
+    await vi.waitFor(() => expect(source.completed).toHaveLength(2), { timeout: 200, interval: 5 });
+    expect(source.started).toHaveLength(4);
+  } finally { source.first.resolve(); source.others.resolve(); source.cancellation.resolve(); }
+  expect((await pending).retryAfter).toBe(11);
 });

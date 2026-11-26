@@ -1,0 +1,30 @@
+{
+  "scope": "test repository only; no commit/push/deploy",
+  "tests": {
+    "editorReact": 46,
+    "workerPreviewIndex": 41,
+    "sharedNativeOs21": 63,
+    "totalPassed": 150
+  },
+  "webBuild": "passed",
+  "webTypecheck": "passed",
+  "workerBuild": "dry-run passed",
+  "workerTypecheck": "passed",
+  "themeSync": "passed",
+  "diffCheck": "passed",
+  "fullSuites": "not green: theme default gap assertion; web/worker ENOSPC/SQLITE_FULL",
+  "realReadOnlyPreview": {
+    "variantCount": 26,
+    "elapsedMs": 4066,
+    "http200": 26,
+    "trustedPrices": 26,
+    "unknown": 0
+  },
+  "protection": {
+    "productionFilesChecked": 725,
+    "productionChanged": [],
+    "productionGitStatusUnchanged": true,
+    "testIdentityFilesChecked": 9,
+    "testIdentityChanged": []
+  }
+}

@@ -700,7 +700,7 @@ function offerDiscountMinor(unitPrice, rule, override) {
 }
 function effectiveOfferColumns(width, layout) {
   if (!Number.isFinite(width) || width <= 0 || !object(layout) || ![1,2,3].includes(layout.columns) || !integer(layout.columnGapPx)) return 1;
-  return Math.max(1, Math.min(layout.columns, Math.floor((width + layout.columnGapPx) / (220 + layout.columnGapPx))));
+  return Math.max(1, Math.min(layout.columns, Math.floor((width + layout.columnGapPx) / (100 + layout.columnGapPx))));
 }
 exports.defaultOfferModule = defaultOfferModule;
 exports.normalizeOfferModule = normalizeOfferModule;
@@ -872,7 +872,9 @@ return exports; })();
       quote={lines:[],original:0,savings:0,discounted:0,quantity:0,safe:false};
       return quote;
     }
+    let disposeLayout=[];
     function render(quantity) {
+      disposeLayout.forEach(dispose=>dispose());disposeLayout=[];
       const focused=container.contains(doc.activeElement) ? doc.activeElement : null;
       const focusedRule=focused?.closest?.('[data-offer-rule]')?.dataset.offerRule;
       const focusedSlot=focused?.dataset?.offerSlot;
@@ -924,8 +926,13 @@ return exports; })();
           const cap=OfferCore.offerQuota(rule,campaign.tiers,mainProducts(quantity));
           const original=ready?selected.reduce((sum,v)=>sum+v.priceMinor,0):0;
           const savings=ready && eligible?selected.reduce((sum,v,i)=>sum+(i<cap?OfferCore.offerDiscountMinor(v.priceMinor,rule,override):0),0):0;
-          ready=ready && safeAmount(original) && safeAmount(savings) && safeAmount(original-savings);
-          return {kind,module,rule,product,eligible,choice,count,options,selected,ready,original,savings,soldOut,included:ready && eligible && (kind==='gifts' || choice.selected)};
+          const unlockTier=!eligible && mainQualifies && OfferCore.offerUnlockTier(rule,campaign.tiers);
+          // Advertise the configured price at a reachable tier, while only
+          // current eligibility can authorize quote savings and cart lines.
+          const displayCap=eligible?cap:unlockTier?OfferCore.offerQuota(rule,campaign.tiers,mainProducts(unlockTier.quantity)):0;
+          const displaySavings=ready?selected.reduce((sum,v,i)=>sum+(i<displayCap?OfferCore.offerDiscountMinor(v.priceMinor,rule,override):0),0):0;
+          ready=ready && safeAmount(original) && safeAmount(savings) && safeAmount(original-savings) && safeAmount(displaySavings) && safeAmount(original-displaySavings);
+          return {kind,module,rule,product,eligible,choice,count,options,selected,ready,original,savings,displaySavings,unlockTier,soldOut,included:ready && eligible && (kind==='gifts' || choice.selected)};
         }).filter(c=>!c.soldOut);
         if(kind==='bundles' && module.selectionMode==='single') {
           const candidates=cards.filter(c=>c.choice.selected && c.ready && c.eligible);
@@ -935,17 +942,18 @@ return exports; })();
         for(const c of cards) {
           const {rule,choice}=c;
           const card=element(doc,'article','qb-offer-card');card.dataset.offerRule=rule.ruleId;card.dataset.offerRole=kind==='gifts'?'gift':'bundle';card.dataset.included=String(c.included);
+          card.dataset.locked=String(!c.eligible);
           if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
           const image=c.selected.find(v=>v?.image)?.image;
           if(rule.showImage && image && /^(https?:|data:image\/)/.test(image)){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
           const productTitle=element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable'));
           if(kind==='gifts')card.append(productTitle);
-          const tier=!c.eligible && mainQualifies && OfferCore.offerUnlockTier(rule,campaign.tiers);
+          const tier=c.unlockTier;
           if(kind==='bundles') {
             const label=element(doc,'label','qb-offer-select');
             const toggle=element(doc,'input');toggle.type='checkbox';toggle.dataset.offerSelect='';toggle.checked=c.included;
             toggle.setAttribute('aria-label',c.product?.title || copy('widget.offer_select','Select'));
-            toggle.disabled=!c.ready || (!c.eligible && !tier);
+            toggle.disabled=!c.ready || !c.eligible;
             toggle.addEventListener('change',()=>{
               if(toggle.disabled)return;
               const selected=toggle.checked;
@@ -954,23 +962,36 @@ return exports; })();
               if(!c.eligible && tier && selected)chooseTier(tier);else rerender();
             });
             label.append(toggle,productTitle);
-            if(tier)label.append(doc.createTextNode(' · '+copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity})));
             card.append(label);
-          } else if(!c.eligible && tier) {
-            const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.disabled=!c.ready;unlock.addEventListener('click',()=>chooseTier(tier));card.append(unlock);
           }
           if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
           if(!c.ready)card.append(element(doc,'span','qb-offer-state',copy('widget.offer_unavailable','Unavailable')));
           if(c.ready){
-            const prices=element(doc,'div','qb-offer-prices');prices.append(element(doc,'b','',moneyMinor(c.original-c.savings,currency,locale)));if(c.savings>0)prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));card.append(prices);
+            const prices=element(doc,'div','qb-offer-prices');prices.append(element(doc,'b','',moneyMinor(c.original-c.displaySavings,currency,locale)));if(c.displaySavings>0){prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));prices.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));}card.append(prices);
           }
-          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
+          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.disabled=!c.eligible;select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
+          if(!c.eligible){
+            const locked=copy('widget.offer_locked','Locked');
+            const overlay=element(doc,'button','qb-offer-lock');overlay.type='button';overlay.disabled=!tier;
+            overlay.setAttribute('aria-label',tier?`${locked}. ${copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity})}`:locked);
+            const icon=doc.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 48 56');icon.setAttribute('aria-hidden','true');
+            const shackle=doc.createElementNS('http://www.w3.org/2000/svg','path');shackle.setAttribute('d','M12 23V15a12 12 0 0 1 24 0v8');shackle.setAttribute('fill','none');shackle.setAttribute('stroke','currentColor');shackle.setAttribute('stroke-width','5');
+            const body=doc.createElementNS('http://www.w3.org/2000/svg','path');body.setAttribute('d','M7 22h34a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4Zm17 9a4 4 0 0 0-2 7.46V44a2 2 0 0 0 4 0v-5.54A4 4 0 0 0 24 31Z');body.setAttribute('fill','currentColor');body.setAttribute('fill-rule','evenodd');icon.append(shackle,body);
+            overlay.append(icon,element(doc,'span','',locked));
+            overlay.addEventListener('click',()=>{if(overlay.disabled)return;if(kind==='bundles'){if(module.selectionMode==='single')cards.forEach(other=>other.choice.selected=false);choice.selected=true;}chooseTier(tier);});
+            card.append(overlay);
+          }
           grid.append(card);
         }
         const carousel=device.layout.mode==='carousel';
         const navButtons=[];
         const rtl=()=>scope.getComputedStyle?.(grid).direction==='rtl';
         const updateBounds=()=>{const position=rtl()?-grid.scrollLeft:grid.scrollLeft;navButtons.forEach((button,index)=>{button.disabled=index===0 ? !(position>1) : !(position+grid.clientWidth<grid.scrollWidth-1);});};
+        const measureLayout=()=>{
+          const badgeHeight=Math.max(0,...Array.from(grid.querySelectorAll('.qb-offer-label'),badge=>badge.getBoundingClientRect?.().height || 0));
+          if(badgeHeight)grid.style.setProperty('--qb-offer-badge-clearance',`${Math.ceil(badgeHeight/2)+2}px`);
+          updateBounds();
+        };
         const reveal=target=>{
           if(!carousel)return;
           const card=target.closest?.('[data-offer-rule]');
@@ -981,7 +1002,7 @@ return exports; })();
         };
         if(carousel)grid.tabIndex=0;
         let revealTimer;
-        const cancelReveal=()=>clearTimeout(revealTimer);
+        const cancelReveal=()=>clearTimeout(revealTimer);disposeLayout.push(cancelReveal);
         const scheduleReveal=target=>{cancelReveal();revealTimer=setTimeout(()=>{if(grid.isConnected && doc.activeElement===target)reveal(target);},350);};
         grid.addEventListener('keydown',event=>{if(carousel && ['ArrowLeft','ArrowRight'].includes(event.key)){if(event.target===grid){event.preventDefault();grid.scrollBy?.({left:(event.key==='ArrowRight'?1:-1)*Math.max(220,grid.clientWidth || width),behavior:'smooth'});}else scheduleReveal(event.target);}});
         grid.addEventListener('keyup',event=>{if(event.target!==grid && ['ArrowLeft','ArrowRight'].includes(event.key))scheduleReveal(event.target);});
@@ -989,7 +1010,12 @@ return exports; })();
         grid.addEventListener('focusin',event=>reveal(event.target));
         grid.addEventListener('scroll',updateBounds);
         if(carousel){const nav=element(doc,'div','qb-offer-nav');for(const [label,direction] of [[copy('widget.offer_previous','Previous'),-1],[copy('widget.offer_next','Next'),1]]){const b=element(doc,'button','',label);b.type='button';b.disabled=true;b.addEventListener('click',()=>grid.scrollBy?.({left:direction*(rtl()?-1:1)*Math.max(220,grid.clientWidth || width),behavior:'smooth'}));nav.append(b);navButtons.push(b);}section.append(nav);}
-        section.append(grid);container.append(section);grid.scrollLeft=scrollPositions.get(kind) || 0;updateBounds();allCards.push(...cards);
+        section.append(grid);container.append(section);grid.scrollLeft=scrollPositions.get(kind) || 0;measureLayout();
+        // Initial render can precede mounting the offers container. Recheck
+        // actual geometry after mount, then track resizing and badge wrapping.
+        const layoutTimer=setTimeout(measureLayout,0);disposeLayout.push(()=>clearTimeout(layoutTimer));
+        if(typeof scope.ResizeObserver==='function'){const observer=new scope.ResizeObserver(measureLayout);observer.observe(grid);for(const badge of grid.querySelectorAll('.qb-offer-label'))observer.observe(badge);disposeLayout.push(()=>observer.disconnect());}
+        allCards.push(...cards);
       }
       const included=allCards.filter(c=>c.included);
       const original=included.reduce((n,c)=>n+c.original,0),savings=included.reduce((n,c)=>n+c.savings,0),count=included.reduce((n,c)=>n+c.count,0);
@@ -999,7 +1025,7 @@ return exports; })();
       if(focusedRule)for(const input of container.querySelectorAll('[data-offer-select],[data-offer-slot]'))if(input.closest('[data-offer-rule]')?.dataset.offerRule===focusedRule && (focusedSlot===undefined ? input.hasAttribute('data-offer-select') : input.dataset.offerSlot===focusedSlot))input.focus({preventScroll:true});
       return quote;
     }
-    return {container,render,invalidate,get quote(){return quote;},hasModules:groups.length>0,enabled:groups.length>0 && trusted};
+    return {container,render,invalidate,dispose(){disposeLayout.forEach(dispose=>dispose());disposeLayout=[];},get quote(){return quote;},hasModules:groups.length>0,enabled:groups.length>0 && trusted};
   }
 
   // END GENERATED OFFERS
@@ -1327,6 +1353,7 @@ return exports; })();
     if (typeof mediaQuery.addEventListener === 'function') mediaQuery.addEventListener('change', onViewportChange);
     else if (typeof mediaQuery.addListener === 'function') mediaQuery.addListener(onViewportChange);
     lifecycle.cleanup = () => {
+      offers.dispose?.();
       resizeObserver?.disconnect();
       if (typeof mediaQuery.removeEventListener === 'function') mediaQuery.removeEventListener('change', onViewportChange);
       else if (typeof mediaQuery.removeListener === 'function') mediaQuery.removeListener(onViewportChange);

@@ -258,8 +258,8 @@ test('native fixed-one checkboxes include locked and disabled cards without dupl
  const campaign=offerCampaign();campaign.bundles.items[0].quantity=3;campaign.bundles.items[0].trigger.quantity=5;campaign.tiers.push({tierId:'t6',quantity:6,discountType:'none'});
  const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
  const card=()=>h.block.querySelector('[data-offer-rule="c"]'),input=()=>card().querySelector('[data-offer-select]');
- assert.equal(input()?.type,'checkbox');assert.equal(input().checked,false);assert.equal(input().disabled,false);assert.match(input().getAttribute('aria-label'),/Product c/);assert.equal(card().querySelector('button'),null);assert.equal(card().querySelector('input[type="number"]'),null);assert.equal(card().querySelectorAll('select').length,1);
- input().checked=true;input().dispatchEvent(new h.window.Event('change'));assert.equal(card().dataset.included,'true');
+ assert.equal(input()?.type,'checkbox');assert.equal(input().checked,false);assert.equal(input().disabled,true);assert.match(input().getAttribute('aria-label'),/Product c/);assert.ok(card().querySelector('.qb-offer-lock'));assert.equal(card().querySelector('input[type="number"]'),null);assert.equal(card().querySelectorAll('select').length,1);
+ card().querySelector('.qb-offer-lock').click();assert.equal(card().dataset.included,'true');
  input().checked=false;input().dispatchEvent(new h.window.Event('change'));assert.equal(card().dataset.included,'false');
  assert.doesNotMatch(h.block.querySelector('[data-offer-module="gifts"]').textContent,/Included/);
  const unavailable=setupOffers({markup:offerMarkup().replaceAll('data-available="true"','data-available="unknown"')});await unavailable.theme.mountBlock(unavailable.block);assert.equal(unavailable.block.querySelector('[data-offer-select]').disabled,true);
@@ -338,7 +338,7 @@ test('native module typography colors badges and layout remain independent from 
 test('native legacy columns infer card layout and narrow width lowers columns without changing layout mode',async()=>{
  for(const [columns,layout] of [[1,'stacked'],[2,'grid'],[3,'horizontal']]) {
   const campaign=offerCampaign();campaign.bundles.style.desktop.layout.columns=columns;
-  const h=setupOffers({campaign});h.block.getBoundingClientRect=()=>({width:340});await h.theme.mountBlock(h.block);
+  const h=setupOffers({campaign});h.block.getBoundingClientRect=()=>({width:180});await h.theme.mountBlock(h.block);
   const grid=h.block.querySelector('[data-offer-module="bundles"] .qb-offer-grid');assert.equal(grid.dataset.cardLayout,layout);assert.equal(grid.style.getPropertyValue('--qb-offer-columns'),'1');assert.equal(grid.classList.contains('qb-offer-carousel'),false);
  }
 });

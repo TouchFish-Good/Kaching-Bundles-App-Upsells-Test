@@ -20,7 +20,7 @@ import { test } from "node:test";
 import React, { act } from "react";
 import { createServer } from "vite";
 import { JSDOM, VirtualConsole } from "jsdom";
-import { defaultOfferModule } from "../../shared/offer-core.mjs";
+import { effectiveOfferColumns, defaultOfferModule } from "../../shared/offer-core.mjs";
 const rule = (id, quantity = 2) => ({
   ruleId: id,
   displayOrder: 0,
@@ -520,7 +520,7 @@ test("locked gift unlocks a qualifying tier and includes all reached gift rules"
       offerPreview: { state: "ready", products },
     });
     const locked = document.querySelector('[data-rule-id="b"] button');
-    assert.match(locked.textContent, /Unlock/);
+    assert.match(locked.textContent, /Locked/);
     await click(locked);
     assert.ok(
       document.querySelector('[data-offer-kind="gifts"]'),
@@ -850,7 +850,7 @@ test("offer picker retains paged choices and merchants edit real variant whiteli
     await click([...document.querySelectorAll('[role="tab"]')].find(button => button.textContent === "Style"));
     const style = document.querySelector('[data-offer-panel] [role="tabpanel"]');
     await click(
-      [...style.querySelectorAll("button")].find(
+      [...document.querySelectorAll("[data-offer-panel] header button")].find(
         (b) => b.textContent === "Mobile",
       ),
     );
@@ -899,7 +899,8 @@ test("shopper preview uses storefront option copy and lists gifts plus selected 
       ),
     );
     const gift = document.querySelector('[data-offer-kind="gifts"]');
-    assert.match(gift.textContent, /Choisir une option/);
+    assert.doesNotMatch(gift.textContent, /Choisir une option/);
+    assert.match(gift.querySelector("select").getAttribute("aria-label"), /Choisir une option/);
     assert.doesNotMatch(gift.textContent, /Allowed variants/);
     const receipt = document.querySelector("[data-offer-receipt]");
     assert.ok(receipt);
@@ -1024,20 +1025,20 @@ test("locked bundle native checkbox unlocks and selects once while unready remai
     const props={...base,tiers:base.tiers.map(t=>({...t,recommended:t.quantity===2})),bundles:moduleFor("bundles",[rule("a",3)]),offerPreview:{state:"ready",products}};
     await render(StorefrontWidget,props);
     const card=()=>document.querySelector('[data-rule-id="a"]'),input=()=>card().querySelector('input[type="checkbox"]');
-    assert.ok(input());assert.equal(input().checked,false);assert.equal(input().disabled,false);assert.match(input().getAttribute('aria-label'),/Product a/);assert.equal(card().querySelector('button'),null);
-    await click(input().closest('label'));assert.equal(input().checked,true);assert.equal(card().dataset.included,'true');
+    assert.ok(input());assert.equal(input().checked,false);assert.equal(input().disabled,true);assert.match(input().getAttribute('aria-label'),/Product a/);assert.ok(card().querySelector('[data-offer-lock]'));
+    await click(card().querySelector('[data-offer-lock]'));assert.equal(input().checked,true);assert.equal(card().dataset.included,'true');
     await click(input());assert.equal(input().checked,false);
     await render(StorefrontWidget,{...props,offerPreview:{state:'loading',products:[]}});assert.equal(input().disabled,true);
   }));
 
-test("merchant bundle controls retain main threshold and variants but quantity editor is gift-only",()=>
+test("merchant controls use tier triggers and variants while gift quantity remains editable",()=>
  harness(async({vite,render,click})=>{
  const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');
  for(const kind of ['bundles','gifts']){
  await render(OfferModulePanel,{key:kind,kind,value:moduleFor(kind,[rule('a')]),onChange:()=>{},tiers:base.tiers,locale:'en',fetcher:async()=>json({products:pickerProducts(),missingIds:[],nextPageInfo:null}),currencyCode:'USD',onDraftError:()=>{}});
  await click(document.querySelector('[aria-expanded]'));await settle();
  const quantityLabels=[...document.querySelectorAll('[data-offer-panel] label')].filter(l=>l.firstChild?.textContent==='Quantity');
- assert.equal(quantityLabels.length,kind==='gifts'?1:0);assert.ok([...document.querySelectorAll('label')].some(l=>l.textContent.includes('Main product quantity')));
+ assert.equal(quantityLabels.length,kind==='gifts'?1:0);assert.ok(![...document.querySelectorAll('label')].some(l=>l.textContent.includes('Main product quantity')));assert.ok(document.querySelector('[data-offer-trigger]'));
  }
  }));
 
@@ -1129,7 +1130,7 @@ test('rechecking a previously chosen locked bundle unlocks and retains that expl
  await render(StorefrontWidget,{...base,bundles:moduleFor('bundles',[rule('a',3)]),offerPreview:{state:'ready',products}});
  const input=()=>document.querySelector('[data-rule-id="a"] input[type="checkbox"]');await click(input());assert.equal(input().checked,true);
  await click([...document.querySelectorAll('button')].find(b=>b.textContent.includes('Two')));assert.equal(input().checked,false);
- await click(input());assert.equal(input().checked,true);
+ await click(document.querySelector('[data-rule-id="a"] [data-offer-lock]'));assert.equal(input().checked,true);
 }));
 
 
@@ -1241,4 +1242,22 @@ test('offer refinement: style controls preserve rendered fallback colors and fon
 test('offer refinement: switching multi-select preview to single keeps only the greatest saving checked',()=>harness(async({vite,render,click})=>{
  const{StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');const bundles=moduleFor('bundles',[{...rule('a'),discountType:'percentage',discountValue:1000},{...rule('b'),discountType:'percentage',discountValue:5000}]);bundles.selectionMode='multiple';
  const props={...base,offerPreview:{state:'ready',products},bundles};await render(StorefrontWidget,props);await click(document.querySelector('[data-rule-id="a"] input'));await click(document.querySelector('[data-rule-id="b"] input'));await render(StorefrontWidget,{...props,bundles:{...bundles,selectionMode:'single'}});assert.equal(document.querySelector('[data-rule-id="a"] input').checked,false);assert.equal(document.querySelector('[data-rule-id="b"] input').checked,true);assert.equal(document.querySelectorAll('[data-offer-kind="bundles"] [data-included="true"]').length,1);
+}));
+
+
+test('compact three-column offer cards fit the desktop preview and collapse only when truly narrow', () => {
+  assert.equal(effectiveOfferColumns(400, {columns:3,columnGapPx:8}), 3);
+  assert.equal(effectiveOfferColumns(260, {columns:3,columnGapPx:8}), 2);
+  assert.equal(effectiveOfferColumns(180, {columns:3,columnGapPx:8}), 1);
+});
+test('locked offer has full-card unlock control, no visible option caption, and prospective savings', () => harness(async({vite,render,click})=>{
+  const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');
+  const bundles=moduleFor('bundles',[{...rule('a',3),discountType:'percentage',discountValue:2500,label:'Save 25%'}]);
+  await render(StorefrontWidget,{...base,tiers:base.tiers.map(t=>({...t,recommended:t.quantity===2})),bundles,offerPreview:{state:'ready',products}});
+  const card=document.querySelector('[data-rule-id="a"]');
+  const lock=card.querySelector('[data-offer-lock]'); assert.ok(lock);assert.equal(lock.tagName,'BUTTON');assert.match(lock.textContent,/Locked/);
+  assert.equal(card.dataset.locked,'true');assert.doesNotMatch(card.textContent,/Choose an option|Unlock ·/);
+  assert.match(card.querySelector('[data-offer-savings]').textContent,/2.50/);assert.match(card.querySelector('del').textContent,/10.00/);
+  assert.equal(card.dataset.included,'false');await click(lock);
+  assert.equal(document.querySelector('[data-rule-id="a"]').dataset.included,'true');assert.equal(document.querySelector('[data-offer-lock]'),null);
 }));

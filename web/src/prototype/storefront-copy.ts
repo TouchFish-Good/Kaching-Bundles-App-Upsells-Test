@@ -1,4 +1,5 @@
 export const storefrontCopy = [
+  { key: "widget.offer_locked", source: "Locked", location: "Variant selection" },
   { key: "widget.gifts.title", source: "🎁 Free gifts with your order", location: "Widget header" },
   { key: "widget.bundles.title", source: "Frequently Bought Together", location: "Widget header" },
   { key: "widget.title", source: "Bundle & save", location: "Widget header" },

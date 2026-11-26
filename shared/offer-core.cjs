@@ -166,7 +166,7 @@ function offerDiscountMinor(unitPrice, rule, override) {
 }
 function effectiveOfferColumns(width, layout) {
   if (!Number.isFinite(width) || width <= 0 || !object(layout) || ![1,2,3].includes(layout.columns) || !integer(layout.columnGapPx)) return 1;
-  return Math.max(1, Math.min(layout.columns, Math.floor((width + layout.columnGapPx) / (220 + layout.columnGapPx))));
+  return Math.max(1, Math.min(layout.columns, Math.floor((width + layout.columnGapPx) / (100 + layout.columnGapPx))));
 }
 exports.defaultOfferModule = defaultOfferModule;
 exports.normalizeOfferModule = normalizeOfferModule;
