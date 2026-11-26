@@ -1,10 +1,12 @@
 # 2026-11-26 测试环境赠品／捆绑第二轮交互与GID修复
 
+- 发布回执（2026-11-26）：测试 Worker `shopline-quantity-breaks-test` 版本 `aad3b482-d29d-4a3c-8f05-61877849b59f` 已部署，100%流量；域名 `https://app-test.vswwy.cn`。测试主题扩展 `10949` 于14:28:27（Asia/Shanghai）上传草稿，未发布应用审核版本。线上 `/health` 200、首页及两份入口JS哈希与本地构建一致、未授权活动接口401、缺失资源404。4项Secret名称保留，无待执行迁移；正式725文件／Git状态及测试9项身份配置均与基线一致。Function未改动，能力开关保持原状态；真实店铺SSR、购物车与结账仍未验收。
+
 - 按用户9项反馈完成设备切换位置、浅紫整行页签、档位自定义列表、可见选项文案移除、标签／三金额、全卡毛玻璃锁层与点击切档、三列及轮播边界；颜色透明度继续只在颜色选择器内。赠品自动纳入／不可取消、捆绑固定1件／复选框、主商品额度及Function能力开关保持。未新增或修改焦点伪类。
 - 实际测试店铺只读接口确认REST数字ID被Admin GraphQL拒绝；typed GID输入和完整GID归属核验修复后，本地resolver返回可售／售罄和可信价格。同一8秒期限下改为最多4个并行，429同步停止排队并保留最大Retry-After；真实26款式4.066秒全部取得可售／缺货及价格、0unknown。无Storefront目录代理、额外token或库存猜测。
 - CUA真实Chrome验证1440px／390px编辑器及React／原生主题样本：400px三列、移动默认单列、锁卡切档并选中、复选框取消、标签和三金额、页签／档位列表、首尾轮播禁用。发现原生Grid百分比轨道将两卡压入一屏，改用Flex后343px容器scrollWidth698；OS2.1与OS3本地主题交互已实际访问。参考、截图与范围见[本批记录](local/gifts-bundles-followup/README.md)。这不是线上已部署验收，也不是平台SSR／购物车／结账验收。
 - 定向测试150项通过（编辑器46、Worker41、共享／原生／OS2.1共63）；Web／Worker构建（Worker dry-run）及源码类型检查、主题同步与diff检查通过。全量主题146/147，遗留默认间距8px／10px断言失败；全量Web／Worker遇ENOSPC／SQLITE_FULL，未标全量通过；临时镜像oauth类型诊断在真实测试目录类型检查中未复现。本地清理本任务下载的Go／TinyGo编译工具缓存后恢复定向检查，未删除用户文件。
-- 独立复审及Flex／锁图形复查无阻断发现。正式目录725文件及原Git状态一致，测试9项身份／配置哈希一致；没有正式源码、Function源码、密钥、迁移或商家数据写入。拟提交 `fix(test): correct offer availability and refine gift bundle cards`，仅测试Git `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。尚未提交／推送／部署，待本批明确推送批准。
+- 独立复审及Flex／锁图形复查无阻断发现。正式目录725文件及原Git状态一致，测试9项身份／配置哈希一致；没有正式源码、Function源码、密钥、迁移或商家数据写入。用户明确授权“推送并部署”后，代码提交 `c1dc66d98273b14d9a7989054d3d98d8474dcb98` 已推送至测试Git `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git` 的 `codex/gifts-bundles-test`，远端SHA已核验。
 
 # 2026-11-26 测试环境赠品／捆绑界面与预览修订
 

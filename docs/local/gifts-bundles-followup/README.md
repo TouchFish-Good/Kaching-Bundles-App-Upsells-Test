@@ -1,6 +1,14 @@
 # 测试环境赠品／捆绑交互第二轮修订（2026-11-26）
 
-本批仅修改 `/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test`。基线提交 `4c5182d142f08b06cfddbc98cb2ccc86fd4fa90e`，测试 Git 为 https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git ，分支 `codex/gifts-bundles-test`。尚未提交、推送或部署；线上仍是上一批版本。
+本批仅修改 `/Users/SL/Desktop/多件折扣-测试环境/duojianzhekou-test`。基线提交 `4c5182d142f08b06cfddbc98cb2ccc86fd4fa90e`，测试 Git 为 https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git ，分支 `codex/gifts-bundles-test`。本地验收后用户明确授权“推送并部署”；代码提交 `c1dc66d98273b14d9a7989054d3d98d8474dcb98` 已推送并核验远端SHA。
+
+## 测试发布回执
+
+- 测试 Worker `shopline-quantity-breaks-test`：版本 `aad3b482-d29d-4a3c-8f05-61877849b59f`，100%流量，域名 https://app-test.vswwy.cn 。
+- 测试主题扩展 `10949`：2026-11-26 14:28:27（Asia/Shanghai）上传草稿；未提交审核或发布新应用版本。
+- 线上健康检查200；首页及HTML引用的两份入口JS与本地构建逐字节／SHA256一致；未授权活动接口401，缺失资源404。
+- 4项Secret名称保留，无待执行迁移；正式725文件与Git状态、测试9项身份／配置哈希均与保护基线一致。
+- Function源码与能力开关未变；真实平台SSR、购物车和结账仍未验收。以下截图和交互证据为本批本地验收，不能据此声称线上交易已验证。
 
 ## 用户要求与结果
 
