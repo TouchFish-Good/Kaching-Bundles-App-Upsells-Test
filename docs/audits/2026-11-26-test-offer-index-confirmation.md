@@ -32,9 +32,21 @@
 - 正式目录 725 个受保护文件哈希及 Git 状态不变；测试其余 8 项身份／凭据哈希不变，
   `worker/wrangler.toml` 与当前 HEAD 一致，保留此前已批准的 Function 能力配置。
 
-本批无主题、Function、前端、迁移或密钥改动。未推送／部署；待本批授权后发布，
-再由实际活动更新确认线上结果，未将真实活动更新、购物车或结账标为验证成功。
+本批无主题、Function、前端、迁移或密钥改动。用户批准后已推送／部署，
+仍需实际活动更新确认线上结果，未将真实活动更新、购物车或结账标为验证成功。
 
 目标 Git：`https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`
 分支：`codex/gifts-bundles-test`。
-拟提交：`fix(test): compare offer index JSON without object key ordering`。
+修复提交：`3e8ccc84db40fcf9660b665a879588d4dfaf4309`
+（`fix(test): compare offer index JSON without object key ordering`）。
+
+## 部署回执
+
+- 测试Worker：`shopline-quantity-breaks-test`；版本
+  `4dfda018-465b-4db4-82c4-85e54a30c391`，回读确认承接100%流量。
+- 测试域名：`https://app-test.vswwy.cn`；部署后健康检查200，首页及两份入口JS
+  与本地构建匹配；未授权活动接口401，缺失资源404。
+- 新旧版本全部绑定相同，4项Secret名称保留，测试App Key、Function ID、D1与能力配置未变。
+- 部署后再次确认正式725文件／原Git状态和测试其余8项身份／凭据未变。
+- 本批仅上传Worker后端修复，静态资源无新增上传；没有重新上传主题或Function，
+  也没有代替商家执行实际活动更新。

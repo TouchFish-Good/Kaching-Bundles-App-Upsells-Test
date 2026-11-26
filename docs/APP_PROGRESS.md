@@ -1,8 +1,8 @@
-# 2026-11-26 测试活动索引写入确认修复（本地待发布）
+# 2026-11-26 测试活动索引写入确认修复（已推送部署）
 
 - 只读测试店铺确认 SHOPLINE 已保存 `qb_test_offers.catalog_v1`，但返回 JSON 对象键顺序与构造顺序不同；原字符串比较误报 `Offer index write was not confirmed.`。改为递归比较 JSON 内容，应用于幂等判断、写响应及写后回读；数组顺序、内容、身份与租约校验保留。
 - 回归先复现2项同一错误，修复后索引／发布28项通过；真实响应本地回放确认旧比较失败、新 writer 读取后确认且0次写入。Worker类型检查、dry-run、隔离5项及diff检查通过，测试仍使用既有无凭据英文镜像。
-- 正式725文件与Git状态、测试其余8项身份／凭据及当前Worker配置保持一致。无平台写入、主题／Function／前端修改；真实活动更新仍待发布后重试。本批尚未推送或部署，详见[本批审计](audits/2026-11-26-test-offer-index-confirmation.md)。
+- 用户批准后，修复提交 `3e8ccc84db40fcf9660b665a879588d4dfaf4309` 已推送至测试Git的 `codex/gifts-bundles-test`；测试Worker版本 `4dfda018-465b-4db4-82c4-85e54a30c391` 承接100%流量，域名 `https://app-test.vswwy.cn`。线上健康200、首页及入口资源与本地一致、未授权活动接口401、缺失资源404；全部绑定与上一版本一致，保留4项Secret名称及测试App／Function／D1身份。正式725文件与Git状态、测试其余8项身份／凭据及当前Worker配置保持一致。无商家活动／元字段写入，无主题／Function／前端修改；真实活动更新仍待用户重试，详见[本批审计](audits/2026-11-26-test-offer-index-confirmation.md)。
 
 # 2026-11-26 测试活动发布能力配置修复（已推送部署）
 
