@@ -1,3 +1,9 @@
+# 2026-11-26 测试活动索引写入确认修复（本地待发布）
+
+- 只读测试店铺确认 SHOPLINE 已保存 `qb_test_offers.catalog_v1`，但返回 JSON 对象键顺序与构造顺序不同；原字符串比较误报 `Offer index write was not confirmed.`。改为递归比较 JSON 内容，应用于幂等判断、写响应及写后回读；数组顺序、内容、身份与租约校验保留。
+- 回归先复现2项同一错误，修复后索引／发布28项通过；真实响应本地回放确认旧比较失败、新 writer 读取后确认且0次写入。Worker类型检查、dry-run、隔离5项及diff检查通过，测试仍使用既有无凭据英文镜像。
+- 正式725文件与Git状态、测试其余8项身份／凭据及当前Worker配置保持一致。无平台写入、主题／Function／前端修改；真实活动更新仍待发布后重试。本批尚未推送或部署，详见[本批审计](audits/2026-11-26-test-offer-index-confirmation.md)。
+
 # 2026-11-26 测试活动发布能力配置修复（已推送部署）
 
 - 发布报错来自应用自身能力检查；测试 Worker 未配置 `SHOPLINE_OFFER_FUNCTION_CAPABILITIES`。根据用户指定桌面 `Discount Function` 接口表及指引，核对 sku 为款式 ID、目标数量上限、逐行固定金额和一致 appliesToEachItem 规则；保留校验，只为测试店铺 `buchaqian` 与现有测试 Function 增加配置。

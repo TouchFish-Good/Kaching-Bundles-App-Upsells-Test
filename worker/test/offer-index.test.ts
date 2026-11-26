@@ -38,6 +38,51 @@ it('uses exact namespace/key, idempotent create/readback and known-ID update wit
  await writeOfferIndex(session,index);await writeOfferIndex(session,index);const changed={...index,entries:[]};await writeOfferIndex(session,changed);
  const mutations=fetcher.mock.calls.filter(([,init])=>init?.method==='POST'||init?.method==='PUT');expect(mutations.map(([,init])=>init?.method)).toEqual(['POST','PUT']);expect(String(mutations[1][0])).toContain('/metafields/900719925474099312399.json');for(const [,init] of mutations){const headers=new Headers(init?.headers);expect(headers.get('Accept')).toBe('application/json');expect(headers.get('User-Agent')).toBe('SHOPLINE-Quantity-Breaks-App/1.0');}
 });
+// SHOPLINE's JSON metafields can reorder object keys, including nested objects.
+function reorderedJson(value: unknown): unknown {
+ if(Array.isArray(value))return value.map(reorderedJson);
+ if(value!==null&&typeof value==='object')return Object.fromEntries(Object.entries(value).reverse().map(([key,item])=>[key,reorderedJson(item)]));
+ return value;
+}
+it.each(['object','string'])('confirms reordered %s JSON and skips an identical retry',async representation=>{
+ const base=upstream();
+ const fetcher=vi.fn(async(url:RequestInfo|URL,init?:RequestInit)=>{
+  const response=await base(url,init),payload=await response.json() as any;
+  for(const field of payload.metafield?[payload.metafield]:payload.metafields??[]){
+   const value=reorderedJson(field.value);field.value=representation==='string'?JSON.stringify(value):value;
+  }
+  return Response.json(payload);
+ });
+ vi.stubGlobal('fetch',fetcher);
+ const index=await buildOfferIndex(session,[],offerDraft());
+ await expect(writeOfferIndex(session,index)).resolves.toBeUndefined();
+ await expect(writeOfferIndex(session,index)).resolves.toBeUndefined();
+ const changed={...index,entries:[]};
+ await expect(writeOfferIndex(session,changed)).resolves.toBeUndefined();
+ expect(fetcher.mock.calls.filter(([,init])=>init?.method).map(([,init])=>init?.method)).toEqual(['POST','PUT']);
+});
+it.each(['write','readback'])('rejects changed content, array order and identity during %s confirmation',async phase=>{
+ for(const fault of ['content','array-order','identity']){
+  stored=undefined;const base=upstream();let written=false;
+  vi.stubGlobal('fetch',vi.fn(async(url:RequestInfo|URL,init?:RequestInit)=>{
+   const response=await base(url,init),payload=await response.json() as any;
+   const mutation=init?.method==='POST'||init?.method==='PUT';
+   if((phase==='write'&&mutation)||(phase==='readback'&&written&&!mutation)){
+    const field=payload.metafield??payload.metafields?.[0];
+    field.value=reorderedJson(field.value);
+    if(fault==='content')field.value.entries[0].digest='different-digest';
+    if(fault==='array-order')field.value.entries[0].products[0].variantIds.reverse();
+    if(fault==='identity')field.id='900719925474099312400';
+   }
+   if(mutation)written=true;
+   return Response.json(payload);
+  }));
+  const index=await buildOfferIndex(session,[],offerDraft());
+  index.entries[0].products[0].variantIds.push('second-variant');
+  if(fault==='identity')stored={id:'900719925474099312399',namespace:'qb_test_offers',key:'catalog_v1',owner_resource:'shop',type:'json',value:{version:1,entries:[]}};
+  await expect(writeOfferIndex(session,index),fault).rejects.toThrow(phase==='write'?/write was not confirmed/:/readback was not confirmed/);
+ }
+});
 it('syncs candidate overlay inside existing lease before acknowledgement and keeps digest after final row revision',async()=>{
  const fetcher=upstream();vi.stubGlobal('fetch',fetcher);const repo=campaignRepository(bindings),c=offerDraft();c.status='draft';await repo.save('demo',c,0);
  const lease=await repo.beginPublication('demo',c.id,1,'publish');expect(stored.value.entries).toHaveLength(1);expect((await repo.get('demo',c.id))?.revision).toBe(1);

@@ -86,6 +86,18 @@ function fieldId(raw: unknown): string {
   throw new OfferIndexError('Metafield identity is unsafe.');
 }
 function decodedValue(value: unknown): unknown { if (typeof value !== 'string') return value; try { return JSON.parse(value); } catch { return null; } }
+/** JSON object key order is insignificant; array order and all values remain exact. */
+function sameJsonValue(actual: unknown, expected: unknown): boolean {
+  if (actual === expected) return true;
+  if (Array.isArray(actual) || Array.isArray(expected)) {
+    return Array.isArray(actual) && Array.isArray(expected) && actual.length === expected.length
+      && actual.every((value, index) => sameJsonValue(value, expected[index]));
+  }
+  if (!object(actual) || !object(expected)) return false;
+  const keys = Object.keys(expected);
+  return Object.keys(actual).length === keys.length
+    && keys.every(key => Object.hasOwn(actual, key) && sameJsonValue(actual[key], expected[key]));
+}
 async function readIndex(session: AuthContext): Promise<Record<string, unknown> | undefined> {
   const query = new URLSearchParams({ namespace: OFFER_INDEX_NAMESPACE, key: OFFER_INDEX_KEY, limit: '2' });
   const raw = await request(session, `/metafields.json?${query}`);
@@ -98,13 +110,13 @@ export async function writeOfferIndex(session: AuthContext, index: OfferIndex, a
   if (JSON.stringify(index).length > 500_000) throw new OfferIndexError('Offer index exceeds the platform metafield size limit.');
   await assertLease();
   const current = await readIndex(session);
-  if (JSON.stringify(decodedValue(current?.value)) === JSON.stringify(index)) { await assertLease(); return; }
+  if (sameJsonValue(decodedValue(current?.value), index)) { await assertLease(); return; }
   await assertLease();
   const id = current ? fieldId(current.id) : undefined;
   const payload = await request(session, id ? `/metafields/${encodeURIComponent(id)}.json` : '/metafields.json', { method: id ? 'PUT' : 'POST', body: JSON.stringify({ metafield: { ...(id ? { id } : { namespace: OFFER_INDEX_NAMESPACE, key: OFFER_INDEX_KEY }), type: 'json', value: index } }) });
-  if (!object(payload) || !metafield(payload.metafield) || (id && fieldId(payload.metafield.id) !== id) || JSON.stringify(decodedValue(payload.metafield.value)) !== JSON.stringify(index)) throw new OfferIndexError('Offer index write was not confirmed.');
+  if (!object(payload) || !metafield(payload.metafield) || (id && fieldId(payload.metafield.id) !== id) || !sameJsonValue(decodedValue(payload.metafield.value), index)) throw new OfferIndexError('Offer index write was not confirmed.');
   const confirmed = await readIndex(session);
-  if (!confirmed || fieldId(confirmed.id) !== fieldId(payload.metafield.id) || JSON.stringify(decodedValue(confirmed.value)) !== JSON.stringify(index)) throw new OfferIndexError('Offer index readback was not confirmed.');
+  if (!confirmed || fieldId(confirmed.id) !== fieldId(payload.metafield.id) || !sameJsonValue(decodedValue(confirmed.value), index)) throw new OfferIndexError('Offer index readback was not confirmed.');
   await assertLease();
 }
 /** Injected only in publication-capable repositories. Existing D1 shop lease serializes aggregate read/build/write. */
