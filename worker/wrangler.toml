@@ -34,6 +34,9 @@ SHOPLINE_APP_URL = "https://app-test.vswwy.cn"
 SHOPLINE_PRODUCT_DISCOUNT_FUNCTION_ID = "754292a155d740809a5437a3f8c59231"
 SCOPES = "read_products,write_products,read_discounts,write_discounts,read_store_information,read_markets,read_translation,read_orders"
 SHOPLINE_QUANTITY_BREAKS_PUBLICATION_ENABLED = "true"
+# Test shop only. Desktop Discount Function input/output contract and WASM
+# verification evidence: docs/audits/2026-11-26-test-offer-function-capability.md.
+SHOPLINE_OFFER_FUNCTION_CAPABILITIES = '{"buchaqian":{"functionId":"754292a155d740809a5437a3f8c59231","protocol":"gift-bundles-v1","skuIsVariantId":true,"lineTotalTargets":true}}'
 
 # Scheduler parity with source; runs against the independent test DB only.
 [triggers]

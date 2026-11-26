@@ -35,3 +35,14 @@ test('local Worker secrets and database files stay ignored', () => {
   assert.match(ignore, /app\/quantity-breaks\.sqlite/);
   assert.match(ignore, /app\/admin-read\.sqlite/);
 });
+
+test('gift and bundle publication is enabled only for the documented test shop and Function', () => {
+  const config = read('worker/wrangler.toml');
+  const entry = /^SHOPLINE_OFFER_FUNCTION_CAPABILITIES\s*=\s*'([^']+)'\s*$/m.exec(config);
+  assert.ok(entry, 'Test deployment must carry the verified gift/bundle capability map.');
+  const capabilities = JSON.parse(entry[1]);
+  assert.deepEqual(Object.keys(capabilities), ['buchaqian']);
+  assert.deepEqual(capabilities.buchaqian, {
+    functionId, protocol: 'gift-bundles-v1', skuIsVariantId: true, lineTotalTargets: true,
+  });
+});
