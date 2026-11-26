@@ -27,8 +27,10 @@
 
 ## 发布状态与边界
 
-本批配置、回归及记录仅在本地更新，尚未提交、推送或部署。线上原能力开关仍关闭，当前报错需部署本批配置后才会解除该拦截。
+用户明确批准“推送并部署”后，本批修复提交 `72cfb84676e2a0a08908913c2efe032f3c9fe596` 已推送至测试分支并核验远端SHA。测试 Worker `shopline-quantity-breaks-test` 已部署版本 `cf25f84d-3324-4181-9ec8-29cd8c1bd993`，回读确认100%流量；版本绑定中能力配置仅包含 `buchaqian` 与既有测试 Function。
+
+线上 `https://app-test.vswwy.cn/health` 返回200，首页及两份入口JS与本地构建一致，未授权活动接口401、缺失资源404。4项Secret名称保留，正式725份文件／Git状态及其他8项测试身份配置与基线一致。没有重复上传主题或Function。此结果验证能力配置已上线，未代替用户重新发布活动，也不宣称实际发布请求已成功。
 
 没有创建临时平台活动、修改商家活动、写入购物车、提交订单或绕过审核。真实平台加购／计价、原生主题元字段可见性、市场金额白名单与结账仍待部署后联调；不把契约核对和本地 WASM 执行写成实店交易验收。
 
-拟提交：`fix(test): configure documented gift bundle Function capability`。目标仓库 `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。
+修复提交：`fix(test): configure documented gift bundle Function capability`。目标仓库 `https://github.com/TouchFish-Good/Kaching-Bundles-App-Upsells-Test.git`，分支 `codex/gifts-bundles-test`。
