@@ -22,6 +22,8 @@
     {{#each (JSONparse '["products","collections","all"]') as |priority|}}
       {{#each @root.shop.metafields.qb_test_offers.catalog_v1.value.entries as |entry|}}
         {{#if entry.scope.kind '==' priority}}
+          {{!-- Shared flags/counters belong to root, not the current entry/ref. --}}
+          {{#with @root}}
           {{ assign 'qb_offer_scope' false }}
           {{ assign 'qb_offer_excluded' false }}
           {{#if entry.scope.kind '==' 'all'}}{{ assign 'qb_offer_scope' true }}{{/if}}
@@ -32,6 +34,7 @@
             {{#unless @root.qb_offer_excluded}}
             <div data-offer-entry="{{ entry.campaignId }}" data-digest="{{ entry.digest }}">
               {{#each entry.products as |ref|}}
+              {{#with @root}}
               <div data-offer-ref="{{ ref.id }}" data-handle="{{ ref.handle }}">
                 {{#each ref.variantIds as |allowed|}}<i data-offer-allowed="{{ allowed }}"></i>{{/each}}
               </div>
@@ -42,7 +45,7 @@
                   {{ assign 'qb_offer_count' (plus @root.qb_offer_count 1) }}
                   {{ assign 'qb_offer_product' (get ref.handle @root.all_products) }}
                   {{#if @root.qb_offer_product}}
-                  <div data-offer-product="{{ @root.qb_offer_product.id }}" data-handle="{{ @root.qb_offer_product.handle }}" data-title="{{ @root.qb_offer_product.title }}">
+                  <div data-offer-product="{{ @root.qb_offer_product.id }}" data-handle="{{ @root.qb_offer_product.handle }}" data-title="{{ @root.qb_offer_product.title }}" data-image="{{ image_url @root.qb_offer_product.featured_image width=160 height=160 }}">
                     {{#each @root.qb_offer_product.variants as |variant|}}
                     <span data-offer-variant="{{ variant.id }}" data-title="{{ variant.title }}" data-price="{{ variant.price }}" data-available="{{ variant.available }}" data-image="{{ image_url variant.image width=160 height=160 }}"></span>
                     {{/each}}
@@ -50,10 +53,12 @@
                   {{/if}}
                 {{/if}}
               {{/contains}}
+              {{/with}}
               {{/each}}
             </div>
             {{/unless}}
           {{/if}}
+          {{/with}}
         {{/if}}
       {{/each}}
     {{/each}}

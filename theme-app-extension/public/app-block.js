@@ -726,9 +726,12 @@ return exports; })();
     const values = new Map();
     for (const p of properties) {
       if (!p || typeof p.name !== 'string' || typeof p.value !== 'string' || values.has(p.name)) return null;
-      // Identity includes exact official visibility/type metadata and any extra
-      // personalization properties. A normal variant cannot confirm a gift.
-      values.set(p.name, [p.value,p.type,p.show,p.roleVisibility]);
+      // Compare effective visibility: cart responses may include legacy show
+      // defaults even when the request uses roleVisibility alone.
+      let visibility=p.roleVisibility;
+      if(visibility==null || visibility==='')visibility=p.show===true?'all':p.show===false || p.show==null?'none':null;
+      if(!['customer','merchant','all','none'].includes(visibility))return null;
+      values.set(p.name, [p.value,p.type,visibility]);
     }
     return JSON.stringify([...values].sort(([a],[b]) => a.localeCompare(b)));
   }
@@ -756,7 +759,7 @@ return exports; })();
     for (const item of all) {
       if (!offerId(item.id) || !offerId(item.productId) || !['main','gift','bundle'].includes(item.role) || !Number.isSafeInteger(item.quantity) || item.quantity <= 0 || (item.role !== 'main' && (!offerId(item.ruleId) || item.productId === context.productId))) throw Error('Invalid composite item');
       const data = { _qb_protocol:'gift-bundles-v1', _qb_campaign:context.campaignId, _qb_role:item.role, ...(item.role !== 'main' ? {_qb_rule:item.ruleId} : {}), _qb_source_product:context.productId, _qb_context:context.context };
-      const properties = propertyNames.filter(name => name in data).map(name => ({name,value:data[name],type:'text',show:false,roleVisibility:'none'}));
+      const properties = propertyNames.filter(name => name in data).map(name => ({name,value:data[name],type:'text',roleVisibility:'none'}));
       const line = { id:item.id,quantity:item.quantity,properties,productId:item.productId,productHandle:item.handle || '' };
       const key = cartIdentity(line), prior = grouped.get(key);
       if (prior) { prior.quantity += item.quantity; if (!Number.isSafeInteger(prior.quantity)) throw Error('Unsafe quantity'); }
@@ -819,6 +822,14 @@ return exports; })();
     const result = Number(numerator / denominator);
     return safeAmount(result) ? result : null;
   }
+  function offerImageUrl(value) {
+    const image=typeof value==='string'?value.trim():'';
+    if(/^data:image\//i.test(image))return image;
+    try {
+      const url=new URL(image.startsWith('//')?'https:'+image:image);
+      return ['http:','https:'].includes(url.protocol)?url.href:'';
+    } catch (_) { return ''; }
+  }
   function readNativeOffers(block) {
     const root = block.querySelector('[data-offer-native-catalog]');
     if (!root) return null;
@@ -833,9 +844,9 @@ return exports; })();
         if(owners.has(variantId) && owners.get(variantId)!==id)return null;
         owners.set(variantId,id);
         seen.add(variantId);
-        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true'?true:v.dataset.available==='false'?false:null,priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:v.dataset.image || ''});
+        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true'?true:v.dataset.available==='false'?false:null,priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:offerImageUrl(v.dataset.image)});
       }
-      products.set(id,{id,handle:node.dataset.handle,title:node.dataset.title || node.dataset.handle,variants});
+      products.set(id,{id,handle:node.dataset.handle,title:node.dataset.title || node.dataset.handle,image:offerImageUrl(node.dataset.image),variants});
     }
     for (const node of root.querySelectorAll('[data-offer-entry]')) entries.push({id:node.dataset.offerEntry,digest:node.dataset.digest,refs:Array.from(node.querySelectorAll('[data-offer-ref]'),r=>({id:r.dataset.offerRef,handle:r.dataset.handle,variantIds:Array.from(r.querySelectorAll('[data-offer-allowed]'),v=>v.dataset.offerAllowed)}))});
     return {currency:root.dataset.currency,locale:root.dataset.locale,country:root.dataset.countryCode || '',products,entries};
@@ -944,8 +955,8 @@ return exports; })();
           const card=element(doc,'article','qb-offer-card');card.dataset.offerRule=rule.ruleId;card.dataset.offerRole=kind==='gifts'?'gift':'bundle';card.dataset.included=String(c.included);
           card.dataset.locked=String(!c.eligible);
           if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
-          const image=c.selected.find(v=>v?.image)?.image;
-          if(rule.showImage && image && /^(https?:|data:image\/)/.test(image)){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
+          const image=c.selected.find(v=>v?.image)?.image || c.product?.image;
+          if(rule.showImage && image){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
           const productTitle=element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable'));
           if(kind==='gifts')card.append(productTitle);
           const tier=c.unlockTier;
@@ -1160,9 +1171,7 @@ return exports; })();
     summary.append(checkoutNote);
     if (heading) block.append(heading);
     const offers=createOffers(block,campaign,envelope,saved.native,saved,doc,copy,currency,shopCurrency,locale,mediaQuery,tier=>{selectedTier=tier;render();},()=>render());
-    const checkCart=element(doc,'button','qb-check-cart qb-offer-select',copy('widget.check_cart','Check cart'));
-    checkCart.type='button';checkCart.dataset.checkCart='';checkCart.hidden=true;
-    block.append(choices, ...(offers.hasModules?[offers.container]:[]), summary, button, status, checkCart);
+    block.append(choices, ...(offers.hasModules?[offers.container]:[]), summary, button, status);
 
     function availableForOption(index, name, value) {
       const selected = catalog.variants.find((variant) => variant.id === selections[index]);
@@ -1328,19 +1337,17 @@ return exports; })();
       const requiresCheckoutNote = !unavailable && (preview?.total == null || !summaryPricing);
       checkoutNote.hidden = !requiresCheckoutNote;
       checkoutNote.textContent = requiresCheckoutNote ? copy('widget.calculated_at_checkout', 'Calculated at checkout') : '';
-      buttonLabel.textContent = unavailable
+      const transaction=saved.transaction;
+      const canCheck=transaction?.status==='uncertain' && typeof transaction.resolve==='function';
+      buttonLabel.textContent = canCheck ? copy('widget.check_cart','Check cart') : unavailable
         ? copy('widget.sold_out', 'Sold out')
         : copy('widget.add_to_cart', 'Add {quantity} to cart · {price}', { quantity:quantity+(accessoryActive?accessory.quantity:0), price: total.textContent });
-      const transaction=saved.transaction;
       const busy=adding || transaction?.status==='pending' || transaction?.checking===true;
       buttonLabel.hidden = busy;
       rotator.hidden = !busy;
       button.setAttribute('aria-label', buttonLabel.textContent);
       button.setAttribute('aria-busy', String(busy));
-      button.disabled = busy || Boolean(transaction) || unavailable || Boolean(validity.reason);
-      checkCart.hidden = transaction?.status!=='uncertain';
-      checkCart.disabled = transaction?.checking===true;
-      checkCart.setAttribute('aria-busy',String(transaction?.checking===true));
+      button.disabled = busy || (transaction ? !canCheck : unavailable || Boolean(validity.reason));
       const result=saved.cartResult;
       status.textContent = result?.status === 'added' ? copy('widget.cart_success', '{quantity} items were added as {lines} cart lines.', {quantity:result.quantity,lines:result.lines}) : transaction?.status==='uncertain' || result?.status==='uncertain'
         ? copy('widget.cart_uncertain', 'We could not confirm your cart. Check it before trying again.') : result?.status==='invalid'
@@ -1366,7 +1373,16 @@ return exports; })();
       render();
     };
     button.addEventListener('click', async () => {
-      if (button.disabled || adding || saved.transaction || lifecycle.disposed || saved.generation!==generation) return;
+      if (button.disabled || adding || lifecycle.disposed || saved.generation!==generation) return;
+      const pending=saved.transaction;
+      if(pending) {
+        if(pending.status!=='uncertain' || pending.checking || typeof pending.resolve!=='function')return;
+        pending.checking=true;saved.render?.();
+        let result;
+        try{result=await pending.resolve();}catch(_){result={status:'uncertain',resolve:pending.resolve};}
+        await settleCart(result,pending.items,pending);
+        return;
+      }
       adding = true;
       saved.cartResult=null;
       status.textContent = '';
@@ -1399,14 +1415,6 @@ return exports; })();
         cartResponse:result.cartResponse,fetcher:transaction?.fetcher || fetcher,
       },scope).catch(()=>{ /* Optional notification cannot change a confirmed result. */ });
     }
-    checkCart.addEventListener('click',async()=>{
-      const transaction=saved.transaction;
-      if(transaction?.status!=='uncertain' || transaction.checking || typeof transaction.resolve!=='function' || lifecycle.disposed || saved.generation!==generation)return;
-      transaction.checking=true;saved.render?.();
-      let result;
-      try{result=await transaction.resolve();}catch(_){result={status:'uncertain',resolve:transaction.resolve};}
-      await settleCart(result,transaction.items,transaction);
-    });
     render();
   }
 

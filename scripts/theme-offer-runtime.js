@@ -11,9 +11,12 @@
     const values = new Map();
     for (const p of properties) {
       if (!p || typeof p.name !== 'string' || typeof p.value !== 'string' || values.has(p.name)) return null;
-      // Identity includes exact official visibility/type metadata and any extra
-      // personalization properties. A normal variant cannot confirm a gift.
-      values.set(p.name, [p.value,p.type,p.show,p.roleVisibility]);
+      // Compare effective visibility: cart responses may include legacy show
+      // defaults even when the request uses roleVisibility alone.
+      let visibility=p.roleVisibility;
+      if(visibility==null || visibility==='')visibility=p.show===true?'all':p.show===false || p.show==null?'none':null;
+      if(!['customer','merchant','all','none'].includes(visibility))return null;
+      values.set(p.name, [p.value,p.type,visibility]);
     }
     return JSON.stringify([...values].sort(([a],[b]) => a.localeCompare(b)));
   }
@@ -41,7 +44,7 @@
     for (const item of all) {
       if (!offerId(item.id) || !offerId(item.productId) || !['main','gift','bundle'].includes(item.role) || !Number.isSafeInteger(item.quantity) || item.quantity <= 0 || (item.role !== 'main' && (!offerId(item.ruleId) || item.productId === context.productId))) throw Error('Invalid composite item');
       const data = { _qb_protocol:'gift-bundles-v1', _qb_campaign:context.campaignId, _qb_role:item.role, ...(item.role !== 'main' ? {_qb_rule:item.ruleId} : {}), _qb_source_product:context.productId, _qb_context:context.context };
-      const properties = propertyNames.filter(name => name in data).map(name => ({name,value:data[name],type:'text',show:false,roleVisibility:'none'}));
+      const properties = propertyNames.filter(name => name in data).map(name => ({name,value:data[name],type:'text',roleVisibility:'none'}));
       const line = { id:item.id,quantity:item.quantity,properties,productId:item.productId,productHandle:item.handle || '' };
       const key = cartIdentity(line), prior = grouped.get(key);
       if (prior) { prior.quantity += item.quantity; if (!Number.isSafeInteger(prior.quantity)) throw Error('Unsafe quantity'); }
@@ -104,6 +107,14 @@
     const result = Number(numerator / denominator);
     return safeAmount(result) ? result : null;
   }
+  function offerImageUrl(value) {
+    const image=typeof value==='string'?value.trim():'';
+    if(/^data:image\//i.test(image))return image;
+    try {
+      const url=new URL(image.startsWith('//')?'https:'+image:image);
+      return ['http:','https:'].includes(url.protocol)?url.href:'';
+    } catch (_) { return ''; }
+  }
   function readNativeOffers(block) {
     const root = block.querySelector('[data-offer-native-catalog]');
     if (!root) return null;
@@ -118,9 +129,9 @@
         if(owners.has(variantId) && owners.get(variantId)!==id)return null;
         owners.set(variantId,id);
         seen.add(variantId);
-        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true'?true:v.dataset.available==='false'?false:null,priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:v.dataset.image || ''});
+        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true'?true:v.dataset.available==='false'?false:null,priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:offerImageUrl(v.dataset.image)});
       }
-      products.set(id,{id,handle:node.dataset.handle,title:node.dataset.title || node.dataset.handle,variants});
+      products.set(id,{id,handle:node.dataset.handle,title:node.dataset.title || node.dataset.handle,image:offerImageUrl(node.dataset.image),variants});
     }
     for (const node of root.querySelectorAll('[data-offer-entry]')) entries.push({id:node.dataset.offerEntry,digest:node.dataset.digest,refs:Array.from(node.querySelectorAll('[data-offer-ref]'),r=>({id:r.dataset.offerRef,handle:r.dataset.handle,variantIds:Array.from(r.querySelectorAll('[data-offer-allowed]'),v=>v.dataset.offerAllowed)}))});
     return {currency:root.dataset.currency,locale:root.dataset.locale,country:root.dataset.countryCode || '',products,entries};
@@ -229,8 +240,8 @@
           const card=element(doc,'article','qb-offer-card');card.dataset.offerRule=rule.ruleId;card.dataset.offerRole=kind==='gifts'?'gift':'bundle';card.dataset.included=String(c.included);
           card.dataset.locked=String(!c.eligible);
           if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
-          const image=c.selected.find(v=>v?.image)?.image;
-          if(rule.showImage && image && /^(https?:|data:image\/)/.test(image)){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
+          const image=c.selected.find(v=>v?.image)?.image || c.product?.image;
+          if(rule.showImage && image){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
           const productTitle=element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable'));
           if(kind==='gifts')card.append(productTitle);
           const tier=c.unlockTier;

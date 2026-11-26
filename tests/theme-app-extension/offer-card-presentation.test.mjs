@@ -2,6 +2,48 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { setupOffers, offerCampaign, offerMarkup, changeOfferSelection } from './helpers/offer-fixture.mjs';
 
+// The selected variant must supply the card image; CDN URLs without a scheme
+// must not disappear, and an image-less variant must not retain a sibling image.
+test('gift and bundle images follow variant selection including protocol-relative CDN URLs', async () => {
+  for (const id of ['a', 'c']) {
+    const h = setupOffers();
+    h.block.querySelector(`[data-offer-variant="v-${id}"]`).dataset.image = `https://cdn.example.com/${id}-small.jpg`;
+    h.block.querySelector(`[data-offer-variant="v-${id}-2"]`).dataset.image = `//cdn.example.com/${id}-large.jpg`;
+    await h.theme.mountBlock(h.block);
+    const card = () => h.block.querySelector(`[data-offer-rule="${id}"]`);
+    assert.equal(card().querySelector('img')?.getAttribute('src'), `https://cdn.example.com/${id}-small.jpg`);
+    const select = card().querySelector('select');
+    Array.from(select.options).forEach(option => option.selected = option.value === `v-${id}-2`);
+    select.dispatchEvent(new h.window.Event('change'));
+    assert.equal(card().querySelector('img')?.getAttribute('src'), `https://cdn.example.com/${id}-large.jpg`);
+    assert.equal(card().querySelector('select').value, `v-${id}-2`);
+    h.resize();
+    assert.equal(card().querySelector('img')?.getAttribute('src'), `https://cdn.example.com/${id}-large.jpg`);
+  }
+});
+
+test('image-less selected offers use their own product image and respect hidden-image settings', async () => {
+  const h = setupOffers();
+  for (const id of ['a', 'c']) {
+    h.block.querySelector(`[data-offer-product="p-${id}"]`).dataset.image = `//cdn.example.com/${id}-product.jpg`;
+    h.block.querySelector(`[data-offer-variant="v-${id}"]`).dataset.image = `https://cdn.example.com/${id}-small.jpg`;
+  }
+  await h.theme.mountBlock(h.block);
+  for (const id of ['a', 'c']) {
+    const select = h.block.querySelector(`[data-offer-rule="${id}"] select`);
+    Array.from(select.options).forEach(option => option.selected = option.value === `v-${id}-2`);
+    select.dispatchEvent(new h.window.Event('change'));
+    assert.equal(h.block.querySelector(`[data-offer-rule="${id}"] img`)?.getAttribute('src'), `https://cdn.example.com/${id}-product.jpg`);
+  }
+  const campaign = offerCampaign();
+  campaign.gifts.items[0].showImage = false;
+  const hidden = setupOffers({ campaign });
+  hidden.block.querySelector('[data-offer-product="p-a"]').dataset.image = 'https://cdn.example.com/product.jpg';
+  hidden.block.querySelector('[data-offer-variant="v-a"]').dataset.image = 'https://cdn.example.com/variant.jpg';
+  await hidden.theme.mountBlock(hidden.block);
+  assert.equal(hidden.block.querySelector('[data-offer-rule="a"] img'), null);
+});
+
 function lockedCampaign() {
   const campaign = offerCampaign();
   campaign.bundles.items[0].trigger.quantity = 5;

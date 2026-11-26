@@ -23,7 +23,9 @@ export function renderOs21(context = os21Context) {
   hbs.registerHelper('schema', () => '');
   // Documented SHOPLINE helpers are modeled only for local template fixtures.
   // This is not the platform renderer or a claim about merchant permissions.
-  hbs.registerHelper('assign', function(key,value,options) { options.data.root[key]=value; return ''; });
+  // Do not assume nested assignments mutate @root. Exercise context-local
+  // assignment so templates must explicitly choose their shared state owner.
+  hbs.registerHelper('assign', function(key,value) { this[key]=value; return ''; });
   hbs.registerHelper('get', (key,object) => object?.[key]);
   hbs.registerHelper('append', (a,b) => String(a)+String(b));
   hbs.registerHelper('plus', (a,b) => a+b);

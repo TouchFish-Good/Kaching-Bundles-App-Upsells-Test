@@ -8,6 +8,7 @@ test('native block negotiates v2 and includes cumulative immutable gifts, with m
   assert.equal(new URL(h.calls[0].url).searchParams.get('clientFeatures'),'gift-bundles-v1');
   assert.equal(h.block.querySelectorAll('[data-offer-role="gift"][data-included="true"]').length,2);
   assert.equal(h.block.querySelectorAll('[data-offer-role="gift"] input[type="checkbox"]').length,0);
+  assert.equal(h.block.querySelector('[data-check-cart]'),null,'no extra cart-check control is rendered');
   changeOfferSelection(h,'c');
   changeOfferSelection(h,'d');
   assert.equal(h.block.querySelectorAll('[data-offer-role="bundle"][data-included="true"]').length,2);
@@ -55,10 +56,35 @@ test('composite cart submits one flat hidden-property batch and confirms by exac
   const h=setupOffers(); await h.theme.mountBlock(h.block);
   const items=h.theme.buildCompositeItems([{id:'v-main',quantity:4}], [{id:'v-a',quantity:1,role:'gift',ruleId:'a',productId:'p-a',handle:'p-a'}], {campaignId:'offers',productId:'main',productHandle:'main-handle',context:'ctx'});
   assert.equal(items.length,2);
-  for (const item of items) for (const p of item.properties) assert.deepEqual({type:p.type,show:p.show,roleVisibility:p.roleVisibility},{type:'text',show:false,roleVisibility:'none'});
+  for (const item of items) for (const p of item.properties) {
+    assert.equal(p.type,'text');assert.equal(p.roleVisibility,'none');
+    assert.equal(Object.hasOwn(p,'show'),false,'mutually exclusive visibility inputs must not be sent together');
+  }
   let posts=0,reads=0;
   const result=await h.theme.addComposite(items,async(url,init)=>{assert.equal(url,'/cart/add');posts++; const body=JSON.parse(init.body);assert.equal(body.items.length,2);assert.equal(body.items[0].item_components,undefined); throw Error('timeout');},async()=>{reads++; return {items:reads===1 ? [] : [{id:'v-main',quantity:4,properties:items[0].properties},{id:'v-a',quantity:1,properties:null}]};});
   assert.equal(posts,1);assert.equal(reads,2);assert.equal(result.status,'uncertain');
+});
+test('composite add accepts equivalent hidden visibility defaults in the platform response',async()=>{
+  const {theme}=setupOffers();
+  const items=theme.buildCompositeItems([{id:'main-v',quantity:2}],[{id:'gift-v',quantity:1,role:'gift',ruleId:'a',productId:'gift-p'}],{campaignId:'offers',productId:'main',context:'ctx'});
+  let posts=0;
+  const result=await theme.addComposite(items,async(url,init)=>{
+    assert.equal(url,'/cart/add');posts++;
+    const sent=JSON.parse(init.body).items;
+    for(const item of sent)for(const p of item.properties)assert.equal(Object.hasOwn(p,'show'),false);
+    return {ok:true,json:async()=>({items:sent.map(item=>({...item,properties:item.properties.map(p=>({...p,show:false}))}))})};
+  },async()=>({items:[]}));
+  assert.equal(result.status,'added');assert.equal(posts,1);
+});
+test('visibility normalization rejects differently visible or invalid cart lines',async()=>{
+  const {theme}=setupOffers();
+  const items=theme.buildCompositeItems([{id:'main-v',quantity:1}],[{id:'gift-v',quantity:1,role:'gift',ruleId:'a',productId:'gift-p'}],{campaignId:'offers',productId:'main',context:'ctx'});
+  for(const roleVisibility of ['customer','merchant','all','invalid']){
+    const visible=items.map(item=>({...item,properties:item.properties.map(p=>({...p,roleVisibility}))}));
+    let reads=0;
+    const result=await theme.addComposite(items,async()=>({ok:true,json:async()=>({items:visible})}),async()=>({items:++reads===1?[]:visible}));
+    assert.equal(result.status,'uncertain',roleVisibility);
+  }
 });
 
 test('v2 capability, native context, exact digest/whitelist and explicit availability are required independently', async () => {
@@ -98,6 +124,28 @@ test('OS2.1 native template preloads lower scheduled candidates, filters product
   assert.equal(lookups.includes('irrelevant'),false);assert.equal(lookups.includes('excluded'),false);
   assert.ok(block.querySelector('[data-offer-entry="lower"]'),'future higher priority cannot suppress lower preload');
   assert.equal(block.querySelectorAll('[data-offer-product]').length,20);
+});
+test('OS2.1 rendered index resolves a native gift through nested scopes and mounts its title and price',async()=>{
+  const context=structuredClone(os21Context),campaign=offerCampaign();
+  context.product.id='main';campaign.gifts.items=[rule('a')];campaign.bundles.enabled=false;
+  context.all_products={'gift-handle':{id:'p-a',handle:'gift-handle',title:'Native gift T-shirt',featured_image:'//cdn.example.com/gift.jpg',variants:[
+    {id:'v-a',title:'S',price:2000,available:true},
+    {id:'v-a-2',title:'L',price:4000,available:false},
+  ]}};
+  context.shop.metafields={qb_test_offers:{catalog_v1:{value:{version:1,entries:[{
+    campaignId:'offers',digest,scope:{kind:'products',productIds:['main'],excludedProductIds:['p-a']},
+    products:[{id:'p-a',handle:'gift-handle',variantIds:['v-a','v-a-2']}],
+  }]}}}};
+  const h=setupOffers({campaign,markup:renderOs21(context)});
+  assert.equal(h.block.querySelector('[data-offer-product="p-a"]')?.dataset.title,'Native gift T-shirt');
+  await h.theme.mountBlock(h.block);
+  const card=h.block.querySelector('[data-offer-rule="a"]');
+  assert.equal(card?.dataset.included,'true');
+  assert.equal(card.querySelector('.qb-offer-title').textContent,'Native gift T-shirt');
+  assert.equal(card.querySelector('img')?.getAttribute('src'),'https://cdn.example.com/gift.jpg');
+  assert.match(card.textContent,/\$20\.00/);
+  assert.doesNotMatch(card.textContent,/Unavailable/);
+  assert.equal(card.querySelectorAll('select option').length,1,'sold out variant is not selectable');
 });
 test('timeout can confirm complete exact composite identities, and never retries a POST',async()=>{
   const {theme}=setupOffers();const items=theme.buildCompositeItems([{id:'main-v',quantity:4}],[{id:'gift-v',quantity:1,role:'gift',ruleId:'a',productId:'gift-p'}],{campaignId:'offers',productId:'main',context:'ctx'});
@@ -171,23 +219,24 @@ test('unresolved composite transaction survives render, forced click, lifecycle,
   };
   const h=setupOffers({fetcher}),lifecycle={};await h.theme.mountBlock(h.block,fetcher,lifecycle);
   h.block.querySelector('[data-add-bundle]').click();await flushCart();
-  assert.equal(posts,1);assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
-  h.resize();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true,'viewport render retains transaction lock');
-  h.block.querySelector('[data-tier-id="t2"] .qb-tier-header').click();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  assert.equal(posts,1);assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false,'existing action can perform a read-only check');
+  h.resize();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false);
+  h.block.querySelector('[data-tier-id="t2"] .qb-tier-header').click();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false);
   const forceClick=()=>{const b=h.block.querySelector('[data-add-bundle]');b.disabled=false;b.dispatchEvent(new h.window.Event('click'));};
   forceClick();await flushCart();assert.equal(posts,1,'handler checks persistent lock');
   lifecycle.disposed=true;lifecycle.cleanup();h.block.remove();h.document.append(h.block);lifecycle.disposed=false;lifecycle.resume();
-  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false);
   campaign.revision++;campaign.gifts.enabled=false;campaign.bundles.enabled=false;await h.theme.mountBlock(h.block,fetcher);
-  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true,'disabled-offer revision retains original transaction');
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false,'disabled-offer revision retains a read-only action for the original transaction');
   assert.match(h.block.querySelector('.qb-status').textContent,/confirm/);
-  const check=h.block.querySelector('[data-check-cart]');assert.ok(check && !check.hidden,'explicit read-only resolution is available');
-  check.click();await flushCart();assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true,'empty cart snapshot is not proof write failed');
-  assert.equal(posts,1);assert.equal(reads,3);
-  confirmed=true;h.block.querySelector('[data-check-cart]').click();await flushCart();
-  assert.equal(posts,1,'resolution never reissues POST');assert.equal(reads,4);
+  assert.equal(h.block.querySelector('[data-check-cart]'),null,'no standalone check cart button');
+  const check=h.block.querySelector('[data-add-bundle]');assert.match(check.textContent,/Check cart/);
+  check.click();await flushCart();assert.match(h.block.querySelector('.qb-status').textContent,/confirm/,'empty cart snapshot is not proof write failed');
+  assert.equal(posts,1);assert.equal(reads,4);
+  confirmed=true;h.block.querySelector('[data-add-bundle]').click();await flushCart();
+  assert.equal(posts,1,'resolution never reissues POST');assert.equal(reads,5);
   assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false,'exact confirmed transaction clears lock');
-  assert.equal(h.block.querySelector('[data-check-cart]').hidden,true);
+  assert.doesNotMatch(h.block.querySelector('[data-add-bundle]').textContent,/Check cart/);
 });
 test('pending composite write is locked across remount before ambiguous response arrives',async()=>{
   let posts=0,rejectPost;
@@ -202,8 +251,8 @@ test('pending composite write is locked across remount before ambiguous response
   assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
   h.block.querySelector('[data-add-bundle]').dispatchEvent(new h.window.Event('click'));assert.equal(posts,1);
   rejectPost(Error('timeout'));await flushCart();
-  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,true);
-  assert.equal(h.block.querySelector('[data-check-cart]').hidden,false);
+  assert.equal(h.block.querySelector('[data-add-bundle]').disabled,false);
+  assert.equal(h.block.querySelector('[data-check-cart]'),null);
 });
 test('stale locale response is discarded and independent simultaneous blocks deduplicate negotiation',async()=>{
   let resolve,calls=0;const promise=new Promise(r=>resolve=r);
