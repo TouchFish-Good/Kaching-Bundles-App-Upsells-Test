@@ -1,5 +1,12 @@
 # Component Inventory
 
+## 2026-11-26 测试环境界面与预览修订（本批最新规则）
+
+新增OfferVariantPicker（≤5内联/>5复用SelectionDialog）、OfferTriggerEditor（动态tierId预设/自定义）、OfferColorPicker（共用色谱算法及弹层样式）；OfferStyleEditor复用折扣布局/颜色/字体控件。OfferPreview将模拟checked与可信included分开。Worker预览添加available/sold_out/unknown及不可用原因，保留REST核验后的款式标题与选项；价格仍仅在已验证主市场/默认币种上下文返回。共享layout新增可选cardLayout，旧配置保持兼容。
+
+本节取代下方历史段落中“关闭隐藏配置”和“预览缺价禁用勾选”的约定；赠品自动加入、捆绑每规则1件、原生目录及实际优惠校验不变。实现与本地证据见[本批验收记录](local/gifts-bundles-refinement/README.md)。本批未推送或部署，真实平台验收另列。
+
+
 **用户最新交互裁定（Task7已本地验证，取代此前冲突展示约定）：** 捆绑每规则固定1件，新旧配置统一为 `quantity=1`，商家和买家均无捆绑数量选择器，每规则只提供一个款式槽位；赠品配置数量仍可设置。每个合格主Product为捆绑规则贡献1件额度的既有独立额度池语义保持。赠品卡片不显示 Included/已包含/随单加入等重复状态文案；捆绑选择与取消使用原生 `input type="checkbox"`，保留单选/多选配置及锁卡点击解锁并选择。此裁定已在Task7完成本地实现与验证：共享规范化、SQLite/D1读写、公开与Function投影、Go执行、React和两代主题一致；实际本地截图与测试见 `docs/local/gifts-bundles-task7/`。全分支独立审阅已完成；整合修复的一次定向复审及真实平台验收仍未完成。
 
 ## 测试环境双模块组件（2026-11-25，本地已实现）

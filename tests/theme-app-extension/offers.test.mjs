@@ -276,3 +276,74 @@ test('theme carousel nested select arrows stay native and buttons track scroll b
  Object.defineProperties(grid,{clientWidth:{value:300},scrollWidth:{value:900},scrollLeft:{value:0,writable:true}});grid.dispatchEvent(new h.window.Event('scroll'));const buttons=section.querySelectorAll('.qb-offer-nav button');assert.equal(buttons[0].disabled,true);assert.equal(buttons[1].disabled,false);
  grid.scrollLeft=600;grid.dispatchEvent(new h.window.Event('scroll'));assert.equal(buttons[0].disabled,false);assert.equal(buttons[1].disabled,true);
 });
+
+test('native bundle checkbox labels show the Product title once and reuse the tier dropdown',async()=>{
+ const h=setupOffers();await h.theme.mountBlock(h.block);
+ const card=h.block.querySelector('[data-offer-rule="c"]');
+ assert.equal(card.textContent.split('Product c').length-1,1);
+ assert.equal(card.querySelector('label .qb-offer-title')?.textContent,'Product c');
+ assert.ok(card.querySelector('select').classList.contains('qb-select'));
+ assert.equal(card.querySelector('[data-offer-select]').checked,false);
+});
+
+test('native filters confirmed soldout variants and defaults to the first available allowed variant',async()=>{
+ const h=setupOffers({markup:offerMarkup().replace('data-offer-variant="v-c" data-title="S" data-price="2000" data-available="true"','data-offer-variant="v-c" data-title="S" data-price="2000" data-available="false"')});
+ await h.theme.mountBlock(h.block);
+ const select=h.block.querySelector('[data-offer-rule="c"] select');
+ assert.equal(select.value,'v-c-2');assert.deepEqual(Array.from(select.options,o=>o.value),['v-c-2']);
+ changeOfferSelection(h,'c');assert.equal(h.block.querySelector('[data-offer-rule="c"]').dataset.included,'true');
+});
+
+test('native saved variant becoming soldout falls back while preserving an explicit bundle selection',async()=>{
+ const h=setupOffers();await h.theme.mountBlock(h.block);changeOfferSelection(h,'c');
+ h.setNativeAvailability('p-c','v-c',false);
+ const next=offerCampaign();next.revision++;
+ await h.theme.mountBlock(h.block,async()=>({ok:true,json:async()=>({version:2,clientFeatures:'gift-bundles-v1',campaign:next})}));
+ const card=h.block.querySelector('[data-offer-rule="c"]');
+ assert.equal(card.querySelector('select').value,'v-c-2');assert.equal(card.dataset.included,'true');
+});
+
+test('native hides only wholly confirmed soldout Products and retains unknown or unpriced Products unavailable',async()=>{
+ for(const status of ['false','unknown','missing-price']) {
+   const h=setupOffers();
+   for(const node of h.block.querySelectorAll('[data-offer-product="p-c"] [data-offer-variant]')) {
+     if(status==='missing-price')node.dataset.price='';else node.dataset.available=status;
+   }
+   await h.theme.mountBlock(h.block);
+   const card=h.block.querySelector('[data-offer-rule="c"]');
+   if(status==='false'){assert.equal(!!card,false);continue;}
+   assert.ok(card);assert.equal(card.dataset.included,'false');assert.equal(card.querySelector('[data-offer-select]').disabled,true);
+   assert.ok(card.querySelector('.qb-offer-state'));assert.equal(card.querySelector('.qb-offer-prices'),null);
+   h.block.querySelector('[data-add-bundle]').click();await flushCart();
+   const post=h.calls.find(c=>c.url==='/cart/add');
+   assert.ok(post);assert.equal(JSON.parse(post.init.body).items.some(i=>i.id==='v-c'||i.id==='v-c-2'),false);
+ }
+});
+
+test('native module typography colors badges and layout remain independent from carousel mode',async()=>{
+ const campaign=offerCampaign(),style=campaign.bundles.style.desktop;
+ style.layout.cardLayout='list';style.layout.mode='carousel';
+ style.typography={sectionTitle:{sizePx:21,weight:700},title:{sizePx:18,weight:500},badge:{sizePx:13,weight:800}};
+ style.colors={sectionTitle:'#112233',title:'#223344',text:'#334455',background:'#ddeeff',badgeText:'#ffffff',badgeBackground:'#556677'};
+ campaign.bundles.items[0].label='Recommended';campaign.bundles.items[1].label='Save more';campaign.bundles.items[1].labelPosition='below_title';
+ const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+ const section=h.block.querySelector('[data-offer-module="bundles"]'),grid=section?.querySelector('.qb-offer-grid');
+ assert.ok(grid);assert.equal(grid.dataset.cardLayout,'list');assert.ok(grid.classList.contains('qb-offer-carousel'));assert.equal(grid.style.getPropertyValue('--qb-offer-columns'),'1');
+ for(const [name,value] of [['section-title-size','21px'],['section-title-weight','700'],['title-size','18px'],['title-weight','500'],['badge-size','13px'],['badge-weight','800'],['section-title-color','#112233'],['title-color','#223344'],['text','#334455'],['background','#ddeeff'],['badge-text','#ffffff'],['badge-background','#556677']])assert.equal(section.style.getPropertyValue('--qb-offer-'+name),value,name);
+ assert.ok(section.querySelector('.qb-offer-label.qb-badge'));assert.ok(section.querySelector('.qb-offer-label-below.qb-badge'));
+ const below=section.querySelector('[data-offer-rule="d"]');assert.ok(below.textContent.indexOf('Save more')>below.textContent.indexOf('Product d'));
+ h.resize();assert.equal(h.block.querySelector('[data-offer-module="bundles"] .qb-offer-grid').dataset.cardLayout,'stacked');
+});
+
+test('native legacy columns infer card layout and narrow width lowers columns without changing layout mode',async()=>{
+ for(const [columns,layout] of [[1,'stacked'],[2,'grid'],[3,'horizontal']]) {
+  const campaign=offerCampaign();campaign.bundles.style.desktop.layout.columns=columns;
+  const h=setupOffers({campaign});h.block.getBoundingClientRect=()=>({width:340});await h.theme.mountBlock(h.block);
+  const grid=h.block.querySelector('[data-offer-module="bundles"] .qb-offer-grid');assert.equal(grid.dataset.cardLayout,layout);assert.equal(grid.style.getPropertyValue('--qb-offer-columns'),'1');assert.equal(grid.classList.contains('qb-offer-carousel'),false);
+ }
+});
+
+test('native known sellable variants default independently from missing prices',async()=>{
+ const h=setupOffers({markup:offerMarkup().replace('data-offer-variant="v-c" data-title="S" data-price="2000" data-available="true"','data-offer-variant="v-c" data-title="S" data-price="" data-available="true"')});await h.theme.mountBlock(h.block);
+ const card=h.block.querySelector('[data-offer-rule="c"]');assert.equal(card.querySelector('select').value,'v-c');assert.equal(card.dataset.included,'false');assert.equal(card.querySelector('[data-offer-select]').disabled,true);
+});

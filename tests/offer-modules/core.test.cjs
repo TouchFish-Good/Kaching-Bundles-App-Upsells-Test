@@ -82,6 +82,22 @@ test('nested style omissions inherit device defaults without replacing explicit 
  assert.equal(normalized.style.desktop.layout.columns,3);assert.equal(normalized.style.desktop.image.radiusPx,0);
  assert.equal(normalized.style.mobile.layout.columns,1);assert.equal(normalized.style.mobile.layout.columnGapPx,0);
 });
+test('optional card layouts roundtrip independently per device while historical styles stay unchanged',()=>{
+ for(const kind of ['gifts','bundles']){
+  const legacy=moduleConfig(kind);assert.deepEqual(core.normalizeOfferModule(legacy,kind),legacy);
+  for(const cardLayout of ['stacked','horizontal','grid','list']){
+   const raw=moduleConfig(kind);raw.style.desktop.layout.cardLayout=cardLayout;raw.style.desktop.layout.mode='carousel';
+   raw.style.mobile.layout.cardLayout='list';raw.style.mobile.layout.columns=1;
+   assert.deepEqual(core.validateOfferModule(raw,kind,tiers),[]);
+   assert.deepEqual(core.normalizeOfferModule(raw,kind),raw);
+  }
+  for(const cardLayout of ['carousel','unknown',null,0,{}]){
+   const raw=moduleConfig(kind);raw.style.desktop.layout.cardLayout=cardLayout;
+   assert.ok(core.validateOfferModule(raw,kind,tiers).some(error=>error.includes('cardLayout')));
+   assert.throws(()=>core.normalizeOfferModule(raw,kind));
+  }
+ }
+});
 for(const quantity of [Number.MAX_SAFE_INTEGER+1,0.5,NaN,Infinity,-1,0,undefined]){
  test(`quota fails closed on contributing Product quantity ${String(quantity)}`,()=>{
   const offer=rule({trigger:{type:'quantity',operator:'eq',quantity:3}});

@@ -31,8 +31,16 @@ export function setupOffers({ campaign = offerCampaign(), response, markup = off
   const calls = [], changes = [];
   const media = { matches: mobile, addEventListener(_,fn) { changes.push(fn); }, removeEventListener() {} };
   const host = { fetch: fetcher || (async (url,init) => { calls.push({url,init}); return { ok: true, json: async () => response || ({version:2,clientFeatures:'gift-bundles-v1',campaign}) }; }), Event: window.Event, matchMedia: () => media };
-  vm.runInNewContext(readFileSync(new URL('../../../theme-app-extension/public/app-block.js', import.meta.url),'utf8'), { globalThis:host, URL, Intl, console, structuredClone, setTimeout, clearTimeout, ...timers });
-  return { theme: host.QuantityBreaksTheme, block: document.querySelector('.quantity-breaks-app-block'), document, window, calls, media, resize() { media.matches = !media.matches; changes.forEach(fn => fn()); } };
+  // Exercise canonical sources before the release sync writes generated assets.
+  const generated = `  // BEGIN GENERATED OFFERS\n  const OfferCore = (() => { const exports = {};\n${readFileSync(new URL('../../../shared/offer-core.cjs', import.meta.url),'utf8')}\nreturn exports; })();\n${readFileSync(new URL('../../../scripts/theme-offer-runtime.js', import.meta.url),'utf8')}\n  // END GENERATED OFFERS`;
+  const source = readFileSync(new URL('../../../theme-app-extension/public/app-block.js', import.meta.url),'utf8')
+    .replace(/  \/\/ BEGIN GENERATED OFFERS[\s\S]*?  \/\/ END GENERATED OFFERS/, () => generated)
+    .replace('  scope.QuantityBreaksTheme = {','  scope.__offerFixtureState = offerBlockState;\n  scope.QuantityBreaksTheme = {');
+  vm.runInNewContext(source, { globalThis:host, URL, Intl, console, structuredClone, setTimeout, clearTimeout, ...timers });
+  const block=document.querySelector('.quantity-breaks-app-block');
+  return { theme: host.QuantityBreaksTheme, block, document, window, calls, media,
+    setNativeAvailability(productId,variantId,available) { host.__offerFixtureState.get(block).native.products.get(productId).variants.find(v=>v.id===variantId).available=available; },
+    resize() { media.matches = !media.matches; changes.forEach(fn => fn()); } };
 }
 
 // linkedom does not implement native checkbox activation/default change events.

@@ -7,7 +7,7 @@ export type OfferRule = {
   discountType: 'fixed_amount' | 'fixed_price' | 'percentage'; discountValue: number;
   marketOverrides?: Record<string, OfferMarketOverride>; trigger: OfferTrigger;
 };
-export type OfferLayout = { mode: 'grid' | 'carousel'; columns: 1 | 2 | 3; columnGapPx: number; rowGapPx: number };
+export type OfferLayout = { mode: 'grid' | 'carousel'; columns: 1 | 2 | 3; columnGapPx: number; rowGapPx: number; cardLayout?: 'stacked' | 'horizontal' | 'grid' | 'list' };
 export type OfferDeviceStyle = {
   layout: OfferLayout; image: { sizePx: number; radiusPx: number };
   colors?: Record<string, string>; typography?: Record<string, { sizePx: number; weight: number }>;

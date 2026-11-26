@@ -1,0 +1,46 @@
+{
+  "method": "Playwright; Browser plugin not available",
+  "fixture": "local simulated catalog; no merchant mutation",
+  "results": [
+    {
+      "surface": "merchant",
+      "width": 1440,
+      "disabledExpansion": true,
+      "variantModal6": true,
+      "triggerPreset": true,
+      "gridCarousel": true,
+      "opacityInsidePicker": true,
+      "errors": []
+    },
+    {
+      "surface": "preview",
+      "width": 1440,
+      "layouts4": true,
+      "checkboxToggle": true,
+      "singleTitle": true,
+      "unpricedChoiceNoQuote": true,
+      "soldoutFiltered": true,
+      "errors": []
+    },
+    {
+      "surface": "merchant",
+      "width": 390,
+      "disabledExpansion": true,
+      "variantModal6": true,
+      "triggerPreset": true,
+      "gridCarousel": true,
+      "opacityInsidePicker": true,
+      "errors": []
+    },
+    {
+      "surface": "preview",
+      "width": 390,
+      "layouts4": true,
+      "checkboxToggle": true,
+      "singleTitle": true,
+      "unpricedChoiceNoQuote": true,
+      "soldoutFiltered": true,
+      "errors": []
+    }
+  ]
+}

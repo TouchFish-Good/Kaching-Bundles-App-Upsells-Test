@@ -177,3 +177,12 @@ test('effective accessory exclusion agrees from public protocols through actual 
  assert.deepEqual(evaluate(ordinary,batch,request=>{request.discountNodes.push({priceRuleId:'accessory-other',metafields:[{namespace:'sale',key:'quantity_breaks',type:'json',value:JSON.stringify(local.rule)}]});return request;}),[],'cross-campaign accessory node also prevents legacy main discounts');
  }finally{local.database.close();}
 });
+
+test('offer presentation survives D1 save/read and public projection without entering Function rules',async()=>{
+ const local=await savedShop({mutate:campaign=>{
+  campaign.gifts.style.desktop.layout.cardLayout='grid';campaign.gifts.style.desktop.layout.columns=2;campaign.gifts.style.desktop.layout.mode='carousel';
+  campaign.gifts.style.desktop.colors={sectionTitle:'#11223380',badgeText:'#ffffff',badgeBackground:'#171717'};
+  campaign.gifts.style.desktop.typography={sectionTitle:{sizePx:16,weight:600},badge:{sizePx:11,weight:700}};
+ }});
+ const published=await local.response();assert.deepEqual(published.campaign.gifts.style,local.saved.gifts.style);assert.equal(local.saved.gifts.style.desktop.layout.cardLayout,'grid');assert.equal(local.saved.gifts.style.desktop.colors.sectionTitle,'#11223380');assert.equal(JSON.stringify(local.rule).includes('cardLayout'),false);
+});

@@ -15,6 +15,8 @@ import {
 import { offerText } from "./offer-messages";
 import { formatMinorMoney } from "./money";
 import styles from "./offers.module.css";
+import tierStyles from "../pages/quantity-breaks.module.css";
+import { offerUiText } from "./offer-ui-copy";
 export function OfferPreview({
   selection,
   device,
@@ -61,7 +63,7 @@ export function OfferPreview({
           <span>
             {offerText(locale, "summary")}{" "}
             <strong>
-              {formatMinorMoney(selection.discounted, currencyCode, locale)}
+              {selection.quoteReady ? formatMinorMoney(selection.discounted, currencyCode, locale) : offerUiText(locale, "unknownPrice")}
             </strong>
           </span>
           <span>
@@ -75,7 +77,7 @@ export function OfferPreview({
                     currencyCode,
                     locale,
                   )
-                : "…"}
+                : offerUiText(locale, "unknownPrice")}
             </strong>
           </span>
           <small>{offerText(locale, "simulated")}</small>
@@ -129,7 +131,7 @@ function OfferGroup({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  const columns = effectiveOfferColumns(width, style.layout);
+  const columns = effectiveOfferColumns(width, style.layout.cardLayout === "stacked" || style.layout.cardLayout === "list" ? { ...style.layout, columns: 1 } : style.layout);
   const text = (key: Parameters<typeof offerText>[1]) => offerText(locale, key);
   const title = renderStorefrontCopy(
     `widget.${group.kind}.title`,
@@ -173,6 +175,14 @@ function OfferGroup({
     "--offer-text": style.colors?.text ?? "#171717",
     "--offer-title-size": `${style.typography?.title?.sizePx ?? 14}px`,
     "--offer-title-weight": style.typography?.title?.weight ?? 600,
+    "--offer-title-color": style.colors?.title ?? style.colors?.text ?? "#171717",
+    "--offer-section-color": style.colors?.sectionTitle ?? style.colors?.text ?? "#171717",
+    "--offer-section-size": `${style.typography?.sectionTitle?.sizePx ?? 16}px`,
+    "--offer-section-weight": style.typography?.sectionTitle?.weight ?? 600,
+    "--offer-badge-text": style.colors?.badgeText ?? "#ffffff",
+    "--offer-badge-background": style.colors?.badgeBackground ?? "#171717",
+    "--offer-badge-size": `${style.typography?.badge?.sizePx ?? 11}px`,
+    "--offer-badge-weight": style.typography?.badge?.weight ?? 600,
   } as CSSProperties;
   return (
     <section
@@ -181,6 +191,7 @@ function OfferGroup({
       data-offer-kind={group.kind}
       data-columns={columns}
       data-layout={style.layout.mode}
+      data-card-layout={style.layout.cardLayout ?? (style.layout.columns === 1 ? "stacked" : style.layout.columns === 2 ? "grid" : "horizontal")}
       style={css}
       aria-busy={preview?.state === "loading"}
     >
@@ -268,37 +279,37 @@ function OfferGroup({
                 ) : (
                   <div className={styles.imageBlank} aria-hidden="true" />
                 ))}
-              <strong className={styles.productTitle}>
+              {group.kind === "gifts" && <strong className={styles.productTitle}>
                 {card.product?.title ??
                   text(
                     preview?.state === "loading" ? "loading" : "unavailable",
                   )}
-              </strong>
-              {card.rule.label && card.rule.labelPosition === "below_title" && (
-                <span className={styles.inlineBadge}>{card.rule.label}</span>
-              )}
+              </strong>}
               {group.kind === "bundles" && (
                 <label className={styles.check}>
                   <input
                     type="checkbox"
                     aria-label={card.product?.title ?? text("bundles")}
-                    checked={card.included}
-                    disabled={!card.ready || (!card.eligible && !unlock)}
+                    checked={card.checked}
+                    disabled={!card.selectable || (!card.eligible && !unlock)}
                     onChange={(event) => {
                       if (!card.eligible && unlock) onUnlock(unlock.quantity);
                       selection.select(group.module, card.rule, event.currentTarget.checked);
                     }}
                   />
-                  {card.product?.title ?? text("bundles")}
+                  <strong className={styles.productTitle}>{card.product?.title ?? text("bundles")}</strong>
                   {!card.eligible && unlock ? ` · ${text("locked")} · ${unlock.quantity}` : ""}
                 </label>
+              )}
+              {card.rule.label && card.rule.labelPosition === "below_title" && (
+                <span className={styles.inlineBadge}>{card.rule.label}</span>
               )}
               {!card.eligible && group.kind === "gifts" ? (
                 <button type="button" disabled={!unlock} onClick={() => unlock && onUnlock(unlock.quantity)}>
                   {text("locked")}{unlock ? ` · ${unlock.quantity}` : ""}
                 </button>
               ) : !card.ready ? (
-                <span role="status">{text(preview?.state === "loading" ? "loading" : "unavailable")}</span>
+                <span role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
               ) : card.eligible ? (
                 <>
                   <span className={styles.price}>
@@ -310,7 +321,7 @@ function OfferGroup({
               ) : null}
               {card.options.length > 0 &&
                 card.selected.map((variant, index) => (
-                  <label key={index}>
+                  <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>
                     {renderStorefrontCopy("widget.choose_option", translations)}{" "}
                     #{index + 1}
                     <select
@@ -325,12 +336,10 @@ function OfferGroup({
                         )
                       }
                     >
-                      <option value="" disabled>
-                        {text("unavailable")}
-                      </option>
+                      {!variant && <option value="" disabled>{text("unavailable")}</option>}
                       {card.options.map((v) => (
                         <option key={v.id} value={v.id}>
-                          {v.title || v.id}
+                          {v.options?.map(o => o.value).join(" / ") || v.title || v.id}
                         </option>
                       ))}
                     </select>

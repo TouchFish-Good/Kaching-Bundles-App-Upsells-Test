@@ -10,6 +10,9 @@ export type OfferPreviewVariant = {
   id: string;
   title?: string;
   available: boolean;
+  availability?: "available" | "sold_out" | "unknown";
+  unavailableReason?: string;
+  options?: Array<{ name: string; value: string }>;
   price: OfferPrice | null;
   imageUrl?: string | null;
 };
@@ -19,7 +22,10 @@ export type OfferPreviewProduct = {
   identityVerified: boolean;
   available: boolean;
   imageUrl?: string | null;
+  availability?: "available" | "sold_out" | "unknown";
   variants: OfferPreviewVariant[];
+  unavailableReason?: string;
+  reason?: string;
 };
 export type OfferPreviewState = {
   state: "loading" | "ready" | "unavailable";

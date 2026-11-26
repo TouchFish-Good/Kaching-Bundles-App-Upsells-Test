@@ -86,7 +86,7 @@ const base = {
 };
 async function harness(run) {
   const vite = await createServer({
-    server: { middlewareMode: true, hmr: false },
+    server: { middlewareMode: true, hmr: false, ws: false },
     appType: "custom",
   });
   const jsdomErrors = [];
@@ -345,7 +345,7 @@ test("independent sibling switches retain config when off and roundtrip the orig
     assert.ok(panel("gifts").querySelector("fieldset"));
     await click(sw("gifts"));
     assert.equal(sw("bundles").getAttribute("aria-checked"), "false");
-    assert.equal(panel("gifts").querySelector("fieldset"), null);
+    assert.ok(panel("gifts").querySelector("fieldset"), "disabled module remains expanded");
     await click(sw("gifts"));
     await settle();
     assert.ok(
@@ -854,10 +854,7 @@ test("offer picker retains paged choices and merchants edit real variant whiteli
         (b) => b.textContent === "Mobile",
       ),
     );
-    const layout = [...style.querySelectorAll("label")]
-      .find((l) => l.textContent.includes("Layout"))
-      .querySelector("select");
-    await change(layout, "carousel");
+    await click(style.querySelector('[role="switch"]'));
     assert.equal(current.style.mobile.layout.mode, "carousel");
     assert.equal(current.style.desktop.layout.mode, "grid");
     assert.equal(
@@ -1192,4 +1189,56 @@ test('market draft errors stay isolated and removed rules clear only owned error
  await click(rules()[0].querySelector('button'));assert.equal(current.items.length,1);assert.ok(error,'removing A retains B market error');
  await change(amount(0,'jp'),'300');assert.equal(error,'');assert.equal(current.items[0].marketOverrides.jp.amountMinor,300);
  await change(mode(0,'ca'),'specified_amount');assert.ok(error,'empty specified draft blocks saving');await change(mode(0,'ca'),'auto_convert');assert.equal(error,'');
+}));
+
+
+test('offer refinement: disabled module expands independently from enable switch',()=>harness(async({vite,render,click})=>{
+ const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');let current=defaultOfferModule('gifts');
+ function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferModulePanel,{kind:'gifts',value,onChange:setValue,tiers:base.tiers,locale:'en',fetcher:async()=>json({products:[],missingIds:[]}),currencyCode:'USD',onDraftError:()=>{}});}
+ await render(Form,{});await click(document.querySelector('[aria-expanded]'));assert.ok(document.querySelector('[role="tabpanel"]'));assert.equal(current.enabled,false);
+ await click(document.querySelector('[role="switch"]'));await click(document.querySelector('[role="switch"]'));assert.ok(document.querySelector('[role="tabpanel"]'));assert.equal(current.enabled,false);
+}));
+test('offer refinement: six variants use selected-variant dialog while five stay inline',()=>harness(async({vite,render,click})=>{
+ const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');
+ for(const count of [5,6]){
+ const variants=Array.from({length:count},(_,i)=>({id:'v'+i,title:'Size '+i,options:[{name:'Size',value:String(i)}]}));let current=moduleFor('gifts',[{...rule('a'),allowedVariantIds:variants.map(v=>v.id)}]);
+ function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferModulePanel,{kind:'gifts',value,onChange:setValue,tiers:base.tiers,locale:'zh-Hans',fetcher:async()=>json({products:[{id:'a',title:'Product a',variants}],missingIds:[]}),currencyCode:'USD',onDraftError:()=>{}});}
+ await render(Form,{key:count});await click(document.querySelector('[aria-expanded]'));await settle();const b=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('查看已选择的款式'));
+ if(count===5){assert.equal(b,undefined);assert.equal(document.querySelectorAll('[data-variant-list] input').length,5);}else{assert.ok(b);assert.match(b.textContent,/6/);await click(b);assert.match(document.querySelector('[role="dialog"]').textContent,/Size 5/);await click(document.querySelector('[role="dialog"] input'));assert.equal(current.items[0].allowedVariantIds.length,5);}
+ }
+}));
+test('offer refinement: trigger presets show live tiers and save real tier IDs',()=>harness(async({vite,render,click,change})=>{
+ const {OfferModulePanel}=await vite.ssrLoadModule('/src/prototype/OfferModulePanel.tsx');let current=moduleFor('gifts',[rule('a')]);
+ function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferModulePanel,{kind:'gifts',value,onChange:setValue,tiers:base.tiers,locale:'en',fetcher:async()=>json({products:pickerProducts(),missingIds:[]}),currencyCode:'USD',onDraftError:()=>{}});}
+ await render(Form,{});await click(document.querySelector('[aria-expanded]'));await settle();const s=document.querySelector('[data-offer-trigger]');assert.ok(s);assert.match(s.textContent,/Two/);assert.match(s.textContent,/Four/);await change(s,'from:t2');assert.deepEqual(current.items[0].trigger,{type:'tiers',tierIds:['t2','t4']});await change(s,'only:t4');assert.deepEqual(current.items[0].trigger,{type:'tiers',tierIds:['t4']});
+}));
+test('offer refinement: thumbnails and color-popover opacity persist independently from typography',()=>harness(async({vite,render,click,change})=>{
+ const {OfferStyleEditor}=await vite.ssrLoadModule('/src/prototype/OfferStyleEditor.tsx');let current=defaultOfferModule('gifts').style.desktop;
+ function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferStyleEditor,{value,onChange:setValue,locale:'en'});}
+ await render(Form,{});const grid=document.querySelector('input[value="grid"]');assert.ok(grid);await click(grid);assert.equal(current.layout.cardLayout,'grid');assert.equal(current.layout.columns,2);await click(document.querySelector('[role="switch"]'));assert.equal(current.layout.mode,'carousel');assert.equal(current.layout.cardLayout,'grid');const color=document.querySelector('summary[aria-label="Section title color"]');assert.ok(color);await click(color);const alpha=document.querySelector('input[aria-label="Section title opacity"]');assert.ok(alpha);await change(alpha,'50');assert.match(current.colors.sectionTitle,/80$/i);assert.ok(alpha.closest('details'));assert.equal(document.querySelectorAll('[data-offer-font] input[type="range"]').length,0);
+}));
+test('offer refinement: unpriced known variants allow simulated checkbox choice without valid quote',()=>harness(async({vite,render,click})=>{
+ const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');await render(StorefrontWidget,{...base,bundles:moduleFor('bundles',[rule('a')]),offerPreview:{state:'ready',products:[{...products[0],available:false,reason:'unsupported_market',variants:products[0].variants.map(v=>({...v,available:true,availability:'available',price:null}))}]}});const card=()=>document.querySelector('[data-rule-id="a"]'),input=()=>card().querySelector('input[type="checkbox"]');assert.equal(input().disabled,false);await click(input());assert.equal(input().checked,true);assert.equal(card().dataset.included,'false');assert.match(document.querySelector('[data-offer-summary]').textContent,/unavailable/i);await click(input());assert.equal(input().checked,false);
+}));
+test('offer refinement: hide sold-out variants and replace sold-out selections with first available',()=>harness(async({vite,render,change})=>{
+ const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');const props={...base,bundles:moduleFor('bundles',[rule('a')])};await render(StorefrontWidget,{...props,offerPreview:{state:'ready',products}});const card=()=>document.querySelector('[data-rule-id="a"]');assert.equal(card().textContent.split('Product a').length-1,1);await change(card().querySelector('select'),'al');const stock={...products[0],variants:products[0].variants.map(v=>({...v,available:v.id==='as',availability:v.id==='as'?'available':'sold_out'}))};await render(StorefrontWidget,{...props,offerPreview:{state:'ready',products:[stock]}});assert.equal(card().querySelector('select').value,'as');assert.equal(card().querySelectorAll('select option').length,1);await render(StorefrontWidget,{...props,offerPreview:{state:'ready',products:[{...stock,available:false,variants:stock.variants.map(v=>({...v,available:false,availability:'sold_out'}))}]}});assert.equal(card(),null);
+}));
+
+test('offer refinement: HEX replacement does not reuse a stale spectrum hue',()=>harness(async({vite,render,change})=>{
+ const{OfferColorPicker}=await vite.ssrLoadModule('/src/prototype/OfferColorPicker.tsx');let current='#FF0000';
+ function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferColorPicker,{name:'Test',value,onChange:setValue,fallback:'#FFFFFF',locale:'en',open:true,onOpen:()=>{}});}
+ await render(Form,{});await change(document.querySelector('[aria-label="Test hue"]'),'120');await change(document.querySelector('[aria-label="Test hex"]'),'#0000FF');
+ const spectrum=document.querySelector('[role="slider"]');spectrum.getBoundingClientRect=()=>({left:0,top:0,width:100,height:100});spectrum.setPointerCapture=()=>{};
+ const{Simulate}=await import('react-dom/test-utils');await act(()=>Simulate.pointerDown(spectrum,{clientX:100,clientY:0,pointerId:1}));assert.equal(current,'#0000FF');
+}));
+
+test('offer refinement: style controls preserve rendered fallback colors and font sizes',()=>harness(async({vite,render,change})=>{
+ const{OfferStyleEditor}=await vite.ssrLoadModule('/src/prototype/OfferStyleEditor.tsx');let current={...defaultOfferModule('gifts').style.desktop,colors:{text:'#123456'}};
+ function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferStyleEditor,{value,onChange:setValue,locale:'en'});}
+ await render(Form,{});assert.equal(document.querySelector('[aria-label="Section title size"]').value,'16');assert.equal(document.querySelector('[aria-label="Badge size"]').value,'11');assert.match(document.querySelector('summary[aria-label="Section title color"]').textContent,/#123456/i);assert.match(document.querySelector('summary[aria-label="Badge text color"]').textContent,/#ffffff/i);await change(document.querySelector('[aria-label="Section title weight"]'),'700');assert.equal(current.typography.sectionTitle.sizePx,16);
+}));
+
+test('offer refinement: switching multi-select preview to single keeps only the greatest saving checked',()=>harness(async({vite,render,click})=>{
+ const{StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');const bundles=moduleFor('bundles',[{...rule('a'),discountType:'percentage',discountValue:1000},{...rule('b'),discountType:'percentage',discountValue:5000}]);bundles.selectionMode='multiple';
+ const props={...base,offerPreview:{state:'ready',products},bundles};await render(StorefrontWidget,props);await click(document.querySelector('[data-rule-id="a"] input'));await click(document.querySelector('[data-rule-id="b"] input'));await render(StorefrontWidget,{...props,bundles:{...bundles,selectionMode:'single'}});assert.equal(document.querySelector('[data-rule-id="a"] input').checked,false);assert.equal(document.querySelector('[data-rule-id="b"] input').checked,true);assert.equal(document.querySelectorAll('[data-offer-kind="bundles"] [data-included="true"]').length,1);
 }));

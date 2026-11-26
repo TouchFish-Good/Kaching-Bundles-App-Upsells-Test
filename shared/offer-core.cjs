@@ -102,8 +102,9 @@ function validateOfferModule(raw, kind, tiers) {
   if (keys(raw.style, ['desktop','mobile'], `${kind}.style`, errors)) for (const name of ['desktop','mobile']) {
     const style = raw.style[name], path = `${kind}.style.${name}`;
     if (!keys(style, ['layout','image','colors','typography'], path, errors, ['colors','typography'])) continue;
-    if (keys(style.layout, ['mode','columns','columnGapPx','rowGapPx'], `${path}.layout`, errors)) {
+    if (keys(style.layout, ['mode','columns','columnGapPx','rowGapPx','cardLayout'], `${path}.layout`, errors, ['cardLayout'])) {
       if (!['grid','carousel'].includes(style.layout.mode) || ![1,2,3].includes(style.layout.columns)) errors.push(`${path} invalid layout.`);
+      if (style.layout.cardLayout !== undefined && !['stacked','horizontal','grid','list'].includes(style.layout.cardLayout)) errors.push(`${path}.layout.cardLayout is invalid.`);
       for (const key of ['columnGapPx','rowGapPx']) if (!integer(style.layout[key], 0, 128)) errors.push(`${path}.${key} must be 0–128px.`);
     }
     if (keys(style.image, ['sizePx','radiusPx'], `${path}.image`, errors)) {

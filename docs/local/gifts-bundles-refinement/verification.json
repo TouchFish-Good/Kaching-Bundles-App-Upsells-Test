@@ -1,0 +1,13 @@
+{
+  "editor": 39,
+  "nativeShared": 49,
+  "os21Sync": 13,
+  "persistence": 1,
+  "worker": 64,
+  "totalTargetedTests": 166,
+  "webTypes": "passed",
+  "workerTypes": "passed",
+  "webBuild": "passed",
+  "workerDryRun": "passed",
+  "themeSync": "passed"
+}

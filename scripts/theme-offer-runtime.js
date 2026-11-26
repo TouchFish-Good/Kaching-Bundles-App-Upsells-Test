@@ -118,7 +118,7 @@
         if(owners.has(variantId) && owners.get(variantId)!==id)return null;
         owners.set(variantId,id);
         seen.add(variantId);
-        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true',priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:v.dataset.image || ''});
+        variants.push({id:variantId,title:v.dataset.title || '',available:v.dataset.available==='true'?true:v.dataset.available==='false'?false:null,priceMinor:nativePriceMinor(v.dataset.price,root.dataset.currency,block.dataset.themeVersion),image:v.dataset.image || ''});
       }
       products.set(id,{id,handle:node.dataset.handle,title:node.dataset.title || node.dataset.handle,variants});
     }
@@ -170,12 +170,15 @@
         if (typeof title==='string' && title) section.append(element(doc,'h4','qb-offer-heading',title));
         const device=module.style[mediaQuery.matches?'mobile':'desktop'];
         const grid=element(doc,'div',`qb-offer-grid${device.layout.mode==='carousel'?' qb-offer-carousel':''}`);
+        grid.dataset.cardLayout=device.layout.cardLayout || (device.layout.columns===1?'stacked':device.layout.columns===2?'grid':'horizontal');
         const width=block.getBoundingClientRect?.().width || (mediaQuery.matches?332:700);
-        grid.style.setProperty('--qb-offer-background',device.colors?.background || '#ffffff');
-        grid.style.setProperty('--qb-offer-text',device.colors?.text || '#171717');
-        grid.style.setProperty('--qb-offer-title-size',`${device.typography?.title?.sizePx || 14}px`);
-        grid.style.setProperty('--qb-offer-title-weight',String(device.typography?.title?.weight || 600));
-        grid.style.setProperty('--qb-offer-columns',String(OfferCore.effectiveOfferColumns(width,device.layout)));
+        for(const [key,value] of Object.entries({background:device.colors?.background || '#ffffff',text:device.colors?.text || '#171717','title-color':device.colors?.title || device.colors?.text || '#171717','section-title-color':device.colors?.sectionTitle || device.colors?.text || '#171717','badge-text':device.colors?.badgeText || '#ffffff','badge-background':device.colors?.badgeBackground || '#171717'}))section.style.setProperty('--qb-offer-'+key,value);
+        for(const [key,field,size] of [['title','title',14],['section-title','sectionTitle',16],['badge','badge',11]]){
+          section.style.setProperty('--qb-offer-'+key+'-size',`${device.typography?.[field]?.sizePx || size}px`);
+          section.style.setProperty('--qb-offer-'+key+'-weight',String(device.typography?.[field]?.weight || 600));
+        }
+        const layout=['stacked','list'].includes(device.layout.cardLayout)?{...device.layout,columns:1}:device.layout;
+        grid.style.setProperty('--qb-offer-columns',String(OfferCore.effectiveOfferColumns(width,layout)));
         grid.style.setProperty('--qb-offer-column-gap',`${device.layout.columnGapPx}px`);grid.style.setProperty('--qb-offer-row-gap',`${device.layout.rowGapPx}px`);
         grid.style.setProperty('--qb-offer-image-size',`${device.image.sizePx}px`);grid.style.setProperty('--qb-offer-image-radius',`${device.image.radiusPx}px`);
         const cards=module.items.slice().sort((a,b)=>a.displayOrder-b.displayOrder).map(rule=>{
@@ -190,10 +193,13 @@
           // whitelisted slot, reset only those whose identity became invalid.
           choice.slots=choice.slots.map(id=>rule.allowedVariantIds.includes(id)?id:undefined);
           const count=rule.quantity;
-          const options=product?.variants.filter(v=>rule.allowedVariantIds.includes(v.id)) || [];
+          const allowed=product?.variants.filter(v=>rule.allowedVariantIds.includes(v.id)) || [];
+          // Absence or unknown availability is not evidence of sold out stock.
+          const soldOut=!!product && rule.allowedVariantIds.length>0 && rule.allowedVariantIds.every(id=>allowed.some(v=>v.id===id && v.available===false));
+          const options=allowed.filter(v=>v.available!==false);
           const renderable=Number.isSafeInteger(count) && count>0 && count<=100;
           const selected=renderable?Array.from({length:count},(_,i)=>{
-            const saved=choice.slots[i], v=saved?options.find(v=>v.id===saved):options.find(sellable);
+            const saved=choice.slots[i], v=(saved?options.find(v=>v.id===saved):null) || options.find(v=>v.available===true);
             if(v)choice.slots[i]=v.id;
             return v;
           }):[];
@@ -204,8 +210,8 @@
           const original=ready?selected.reduce((sum,v)=>sum+v.priceMinor,0):0;
           const savings=ready && eligible?selected.reduce((sum,v,i)=>sum+(i<cap?OfferCore.offerDiscountMinor(v.priceMinor,rule,override):0),0):0;
           ready=ready && safeAmount(original) && safeAmount(savings) && safeAmount(original-savings);
-          return {kind,module,rule,product,eligible,choice,count,options,selected,ready,original,savings,included:ready && eligible && (kind==='gifts' || choice.selected)};
-        });
+          return {kind,module,rule,product,eligible,choice,count,options,selected,ready,original,savings,soldOut,included:ready && eligible && (kind==='gifts' || choice.selected)};
+        }).filter(c=>!c.soldOut);
         if(kind==='bundles' && module.selectionMode==='single') {
           const candidates=cards.filter(c=>c.choice.selected && c.ready && c.eligible);
           const picked=candidates.sort((a,b)=>b.savings-a.savings || a.rule.displayOrder-b.rule.displayOrder)[0];
@@ -214,11 +220,11 @@
         for(const c of cards) {
           const {rule,choice}=c;
           const card=element(doc,'article','qb-offer-card');card.dataset.offerRule=rule.ruleId;card.dataset.offerRole=kind==='gifts'?'gift':'bundle';card.dataset.included=String(c.included);
-          if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-offer-label',rule.label));
+          if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
           const image=c.selected.find(v=>v?.image)?.image;
           if(rule.showImage && image && /^(https?:|data:image\/)/.test(image)){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
-          card.append(element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable')));
-          if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-offer-label-below',rule.label));
+          const productTitle=element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable'));
+          if(kind==='gifts')card.append(productTitle);
           const tier=!c.eligible && mainQualifies && OfferCore.offerUnlockTier(rule,campaign.tiers);
           if(kind==='bundles') {
             const label=element(doc,'label','qb-offer-select');
@@ -232,17 +238,18 @@
               choice.selected=selected;
               if(!c.eligible && tier && selected)chooseTier(tier);else rerender();
             });
-            label.append(toggle,doc.createTextNode(c.product?.title || copy('widget.offer_select','Select')));
+            label.append(toggle,productTitle);
             if(tier)label.append(doc.createTextNode(' · '+copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity})));
             card.append(label);
           } else if(!c.eligible && tier) {
             const unlock=element(doc,'button','qb-offer-unlock',copy('widget.offer_unlock','Unlock with {quantity} items',{quantity:tier.quantity}));unlock.type='button';unlock.disabled=!c.ready;unlock.addEventListener('click',()=>chooseTier(tier));card.append(unlock);
           }
+          if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
           if(!c.ready)card.append(element(doc,'span','qb-offer-state',copy('widget.offer_unavailable','Unavailable')));
           if(c.ready){
             const prices=element(doc,'div','qb-offer-prices');prices.append(element(doc,'b','',moneyMinor(c.original-c.savings,currency,locale)));if(c.savings>0)prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));card.append(prices);
           }
-          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-offer-variant');select.dataset.offerSlot=String(i);select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
+          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
           grid.append(card);
         }
         const carousel=device.layout.mode==='carousel';

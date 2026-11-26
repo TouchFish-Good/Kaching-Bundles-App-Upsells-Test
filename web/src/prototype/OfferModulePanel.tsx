@@ -1,3 +1,4 @@
+import shared from "../pages/quantity-breaks.module.css";
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Gift, Package, Trash2 } from "lucide-react";
 import type {
@@ -8,6 +9,8 @@ import type {
 import type { Tier } from "./model";
 import { CampaignProductPicker, type Product } from "./CampaignProductPicker";
 import { Toggle } from "./ui";
+import { OfferVariantPicker } from "./OfferVariantPicker";
+import { OfferTriggerEditor } from "./OfferTriggerEditor";
 import { OfferStyleEditor } from "./OfferStyleEditor";
 import { offerText } from "./offer-messages";
 import { formatMoneyInput, parseMoney } from "./money";
@@ -54,7 +57,7 @@ export function OfferModulePanel({
   const ct = (key: Parameters<typeof campaignText>[1]) => campaignText(locale, key);
   const ids = [...new Set(value.items.map((r) => r.productId))];
   useEffect(() => {
-    if (!expanded || !value.enabled || !ids.length) return;
+    if (!expanded || !ids.length) return;
     const controller = new AbortController();
     setLoadError(false);
     void fetcher(
@@ -177,13 +180,13 @@ export function OfferModulePanel({
         <button
           type="button"
           className={styles.expand}
-          aria-expanded={expanded && value.enabled}
+          aria-expanded={expanded}
           aria-controls={`offer-config-${kind}`}
           onClick={() => setExpanded((v) => !v)}
         >
           <ChevronRight
             size={16}
-            className={expanded && value.enabled ? styles.rotated : ""}
+            className={expanded ? styles.rotated : ""}
             aria-hidden="true"
           />
           {kind === "gifts" ? (
@@ -199,7 +202,7 @@ export function OfferModulePanel({
           onChange={() => onChange({ ...value, enabled: !value.enabled })}
         />
       </header>
-      {value.enabled && expanded && (
+      {expanded && (
         <div id={`offer-config-${kind}`} className={styles.panelBody}>
           <div role="tablist" aria-label={title} className={styles.device}>
             {(["settings", "style"] as const).map(name => <button key={name} type="button" role="tab" id={`offer-${kind}-${name}-tab`} aria-selected={tab === name} aria-controls={`offer-${kind}-${name}`} tabIndex={tab === name ? 0 : -1} onClick={() => setTab(name)} onKeyDown={event => {
@@ -264,30 +267,7 @@ export function OfferModulePanel({
                 >
                   <Trash2 size={16} />
                 </button>
-                <fieldset className={styles.variantList}>
-                  <legend>{text("variants")}</legend>
-                  {product?.variants?.map((v) => (
-                    <label key={v.id}>
-                      <input
-                        type="checkbox"
-                        checked={rule.allowedVariantIds.includes(v.id)}
-                        onChange={(e) =>
-                          patch(rule.ruleId, {
-                            allowedVariantIds: e.target.checked
-                              ? [...rule.allowedVariantIds, v.id]
-                              : rule.allowedVariantIds.filter(
-                                  (id) => id !== v.id,
-                                ),
-                          })
-                        }
-                      />
-                      {v.title || v.options.map((o) => o.value).join(" / ")}
-                    </label>
-                  ))}
-                  {!rule.allowedVariantIds.length && (
-                    <span role="alert">{text("noVariants")}</span>
-                  )}
-                </fieldset>
+                <OfferVariantPicker product={product} selected={rule.allowedVariantIds} onChange={ids => patch(rule.ruleId, {allowedVariantIds: ids})} locale={locale} />
                 <div className={styles.fields}>
                   {kind === "gifts" && (
                   <label>
@@ -386,114 +366,7 @@ export function OfferModulePanel({
                       </div>;
                     })}
                   </div>}
-                  <label>
-                    {text("condition")}
-                    <select
-                      value={rule.trigger.type}
-                      onChange={(e) =>
-                        patch(rule.ruleId, {
-                          trigger:
-                            e.target.value === "tiers"
-                              ? {
-                                  type: "tiers",
-                                  tierIds: tiers[0]?.tierId
-                                    ? [tiers[0].tierId]
-                                    : [],
-                                }
-                              : {
-                                  type: "quantity",
-                                  operator: "gte",
-                                  quantity: 2,
-                                },
-                        })
-                      }
-                    >
-                      <option value="quantity">
-                        {text("quantityCondition")}
-                      </option>
-                      <option value="tiers">{text("tiers")}</option>
-                    </select>
-                  </label>
-                  {rule.trigger.type === "quantity" ? (
-                    <>
-                      <label>
-                        {text("condition")}
-                        <select
-                          value={rule.trigger.operator}
-                          onChange={(e) =>
-                            patch(rule.ruleId, {
-                              trigger: {
-                                ...(rule.trigger as {
-                                  type: "quantity";
-                                  quantity: number;
-                                }),
-                                operator: e.target.value as "gte" | "gt" | "eq",
-                              },
-                            })
-                          }
-                        >
-                          {(["gte", "gt", "eq"] as const).map((v) => (
-                            <option key={v} value={v}>
-                              {text(v)}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label>
-                        {text("quantityCondition")}
-                        <input
-                          type="number"
-                          min="1"
-                          value={rule.trigger.quantity}
-                          onChange={(e) =>
-                            patch(rule.ruleId, {
-                              trigger: {
-                                ...(rule.trigger as {
-                                  type: "quantity";
-                                  operator: "gte" | "gt" | "eq";
-                                }),
-                                quantity: Number(e.target.value),
-                              },
-                            })
-                          }
-                        />
-                      </label>
-                    </>
-                  ) : (
-                    <fieldset className={styles.variantList}>
-                      <legend>{text("tiers")}</legend>
-                      {tiers.map((t) => (
-                        <label key={t.tierId}>
-                          <input
-                            type="checkbox"
-                            checked={
-                              rule.trigger.type === "tiers" &&
-                              rule.trigger.tierIds.includes(t.tierId!)
-                            }
-                            onChange={(e) =>
-                              patch(rule.ruleId, {
-                                trigger: {
-                                  type: "tiers",
-                                  tierIds: e.target.checked
-                                    ? [
-                                        ...(rule.trigger.type === "tiers"
-                                          ? rule.trigger.tierIds
-                                          : []),
-                                        t.tierId!,
-                                      ]
-                                    : (rule.trigger.type === "tiers"
-                                        ? rule.trigger.tierIds
-                                        : []
-                                      ).filter((id) => id !== t.tierId),
-                                },
-                              })
-                            }
-                          />
-                          {t.label}
-                        </label>
-                      ))}
-                    </fieldset>
-                  )}
+                  <OfferTriggerEditor value={rule.trigger} onChange={trigger => patch(rule.ruleId, {trigger})} tiers={tiers} locale={locale} />
                   <label>
                     {text("label")}
                     <input
@@ -503,21 +376,11 @@ export function OfferModulePanel({
                       }
                     />
                   </label>
-                  <label>
-                    {text("labelPosition")}
-                    <select
-                      value={rule.labelPosition}
-                      onChange={(e) =>
-                        patch(rule.ruleId, {
-                          labelPosition: e.target.value as
-                            "corner" | "below_title",
-                        })
-                      }
-                    >
-                      <option value="corner">{text("corner")}</option>
-                      <option value="below_title">{text("below_title")}</option>
-                    </select>
-                  </label>
+                  <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}>
+                    <span>{text("labelPosition")}</span><div>
+                      {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-${rule.ruleId}-badge-position`} value={position} checked={rule.labelPosition === position} onChange={() => patch(rule.ruleId, {labelPosition: position})} />{text(position)}</label>)}
+                    </div>
+                  </div>
                   <label className={styles.check}>
                     <input
                       type="checkbox"

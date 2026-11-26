@@ -253,24 +253,29 @@
 }
 .quantity-breaks-app-block .qb-offers { min-width: 0; }
 .quantity-breaks-app-block .qb-offer-section { margin-block: 24px; min-width: 0; }
-.quantity-breaks-app-block .qb-offer-heading { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+.quantity-breaks-app-block .qb-offer-heading { margin: 0 0 12px; color: var(--qb-offer-section-title-color, #171717); font-size: var(--qb-offer-section-title-size, 16px); font-weight: var(--qb-offer-section-title-weight, 600); }
 .quantity-breaks-app-block .qb-offer-grid { display: grid; grid-template-columns: repeat(var(--qb-offer-columns, 1), minmax(0, 1fr)); gap: var(--qb-offer-row-gap, 12px) var(--qb-offer-column-gap, 12px); min-width: 0; }
 .quantity-breaks-app-block .qb-offer-carousel { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(220px, calc((100% - (var(--qb-offer-columns, 1) - 1) * var(--qb-offer-column-gap, 12px)) / var(--qb-offer-columns, 1))); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; }
 .quantity-breaks-app-block .qb-offer-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; min-width: 0; padding: 14px; border: 1px solid #e1e1e1; border-radius: 9px; background: var(--qb-offer-background, #fff); color: var(--qb-offer-text, #171717); scroll-snap-align: start; overflow-wrap: anywhere; }
 .quantity-breaks-app-block .qb-offer-card[data-included="true"] { border-color: #171717; }
-.quantity-breaks-app-block .qb-offer-title { font-size: var(--qb-offer-title-size, 14px); font-weight: var(--qb-offer-title-weight, 600); }
+.quantity-breaks-app-block .qb-offer-title { min-width: 0; color: var(--qb-offer-title-color, var(--qb-offer-text, #171717)); font-size: var(--qb-offer-title-size, 14px); font-weight: var(--qb-offer-title-weight, 600); }
 .quantity-breaks-app-block .qb-offer-image { width: min(100%, var(--qb-offer-image-size, 96px)); height: var(--qb-offer-image-size, 96px); object-fit: contain; border-radius: var(--qb-offer-image-radius, 6px); }
 .quantity-breaks-app-block .qb-offer-state, .quantity-breaks-app-block .qb-offer-unavailable { font-size: 12px; color: #52615c; }
-.quantity-breaks-app-block .qb-offer-label { align-self: flex-end; padding: 3px 7px; border-radius: 20px; background: #f3f3f3; font-size: 11px; }
-.quantity-breaks-app-block .qb-offer-label-below { font-size: 12px; }
+.quantity-breaks-app-block .qb-offer-label, .quantity-breaks-app-block .qb-offer-label-below { max-width: 100%; margin: 0; padding: 4px 9px; border-radius: 50px; color: var(--qb-offer-badge-text, #fff); background: var(--qb-offer-badge-background, #171717); font-size: var(--qb-offer-badge-size, 11px); font-weight: var(--qb-offer-badge-weight, 600); line-height: 1.3; overflow-wrap: anywhere; }
+.quantity-breaks-app-block .qb-offer-label { position: absolute; top: 0; inset-inline-end: 12px; max-width: calc(100% - 24px); transform: translateY(-50%); z-index: 1; }
+.quantity-breaks-app-block .qb-offer-label-below { align-self: flex-start; }
+.quantity-breaks-app-block .qb-offer-grid { padding-block-start: 8px; }
+.quantity-breaks-app-block .qb-offer-grid[data-card-layout="list"] .qb-offer-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; border-color: transparent; border-radius: 0; }
+.quantity-breaks-app-block .qb-offer-grid[data-card-layout="list"] .qb-offer-card > :not(.qb-offer-image):not(.qb-offer-label) { grid-column: 2; }
+.quantity-breaks-app-block .qb-offer-grid[data-card-layout="list"] .qb-offer-image { grid-column: 1; grid-row: 1 / span 8; width: min(var(--qb-offer-image-size, 96px), 72px); }
 .quantity-breaks-app-block .qb-offer-prices { display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; }
 .quantity-breaks-app-block .qb-offer-prices del { opacity: .65; }
-.quantity-breaks-app-block .qb-offer-variant, .quantity-breaks-app-block .qb-offer-quantity input { box-sizing: border-box; max-width: 100%; min-width: 0; min-height: 36px; border: 1px solid #c6c6c6; border-radius: 6px; padding: 6px; background: #fff; color: #171717; font: inherit; }
-.quantity-breaks-app-block .qb-offer-variant { width: 100%; }
+.quantity-breaks-app-block .qb-offer-variant { box-sizing: border-box; flex: none; width: 100%; }
 .quantity-breaks-app-block .qb-offer-quantity { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 12px; }
 .quantity-breaks-app-block .qb-offer-quantity input { width: 100%; }
-.quantity-breaks-app-block .qb-offer-select, .quantity-breaks-app-block .qb-offer-unlock, .quantity-breaks-app-block .qb-offer-nav button { min-height: 36px; border: 1px solid #c6c6c6; border-radius: 6px; padding: 6px 12px; background: #fff; color: #171717; font: inherit; cursor: pointer; }
-.quantity-breaks-app-block .qb-offer-select[aria-pressed="true"] { background: #171717; color: #fff; }
-.quantity-breaks-app-block .qb-offer-select:disabled { opacity: .5; cursor: default; }
+.quantity-breaks-app-block .qb-offer-unlock, .quantity-breaks-app-block .qb-offer-nav button { min-height: 36px; border: 1px solid #c6c6c6; border-radius: 6px; padding: 6px 12px; background: #fff; color: #171717; font: inherit; cursor: pointer; }
+.quantity-breaks-app-block .qb-offer-select { display: flex; align-items: flex-start; gap: 7px; min-width: 0; max-width: 100%; cursor: pointer; }
+.quantity-breaks-app-block .qb-offer-select input { flex: 0 0 auto; margin-block-start: 3px; }
+.quantity-breaks-app-block .qb-offer-select input:disabled { opacity: .5; cursor: default; }
 .quantity-breaks-app-block .qb-offer-nav { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 8px; }
 .quantity-breaks-app-block .qb-offer-receipt { overflow-wrap: anywhere; font-size: 12px; }

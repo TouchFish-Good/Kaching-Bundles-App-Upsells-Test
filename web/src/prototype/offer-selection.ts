@@ -28,6 +28,7 @@ export function trustedOfferVariant(
   if (
     !v ||
     v.available !== true ||
+    v.availability === "sold_out" || v.availability === "unknown" ||
     !v.price ||
     !Number.isSafeInteger(v.price.amountMinor) ||
     v.price.amountMinor < 0 ||
@@ -97,7 +98,7 @@ export function useOfferSelection({
             : Number.isSafeInteger(rule.quantity) && rule.quantity >= 1 ? 1 : 0;
         const options =
           product?.variants.filter((v) =>
-            rule.allowedVariantIds.includes(v.id),
+            rule.allowedVariantIds.includes(v.id) && v.availability !== "sold_out",
           ) ?? [];
         const countPreviewable =
           Number.isSafeInteger(count) &&
@@ -106,9 +107,9 @@ export function useOfferSelection({
         const selected = countPreviewable
           ? Array.from({ length: count }, (_, index) => {
               const saved = variants[`${kind}:${rule.ruleId}:${index}`];
-              return saved
-                ? options.find((v) => v.id === saved)
-                : options.find((v) => trustedOfferVariant(v, currencyCode));
+              return options.find((v) => v.id === saved)
+                ?? options.find((v) => v.availability === "available" || (v.available === true && v.availability !== "unknown"))
+                ?? options[0];
             })
           : [];
         const ready =
@@ -153,6 +154,10 @@ export function useOfferSelection({
           rule,
           product,
           eligible,
+          hidden: !!product && rule.allowedVariantIds.length > 0 && rule.allowedVariantIds.every(id => product.variants.some(v => v.id === id && v.availability === "sold_out")),
+          selectable: !!product && countPreviewable && options.length > 0,
+          chosen: kind === "gifts" ? eligible : choices.includes(rule.ruleId) && eligible,
+          checked: kind === "bundles" && eligible && choices.includes(rule.ruleId),
           ready: ready && discountReady && safeMoney,
           options,
           selected,
@@ -168,23 +173,25 @@ export function useOfferSelection({
                 ready &&
                 discountReady)),
         };
-      }),
+      }).filter(card => !card.hidden),
     }));
   const bundle = groups.find((g) => g.kind === "bundles");
   if (bundle?.module.selectionMode === "single") {
     const selected = bundle.cards
-      .filter((c) => c.included)
-      .sort(
-        (a, b) =>
-          b.savings - a.savings || a.rule.displayOrder - b.rule.displayOrder,
-      );
-    for (const card of bundle.cards) card.included = selected[0] === card;
+      .filter((c) => c.checked)
+      .sort((a, b) => Number(b.ready) - Number(a.ready) || b.savings - a.savings || a.rule.displayOrder - b.rule.displayOrder);
+    for (const card of bundle.cards) {
+      card.checked = selected[0] === card;
+      card.chosen = card.checked && card.eligible;
+      card.included = card.chosen && card.ready;
+    }
   }
   const included = groups.flatMap((g) => g.cards.filter((c) => c.included));
   const original = included.reduce((n, c) => n + c.original, 0),
     savings = included.reduce((n, c) => n + c.savings, 0),
     quantity = included.reduce((n, c) => n + c.count, 0);
-  const safe =
+  const quoteReady = groups.every(g => g.cards.every(c => !c.chosen || c.ready));
+  const safe = quoteReady &&
     Number.isSafeInteger(original) &&
     Number.isSafeInteger(savings) &&
     Number.isSafeInteger(quantity) &&
@@ -198,6 +205,7 @@ export function useOfferSelection({
     quantity: safe ? quantity : 0,
     lines: safe ? included.flatMap((c) => c.selected.map((v) => v!.id)) : [],
     safe,
+    quoteReady,
     select: (module: OfferModuleConfig, rule: OfferRule, checked: boolean) =>
       setChoices((current) =>
         !checked

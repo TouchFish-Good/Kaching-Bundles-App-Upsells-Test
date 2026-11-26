@@ -24,7 +24,10 @@ async function request(session: AuthContext, path: string, init: RequestInit = {
   return payload;
 }
 /** Existing authenticated Admin product API establishes nested Product/variant ownership; never accepts editable handles. */
-type VerifiedOfferRef = OfferProductRef & { title: string; imageUrl: string | null; optionNames: string[] };
+type VerifiedOfferRef = OfferProductRef & {
+  title: string; imageUrl: string | null; optionNames: string[];
+  variants: Array<{ id: string; title: string; imageUrl: string | null; options: Array<{ name: string; value: string }> }>;
+};
 export async function verifiedOfferReferences(session: AuthContext, selections: OfferSelection[]): Promise<VerifiedOfferRef[]> {
   const refs = new Map<string, VerifiedOfferRef>();
   for (let start = 0; start < selections.length; start += 50) {
@@ -44,10 +47,22 @@ export async function verifiedOfferReferences(session: AuthContext, selections: 
         variants.add(variant.id);
       }
       if (!selected.variantIds.every(id => variants.has(id))) throw new OfferIndexError('Configured variant ownership is unverified.');
+      const productVariants = product.variants;
+      const optionNames = Array.isArray(product.options) ? product.options.flatMap(option => object(option) && typeof option.name === 'string' ? [option.name] : []) : [];
       refs.set(product.id, { id: product.id, handle: product.handle, variantIds: selected.variantIds,
         title: typeof product.title === 'string' ? product.title : product.handle,
         imageUrl: object(product.image) && typeof product.image.src === 'string' && product.image.src.startsWith('https://') ? product.image.src : null,
-        optionNames: Array.isArray(product.options) ? product.options.flatMap(option => object(option) && typeof option.name === 'string' ? [option.name] : []) : [],
+        optionNames,
+        variants: selected.variantIds.map(id => {
+          const variant = productVariants.find(item => object(item) && item.id === id) as Record<string, unknown>;
+          const values = Array.isArray(variant.options) && variant.options.length
+            ? variant.options.flatMap(option => object(option) && typeof option.value === 'string' ? [option.value] : [])
+            : [variant.option1, variant.option2, variant.option3, variant.option4, variant.option5].filter((value): value is string => typeof value === 'string' && Boolean(value));
+          return { id, title: typeof variant.title === 'string' ? variant.title : values.join(' / ') || id,
+            imageUrl: object(variant.image) && typeof variant.image.src === 'string' && variant.image.src.startsWith('https://') ? variant.image.src : null,
+            options: values.flatMap((value, index) => optionNames[index] ? [{ name: optionNames[index], value }] : []),
+          };
+        }),
       });
     }
   }

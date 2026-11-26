@@ -1,0 +1,45 @@
+{
+  "fixture": "local synthetic OS3 native markup + OS2.1 Handlebars fixture; not platform rendering",
+  "results": [
+    {
+      "version": "3",
+      "width": 1440,
+      "layouts4": true,
+      "checkboxToggle": true,
+      "titleOnce": true,
+      "soldoutDefault": true,
+      "carousel": true,
+      "errors": []
+    },
+    {
+      "version": "3",
+      "width": 390,
+      "layouts4": true,
+      "checkboxToggle": true,
+      "titleOnce": true,
+      "soldoutDefault": true,
+      "carousel": true,
+      "errors": []
+    },
+    {
+      "version": "2.1",
+      "width": 1440,
+      "layouts4": true,
+      "checkboxToggle": true,
+      "titleOnce": true,
+      "soldoutDefault": true,
+      "carousel": true,
+      "errors": []
+    },
+    {
+      "version": "2.1",
+      "width": 390,
+      "layouts4": true,
+      "checkboxToggle": true,
+      "titleOnce": true,
+      "soldoutDefault": true,
+      "carousel": true,
+      "errors": []
+    }
+  ]
+}

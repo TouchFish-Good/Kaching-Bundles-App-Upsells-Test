@@ -3,7 +3,7 @@
   border-radius: 18px;
   background: var(--surface, #fff);
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   color: var(--text, #171717);
 }
 .panelHeader {
@@ -62,7 +62,7 @@
   font-size: 12px;
   min-width: 0;
 }
-.panel input:not([type="checkbox"]),
+.panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .panel select,
 .card select,
 .card input:not([type="checkbox"]) {
@@ -117,13 +117,15 @@
 .variantList > legend {
   margin-bottom: 8px;
 }
-.variantList label,
+.variantList > label,
+.variantList > [data-variant-list] label,
 .check {
   flex-direction: row !important;
   align-items: center;
   gap: 6px;
 }
-.variantList label {
+.variantList > label,
+.variantList > [data-variant-list] label {
   border: 1px solid var(--border, #dedede);
   padding: 6px;
   border-radius: 5px;
@@ -339,3 +341,22 @@
   min-width: 0;
 }
 .marketRow span, .marketRow small { overflow-wrap: anywhere; }
+
+/* Offer cards share the campaign's typography and dropdown treatment. */
+.group h3 { color: var(--offer-section-color); font-size: var(--offer-section-size); font-weight: var(--offer-section-weight); }
+.productTitle { color: var(--offer-title-color); }
+.badge, .inlineBadge { color: var(--offer-badge-text); background: var(--offer-badge-background); font-size: var(--offer-badge-size); font-weight: var(--offer-badge-weight); border-radius: 4px; padding: 3px 7px; max-width: 100%; }
+.badge { position: absolute; inset-inline-end: 8px; top: -8px; z-index: 1; }
+.inlineBadge { align-self: flex-start; }
+.cards { padding-top: 8px; }
+.card label.check { align-items: flex-start; }
+.card label.check input { flex-shrink: 0; margin-top: 3px; }
+.group[data-card-layout="list"] .card { border-color: transparent; border-radius: 0; box-shadow: none; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+.group[data-card-layout="list"] .card > :not(.productImage):not(.imageBlank) { grid-column: 2; }
+.group[data-card-layout="list"] .card > .productImage, .group[data-card-layout="list"] .card > .imageBlank { grid-column: 1; grid-row: 1 / span 8; width: min(var(--offer-image-size), 72px); }
+.variantList > [data-variant-list] { display: flex; flex-wrap: wrap; gap: 8px; }
+.triggerEditor { grid-column: 1 / -1; display: grid; gap: 10px; }
+
+.panel .badgePositions label { flex-direction: row; align-items: center; }
+
+.variantDialogList li > label { display: grid; grid-template-columns: 20px 32px minmax(0, 1fr); align-items: center; }
