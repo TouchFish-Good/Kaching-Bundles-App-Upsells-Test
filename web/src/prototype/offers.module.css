@@ -355,9 +355,6 @@
 .cards { padding-top: 8px; }
 .card label.check { align-items: flex-start; }
 .card label.check input { flex-shrink: 0; margin-top: 3px; }
-.group[data-card-layout="list"] .card { border-color: transparent; border-radius: 0; box-shadow: none; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; }
-.group[data-card-layout="list"] .card > :not(.productImage):not(.imageBlank) { grid-column: 2; }
-.group[data-card-layout="list"] .card > .productImage, .group[data-card-layout="list"] .card > .imageBlank { grid-column: 1; grid-row: 1 / span 8; width: min(var(--offer-image-size), 72px); }
 .variantList > [data-variant-list] { display: flex; flex-wrap: wrap; gap: 8px; }
 .triggerEditor { display: grid; gap: 10px; }
 
@@ -377,7 +374,6 @@
   gap: 12px; color: #667085; font: inherit; font-size: 13px; cursor: pointer;
 }
 .card .lockOverlay:disabled { cursor: not-allowed; }
-.group[data-card-layout="list"] .card > .lockOverlay { grid-column: auto; }
 
 /* Gift and bundle refinements reuse the existing campaign controls. */
 .panel .badgePositions { margin-top: 0; }
@@ -393,3 +389,34 @@
 .price del { color: var(--offer-compare-price-color); font-size: var(--offer-compare-price-size); font-weight: var(--offer-compare-price-weight); }
 .savings { color: var(--offer-savings-color); font-size: var(--offer-savings-size); font-weight: var(--offer-savings-weight); }
 .card .variantDropdown select { color: var(--offer-variant-color); font-size: var(--offer-variant-size); font-weight: var(--offer-variant-weight); }
+
+/* Internal card composition follows the effective responsive column count. */
+.card[data-offer-orientation="horizontal"] { display: grid; grid-template-columns: minmax(0, min(35%, var(--offer-image-size))) minmax(0, 1fr); align-items: start; }
+.card[data-offer-orientation="horizontal"] > :where(:not(.productImage):not(.imageBlank):not(.badge):not(.lockOverlay)) { grid-column: 2; }
+.card[data-offer-orientation="horizontal"] > .productImage,
+.card[data-offer-orientation="horizontal"] > .imageBlank { grid-column: 1; grid-row: 1 / span 3; align-self: start; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .bundlePriceRow { grid-column: 1 / -1; grid-row: 1; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .productImage,
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .imageBlank { grid-row: 2; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .productTitle { grid-row: 2; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .variantDropdown { grid-column: 1 / -1; }
+.card[data-offer-orientation="horizontal"][data-has-image="false"] { grid-template-columns: minmax(0, 1fr); }
+.card[data-offer-orientation="horizontal"][data-has-image="false"] > :not(.badge):not(.lockOverlay) { grid-column: 1; }
+.card[data-offer-orientation="vertical"] { align-items: center; text-align: center; }
+.card[data-offer-orientation="vertical"] > .inlineBadge { align-self: center; }
+.card[data-offer-orientation="vertical"] > .variantDropdown { width: 100%; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .productImage,
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .imageBlank { order: 1; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .productTitle { order: 2; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .inlineBadge { order: 3; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .availability { order: 4; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .bundlePriceRow { order: 5; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .variantDropdown { order: 6; }
+.bundlePriceRow { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; min-width: 0; width: 100%; }
+.bundlePriceRow .price, .bundlePriceRow .savings, .comparePrice { min-width: 0; overflow-wrap: anywhere; }
+.comparePrice { color: var(--offer-compare-price-color); font-size: var(--offer-compare-price-size); font-weight: var(--offer-compare-price-weight); }
+.card .bundleChoice { flex-shrink: 0; margin: 0; }
+.card .bundleChoice[data-visually-hidden="true"] { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.card[data-offer-orientation="vertical"][data-checked] { cursor: pointer; }
+.card[data-offer-orientation="vertical"][data-selectable="false"] { cursor: default; }
+.card[data-selection-focused="true"] { outline: 2px solid var(--offer-selected-border, currentColor); outline-offset: 2px; }

@@ -113,6 +113,7 @@ function OfferGroup({
   const cancelReveal = () => clearTimeout(revealTimer.current);
   useEffect(() => cancelReveal, []);
   const [width, setWidth] = useState(0);
+  const [focusedChoice, setFocusedChoice] = useState<string | null>(null);
   const [bounds, setBounds] = useState({ previous: false, next: false });
   const updateBounds = () => {
     const el = track.current;
@@ -270,62 +271,74 @@ function OfferGroup({
               ),
             ) : undefined;
             const displayedSavings = card.eligible ? card.savings : card.potentialSavings;
+            const bundle = group.kind === "bundles";
+            const cardChoice = bundle && columns > 1;
+            const choose = () => {
+              if (card.selectable && card.eligible) selection.select(group.module, card.rule, !card.checked);
+            };
             return (
               <article
                 key={card.rule.ruleId}
-                className={`${styles.card} ${card.included ? styles.included : ""}`}
+                className={`${styles.card} ${(bundle ? card.checked : card.included) ? styles.included : ""}`}
                 data-rule-id={card.rule.ruleId}
                 data-included={card.included}
                 data-locked={!card.eligible}
+                data-checked={bundle ? card.checked : undefined}
+                data-has-image={card.rule.showImage}
+                data-selectable={bundle ? card.selectable && card.eligible : undefined}
+                data-offer-orientation={columns === 1 ? "horizontal" : "vertical"}
+                data-selection-focused={focusedChoice === card.rule.ruleId}
+                role={cardChoice ? "group" : undefined}
+                aria-label={cardChoice ? card.product?.title ?? text("bundles") : undefined}
+                onFocusCapture={(event) => {
+                  if (cardChoice && (event.target as HTMLElement).matches('input[type="checkbox"]')) setFocusedChoice(card.rule.ruleId);
+                }}
+                onBlurCapture={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusedChoice(null);
+                }}
+                onClick={(event) => {
+                  if (!cardChoice || (event.target as Element).closest("input, select, option, button, label, a")) return;
+                  choose();
+                  event.currentTarget.querySelector<HTMLInputElement>('input[type="checkbox"]')?.focus();
+                }}
               >
                 {card.rule.label && card.rule.labelPosition === "corner" && (
                   <span className={styles.badge}>{card.rule.label}</span>
                 )}
+                {bundle && <div className={styles.bundlePriceRow} data-offer-price-row>
+                  <input
+                    className={styles.bundleChoice}
+                    data-visually-hidden={cardChoice}
+                    type="checkbox"
+                    aria-label={card.product?.title ?? text("bundles")}
+                    checked={card.checked}
+                    disabled={!card.selectable || !card.eligible}
+                    onChange={(event) => selection.select(group.module, card.rule, event.currentTarget.checked)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      choose();
+                    }}
+                  />
+                  {card.ready && <>
+                    <span className={styles.price} data-offer-discounted>{formatMinorMoney(card.original - displayedSavings, currencyCode, locale)}</span>
+                    <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>
+                    {displayedSavings > 0 && <del className={styles.comparePrice}>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
+                  </>}
+                </div>}
                 {card.rule.showImage &&
                   (card.product?.imageUrl ? (
-                    <img
-                      className={styles.productImage}
-                      src={card.product.imageUrl}
-                      alt=""
-                    />
-                  ) : (
-                    <div className={styles.imageBlank} aria-hidden="true" />
-                  ))}
-                {group.kind === "gifts" && <strong className={styles.productTitle}>
-                  {card.product?.title ??
-                    text(
-                      preview?.state === "loading" ? "loading" : "unavailable",
-                    )}
-                </strong>}
-                {group.kind === "bundles" && (
-                  <label className={styles.check}>
-                    <input
-                      type="checkbox"
-                      aria-label={card.product?.title ?? text("bundles")}
-                      checked={card.checked}
-                      disabled={!card.selectable || !card.eligible}
-                      onChange={(event) => {
-                        if (!card.eligible && unlock) onUnlock(unlock.quantity);
-                        selection.select(group.module, card.rule, event.currentTarget.checked);
-                      }}
-                    />
-                    <strong className={styles.productTitle}>{card.product?.title ?? text("bundles")}</strong>
-                  </label>
-                )}
+                    <img className={styles.productImage} src={card.product.imageUrl} alt="" />
+                  ) : <div className={styles.imageBlank} aria-hidden="true" />)}
+                <strong className={styles.productTitle}>
+                  {card.product?.title ?? text(preview?.state === "loading" ? "loading" : bundle ? "bundles" : "unavailable")}
+                </strong>
                 {card.rule.label && card.rule.labelPosition === "below_title" && (
                   <span className={styles.inlineBadge}>{card.rule.label}</span>
                 )}
                 {!card.ready ? (
-                  <span role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
-                ) : (
-                  <>
-                    {group.kind === "bundles" && <span className={styles.price}>
-                      {formatMinorMoney(card.original - displayedSavings, currencyCode, locale)}
-                      {displayedSavings > 0 && <del>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
-                    </span>}
-                    {(group.kind === "bundles" || card.rule.showSavings !== false) && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
-                  </>
-                )}
+                  <span className={styles.availability} role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
+                ) : !bundle && card.rule.showSavings !== false && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
                 {card.options.length > 0 &&
                   card.selected.map((variant, index) => (
                     <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>

@@ -326,11 +326,12 @@ test('theme carousel nested select arrows stay native and buttons track scroll b
  grid.scrollLeft=600;grid.dispatchEvent(new h.window.Event('scroll'));assert.equal(buttons[0].disabled,false);assert.equal(buttons[1].disabled,true);
 });
 
-test('native bundle checkbox labels show the Product title once and reuse the tier dropdown',async()=>{
+test('native bundle cards show the Product title once and label the checkbox accessibly',async()=>{
  const h=setupOffers();await h.theme.mountBlock(h.block);
  const card=h.block.querySelector('[data-offer-rule="c"]');
  assert.equal(card.textContent.split('Product c').length-1,1);
- assert.equal(card.querySelector('label .qb-offer-title')?.textContent,'Product c');
+ assert.equal(card.querySelector('.qb-offer-product .qb-offer-title')?.textContent,'Product c');
+ assert.equal(card.querySelector('[data-offer-select]').getAttribute('aria-label'),'Product c');
  assert.ok(card.querySelector('select').classList.contains('qb-select'));
  assert.equal(card.querySelector('[data-offer-select]').checked,false);
 });

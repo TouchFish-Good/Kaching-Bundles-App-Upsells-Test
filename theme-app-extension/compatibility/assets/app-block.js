@@ -915,7 +915,10 @@ return exports; })();
           section.style.setProperty('--qb-offer-'+key+'-weight',String(device.typography?.[field]?.weight || (['comparePrice','savings','variant'].includes(field)?400:600)));
         }
         const layout=['stacked','list'].includes(device.layout.cardLayout)?{...device.layout,columns:1}:device.layout;
-        grid.style.setProperty('--qb-offer-columns',String(OfferCore.effectiveOfferColumns(width,layout)));
+        let effectiveColumns=OfferCore.effectiveOfferColumns(width,layout);
+        grid.dataset.effectiveColumns=String(effectiveColumns);
+        grid.style.setProperty('--qb-offer-columns',String(effectiveColumns));
+        const selectionLayouts=[];
         grid.style.setProperty('--qb-offer-column-gap',`${device.layout.columnGapPx}px`);grid.style.setProperty('--qb-offer-row-gap',`${device.layout.rowGapPx}px`);
         grid.style.setProperty('--qb-offer-image-size',`${device.image.sizePx}px`);grid.style.setProperty('--qb-offer-image-radius',`${device.image.radiusPx}px`);
         const cards=module.items.slice().sort((a,b)=>a.displayOrder-b.displayOrder).map(rule=>{
@@ -965,37 +968,59 @@ return exports; })();
           card.dataset.locked=String(!c.eligible);
           if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
           const image=c.selected.find(v=>v?.image)?.image || c.product?.image;
-          if(rule.showImage && image){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';card.append(img);}
+          const content=element(doc,'div',kind==='gifts'?'qb-offer-content':'qb-offer-product');
+          const description=kind==='gifts'?content:element(doc,'div','qb-offer-description');
+          const imageParent=kind==='gifts'?card:content;
+          card.dataset.hasImage=String(!!(rule.showImage && image));
+          if(rule.showImage && image){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';imageParent.append(img);}
           const productTitle=element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable'));
-          if(kind==='gifts')card.append(productTitle);
+          description.append(productTitle);
+          if(rule.label && rule.labelPosition==='below_title')description.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
+          if(kind==='bundles')content.append(description);
           const tier=c.unlockTier;
+          let topLine;
           if(kind==='bundles') {
+            topLine=element(doc,'div','qb-offer-topline');
             const label=element(doc,'label','qb-offer-select');
             const toggle=element(doc,'input');toggle.type='checkbox';toggle.dataset.offerSelect='';toggle.checked=c.included;
             toggle.setAttribute('aria-label',c.product?.title || copy('widget.offer_select','Select'));
             toggle.disabled=!c.ready || !c.eligible;
-            toggle.addEventListener('change',()=>{
+            const changeSelection=selected=>{
               if(toggle.disabled)return;
-              const selected=toggle.checked;
               if(module.selectionMode==='single' && selected)cards.forEach(other=>other.choice.selected=false);
               choice.selected=selected;
-              if(!c.eligible && tier && selected)chooseTier(tier);else rerender();
+              rerender();
+            };
+            toggle.addEventListener('change',()=>changeSelection(toggle.checked));
+            toggle.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();changeSelection(!c.included);}});
+            toggle.addEventListener('focus',()=>{card.dataset.selectionFocus='true';});
+            toggle.addEventListener('blur',()=>{delete card.dataset.selectionFocus;});
+            card.addEventListener('click',event=>{
+              if(effectiveColumns===1 || event.target.closest?.('select,input,button,label,a'))return;
+              changeSelection(!c.included);
             });
-            label.append(toggle,productTitle);
-            card.append(label);
+            selectionLayouts.push(()=>{
+              const multiple=effectiveColumns>1;
+              label.dataset.visuallyHidden=String(multiple);
+              if(multiple){card.setAttribute('role','group');card.setAttribute('aria-label',c.product?.title || copy('widget.offer_select','Select'));}
+              else {card.removeAttribute('role');card.removeAttribute('aria-label');}
+            });
+            label.append(toggle);topLine.append(label);card.append(topLine);
           }
-          if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
-          if(!c.ready)card.append(element(doc,'span','qb-offer-state',copy('widget.offer_unavailable','Unavailable')));
+          card.append(content);
+          if(!c.ready)description.append(element(doc,'span','qb-offer-state',copy('widget.offer_unavailable','Unavailable')));
           if(c.ready){
             if(kind==='bundles') {
               const prices=element(doc,'div','qb-offer-prices');
               prices.append(element(doc,'b','',moneyMinor(c.original-c.displaySavings,currency,locale)));
-              if(c.displaySavings>0)prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));
-              card.append(prices);
-            }
-            if(c.displaySavings>0 && (kind==='bundles' || rule.showSavings!==false))card.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));
+              if(c.displaySavings>0){
+                prices.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));
+                prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));
+              }
+              topLine.append(prices);
+            } else if(c.displaySavings>0 && rule.showSavings!==false)content.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));
           }
-          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.disabled=!c.eligible;select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
+          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.disabled=!c.eligible;select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});(kind==='gifts'?content:card).append(select);});
           if(!c.eligible){
             const locked=copy('widget.offer_locked','Locked');
             const overlay=element(doc,'button','qb-offer-lock');overlay.type='button';overlay.disabled=!tier;
@@ -1014,6 +1039,11 @@ return exports; })();
         const rtl=()=>scope.getComputedStyle?.(grid).direction==='rtl';
         const updateBounds=()=>{const position=rtl()?-grid.scrollLeft:grid.scrollLeft;navButtons.forEach((button,index)=>{button.disabled=index===0 ? !(position>1) : !(position+grid.clientWidth<grid.scrollWidth-1);button.hidden=button.disabled;});};
         const measureLayout=()=>{
+          const actualWidth=grid.clientWidth || block.getBoundingClientRect?.().width || width;
+          effectiveColumns=OfferCore.effectiveOfferColumns(actualWidth,layout);
+          grid.dataset.effectiveColumns=String(effectiveColumns);
+          grid.style.setProperty('--qb-offer-columns',String(effectiveColumns));
+          selectionLayouts.forEach(update=>update());
           const badgeHeight=Math.max(0,...Array.from(grid.querySelectorAll('.qb-offer-label'),badge=>badge.getBoundingClientRect?.().height || 0));
           if(badgeHeight)grid.style.setProperty('--qb-offer-badge-clearance',`${Math.ceil(badgeHeight/2)+2}px`);
           updateBounds();

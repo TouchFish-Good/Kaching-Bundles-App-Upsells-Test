@@ -160,3 +160,64 @@ test('device-specific price and selected border values reach preview',()=>harnes
 test('carousel arrows sit beside card track and hide at boundaries',()=>harness(async({vite,render})=>{
  const{OfferPreview:StorefrontWidget,OfferReceipt}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');const gifts=moduleFor('gifts',[rule('a'),rule('b'),rule('c')]);gifts.style.desktop={...gifts.style.desktop,layout:{...gifts.style.desktop.layout,mode:'carousel'}};await render(StorefrontWidget,{...previewProps(gifts,'gifts')});const group=document.querySelector('[data-offer-kind="gifts"]'),track=group.querySelector('[role="region"]'),previous=group.querySelector('button[aria-label^="Previous"]'),next=group.querySelector('button[aria-label^="Next"]');assert.equal(previous.hidden,true);assert.equal(next.hidden,true);assert.equal(previous.closest('[class*="groupHeading"]'),null);assert.equal(previous.parentElement.parentElement,track.parentElement);Object.defineProperties(track,{clientWidth:{value:200,configurable:true},scrollWidth:{value:600,configurable:true}});track.scrollLeft=0;await act(()=>track.dispatchEvent(new window.Event('scroll',{bubbles:true})));assert.equal(previous.hidden,true);assert.equal(next.hidden,false);track.scrollLeft=400;await act(()=>track.dispatchEvent(new window.Event('scroll',{bubbles:true})));assert.equal(previous.hidden,false);assert.equal(next.hidden,true);
 }));
+
+test('effective columns select horizontal offer structure only when one card fits',()=>harness(async({vite,render})=>{
+ const {OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
+ for(const kind of ['gifts','bundles']){
+  const module=moduleFor(kind,[rule('a')]);module.style.desktop.layout={...module.style.desktop.layout,columns:3,cardLayout:'horizontal'};
+  for(const width of [400,180]){
+   window.HTMLElement.prototype.getBoundingClientRect=()=>({width,height:200,left:0,right:width,top:0,bottom:200});
+   await render(OfferPreview,{...previewProps(module,kind),key:kind+width});
+   const group=document.querySelector('[data-offer-kind]'),card=group.querySelector('article');
+   assert.equal(group.dataset.columns,width===400?'3':'1');
+   assert.equal(card.dataset.offerOrientation,width===400?'vertical':'horizontal');
+   if(kind==='bundles'){
+    const prices=card.querySelector('[data-offer-price-row]');assert.ok(prices);
+    assert.ok(prices.querySelector('[data-offer-discounted]'));
+    assert.ok(prices.querySelector('[data-offer-savings]'));
+    assert.equal(prices.lastElementChild.tagName,'DEL');
+    assert.equal(card.querySelector('input[type="checkbox"]').dataset.visuallyHidden,width===400?'true':'false');
+    if(width===180)assert.equal(prices.firstElementChild.type,'checkbox');
+   }
+  }
+ }
+}));
+test('multi-column bundle card toggles with pointer and keyboard but leaves select native',()=>harness(async({vite,render,click,change})=>{
+ const{OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
+ window.HTMLElement.prototype.getBoundingClientRect=()=>({width:400,height:200,left:0,right:400,top:0,bottom:200});
+ const module=moduleFor('bundles',[rule('a')]);module.style.desktop.layout={...module.style.desktop.layout,columns:3,cardLayout:'horizontal'};
+ const props=previewProps(module,'bundles');let selections=0,variantChanges=0;
+ function Form(){const[checked,setChecked]=React.useState(false);const selection={...props.selection,select:(_module,_rule,value)=>{selections++;setChecked(value)},selectVariant:()=>{variantChanges++},groups:props.selection.groups.map(group=>({...group,cards:group.cards.map(card=>({...card,checked,included:checked}))}))};return React.createElement(OfferPreview,{...props,selection});}
+ await render(Form,{});const card=()=>document.querySelector('article');
+ await click(card());assert.equal(card().dataset.included,'true');assert.equal(selections,1);assert.equal(card().dataset.selectionFocused,'true');assert.ok(document.activeElement===card().querySelector('input[type="checkbox"]'));
+ await click(card().querySelector('select'));assert.equal(selections,1);
+ await change(card().querySelector('select'),'al');assert.equal(variantChanges,1);assert.equal(selections,1);
+ const checkbox=()=>card().querySelector('input[type="checkbox"]');
+ await act(()=>checkbox().dispatchEvent(new window.KeyboardEvent('keydown',{key:'Enter',bubbles:true})));assert.equal(card().dataset.included,'false');assert.equal(selections,2);
+ await click(checkbox());assert.equal(card().dataset.included,'true');assert.equal(selections,3);
+ await act(()=>card().querySelector('select').dispatchEvent(new window.KeyboardEvent('keydown',{key:' ',bubbles:true})));assert.equal(selections,3);
+ assert.equal(card().getAttribute('role'),'group');
+}));
+
+test('multi-column simulated choices retain selection feedback without quote and respect locked disabled cards',()=>harness(async({vite,render,click})=>{
+ const{OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
+ window.HTMLElement.prototype.getBoundingClientRect=()=>({width:400,height:200,left:0,right:400,top:0,bottom:200});
+ const module=moduleFor('bundles',[rule('a')]);module.style.desktop.layout={...module.style.desktop.layout,columns:3,cardLayout:'horizontal'};const props=previewProps(module,'bundles');let selections=0;
+ function Form({locked=false,disabled=false}){const[checked,setChecked]=React.useState(false);return React.createElement(OfferPreview,{...props,selection:{...props.selection,select:(_m,_r,v)=>{selections++;setChecked(v)},groups:props.selection.groups.map(g=>({...g,cards:g.cards.map(c=>({...c,ready:false,included:false,checked,eligible:!locked,selectable:!disabled}))}))}});}
+ await render(Form,{});let card=document.querySelector('article');await click(card);card=document.querySelector('article');assert.equal(card.dataset.checked,'true');assert.equal(card.dataset.included,'false');assert.match(card.className,/included/);assert.equal(selections,1);
+ for(const mode of [{locked:true},{disabled:true}]){await render(Form,{...mode,key:JSON.stringify(mode)});await click(document.querySelector('article'));assert.equal(selections,1);assert.equal(document.querySelector('article input').disabled,true);}
+}));
+
+test('single-column bundle prices and selectors span the actual styled card, with image confined to its title row',()=>harness(async({vite,render})=>{
+ const {OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
+ const classes=(await vite.ssrLoadModule('/src/prototype/offers.module.css')).default;
+ const css=await readFile(new URL('../src/prototype/offers.module.css',import.meta.url),'utf8');
+ const sheet=document.createElement('style');sheet.textContent=css.replace(/\.([A-Za-z_][A-Za-z0-9_-]*)/g,(match,key)=>classes[key]?'.'+classes[key]:match);document.head.append(sheet);
+ window.HTMLElement.prototype.getBoundingClientRect=()=>({width:320,height:200,left:0,right:320,top:0,bottom:200});
+ const module=moduleFor('bundles',[rule('a')]);module.style.desktop.layout={...module.style.desktop.layout,columns:1};
+ await render(OfferPreview,previewProps(module,'bundles'));
+ const card=document.querySelector('article'),style=element=>window.getComputedStyle(element);
+ assert.equal(style(card.querySelector('[data-offer-price-row]')).gridColumn,'1 / -1');
+ assert.equal(style(card.querySelector('select').parentElement).gridColumn,'1 / -1');
+ assert.equal(style(card.querySelector('[class*="imageBlank"]')).gridRow,'2');
+}));
