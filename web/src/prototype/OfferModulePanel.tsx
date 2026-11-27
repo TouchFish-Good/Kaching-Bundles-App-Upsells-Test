@@ -183,6 +183,38 @@ export function OfferModulePanel({
     setErrors(next);
     onDraftError(Object.values(next)[0] ?? "");
   };
+  const labelPositionControl = (
+            <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}><span>{text("labelPosition")}</span><div>
+              {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-badge-position`} checked={(value.display?.labelPosition ?? "corner") === position} onChange={() => onChange({ ...value, display: { showImage: true, ...value.display, labelPosition: position } })} />{offerRefinementText(locale, position === "below_title" ? "belowTitle" : kind === "gifts" ? "giftBorder" : "bundleCorner")}</label>)}
+            </div></div>
+  );
+  const addProductsControl = (
+          <CampaignProductPicker
+            fetcher={fetcher}
+            selectedIds={ids}
+            onChange={selectProducts}
+            locale={locale}
+            mode="dialog"
+            showSelectedItems={false}
+          />
+  );
+  const selectionControl = (
+            <label>
+              {text("selection")}
+              <select
+                value={value.selectionMode}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    selectionMode: e.target.value as "single" | "multiple",
+                  })
+                }
+              >
+                <option value="single">{text("single")}</option>
+                <option value="multiple">{text("multiple")}</option>
+              </select>
+            </label>
+  );
   return (
     <section className={styles.panel} data-offer-panel={kind}>
       <header className={styles.panelHeader}>
@@ -227,38 +259,20 @@ export function OfferModulePanel({
             }}>{ct(name)}</button>)}
           </div>
           {tab === "settings" && <div role="tabpanel" id={`offer-${kind}-settings`} aria-labelledby={`offer-${kind}-settings-tab`}>
-          {kind === "bundles" && (
-            <label>
-              {text("selection")}
-              <select
-                value={value.selectionMode}
-                onChange={(e) =>
-                  onChange({
-                    ...value,
-                    selectionMode: e.target.value as "single" | "multiple",
-                  })
-                }
-              >
-                <option value="single">{text("single")}</option>
-                <option value="multiple">{text("multiple")}</option>
-              </select>
-            </label>
-          )}
-          <div data-offer-module-display={kind}>
+
+          <div data-offer-module-display={kind} className={styles.moduleSettings}>
+            <div className={styles.moduleSettingsRow} data-offer-settings-row="primary">
+              {kind === "gifts" ? labelPositionControl : selectionControl}
+              <div className={styles.moduleProductPicker}>{addProductsControl}</div>
+            </div>
+            <div className={styles.moduleSettingsRow} data-offer-settings-row="display">
+
             <label className={styles.check}><input type="checkbox" checked={value.display?.showImage ?? true} onChange={event => onChange({ ...value, display: { labelPosition: "corner", ...value.display, showImage: event.target.checked } })} />{text("showImage")}</label>
             {kind === "gifts" && <label className={styles.check}><input type="checkbox" checked={value.display?.showSavings !== false} onChange={event => onChange({ ...value, display: { showImage: true, labelPosition: "corner", ...value.display, showSavings: event.target.checked } })} />{offerRefinementText(locale, "showSavings")}</label>}
-            <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}><span>{text("labelPosition")}</span><div>
-              {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-badge-position`} checked={(value.display?.labelPosition ?? "corner") === position} onChange={() => onChange({ ...value, display: { showImage: true, ...value.display, labelPosition: position } })} />{offerRefinementText(locale, position === "below_title" ? "belowTitle" : kind === "gifts" ? "giftBorder" : "bundleCorner")}</label>)}
-            </div></div>
+
+              {kind === "bundles" && labelPositionControl}
+            </div>
           </div>
-          <CampaignProductPicker
-            fetcher={fetcher}
-            selectedIds={ids}
-            onChange={selectProducts}
-            locale={locale}
-            mode="dialog"
-            showSelectedItems={false}
-          />
           {loadError && (
             <p role="alert">
               {text("unavailable")}{" "}
