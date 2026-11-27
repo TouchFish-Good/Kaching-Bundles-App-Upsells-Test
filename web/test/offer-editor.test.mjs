@@ -1217,7 +1217,7 @@ test('offer refinement: trigger presets show live tiers and save real tier IDs',
 test('offer refinement: thumbnails and color-popover opacity persist independently from typography',()=>harness(async({vite,render,click,change})=>{
  const {OfferStyleEditor}=await vite.ssrLoadModule('/src/prototype/OfferStyleEditor.tsx');let current=defaultOfferModule('gifts').style.desktop;
  function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferStyleEditor,{value,onChange:setValue,locale:'en'});}
- await render(Form,{});const grid=document.querySelector('input[value="grid"]');assert.ok(grid);await click(grid);assert.equal(current.layout.cardLayout,'grid');assert.equal(current.layout.columns,2);await click(document.querySelector('[role="switch"]'));assert.equal(current.layout.mode,'carousel');assert.equal(current.layout.cardLayout,'grid');const color=document.querySelector('summary[aria-label="Section title color"]');assert.ok(color);await click(color);const alpha=document.querySelector('input[aria-label="Section title opacity"]');assert.ok(alpha);await change(alpha,'50');assert.match(current.colors.sectionTitle,/80$/i);assert.ok(alpha.closest('details'));assert.equal(document.querySelectorAll('[data-offer-font] input[type="range"]').length,0);
+ await render(Form,{});const grid=document.querySelector('input[value="grid"]');assert.ok(grid);await click(grid);assert.equal(current.layout.cardLayout,'grid');assert.equal(current.layout.columns,2);await click(document.querySelector('[role="switch"]'));assert.equal(current.layout.mode,'carousel');assert.equal(current.layout.cardLayout,'grid');const color=document.querySelector('summary[aria-label="Section title color"]');assert.ok(color);await click(color);const alpha=document.querySelector('input[aria-label="Section title opacity"]');assert.ok(alpha);await change(alpha,'50');assert.match(current.colors.sectionTitle,/80$/i);assert.ok(alpha.closest('details'));assert.equal(document.querySelectorAll('[data-offer-font] input[type="range"]').length,6);
 }));
 test('offer refinement: unpriced known variants allow simulated checkbox choice without valid quote',()=>harness(async({vite,render,click})=>{
  const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');await render(StorefrontWidget,{...base,bundles:moduleFor('bundles',[rule('a')]),offerPreview:{state:'ready',products:[{...products[0],available:false,reason:'unsupported_market',variants:products[0].variants.map(v=>({...v,available:true,availability:'available',price:null}))}]}});const card=()=>document.querySelector('[data-rule-id="a"]'),input=()=>card().querySelector('input[type="checkbox"]');assert.equal(input().disabled,false);await click(input());assert.equal(input().checked,true);assert.equal(card().dataset.included,'false');assert.match(document.querySelector('[data-offer-summary]').textContent,/unavailable/i);await click(input());assert.equal(input().checked,false);
@@ -1261,4 +1261,53 @@ test('locked offer has full-card unlock control, no visible option caption, and 
   assert.match(card.querySelector('[data-offer-savings]').textContent,/2.50/);assert.match(card.querySelector('del').textContent,/10.00/);
   assert.equal(card.dataset.included,'false');await click(lock);
   assert.equal(document.querySelector('[data-rule-id="a"]').dataset.included,'true');assert.equal(document.querySelector('[data-offer-lock]'),null);
+}));
+
+test('preview incrementally loads variants and keeps existing products visible during additions',()=>harness(async({vite,render})=>{
+ const {useOfferPreview}=await vite.ssrLoadModule('/src/prototype/offer-preview-client.ts');let state,resolve;
+ function Probe(p){state=useOfferPreview(p.gifts,undefined,p.context,p.fetcher);return null;}
+ const requests=[];const fetcher=async(_,opts)=>{const body=JSON.parse(opts.body);requests.push(body.selection);if(requests.length===2)return new Promise(r=>resolve=()=>r(json({version:2,...body,products})));return json({version:2,...body,products});};
+ const props={context:{locale:'en'},fetcher,gifts:moduleFor('gifts',[rule('a')])};
+ await render(Probe,props);await settle();
+ await render(Probe,{...props,gifts:moduleFor('gifts',[rule('a'),rule('b')])});
+ assert.deepEqual(state.products.map(p=>p.id),['a'],'loaded product remains visible while new product loads');
+ assert.deepEqual(requests[1],[{productId:'b',variantIds:['bl','bs']}]);
+ await act(async()=>{resolve();});await settle();
+ await render(Probe,props);await settle();assert.equal(requests.length,2,'removal makes no request');assert.deepEqual(state.products.map(p=>p.id),['a']);
+ await render(Probe,{...props,gifts:moduleFor('gifts',[{...rule('a'),allowedVariantIds:['as']}])});await settle();assert.equal(requests.length,2);assert.deepEqual(state.products[0].variants.map(v=>v.id),['as']);
+ await render(Probe,{...props,context:{locale:'fr'}});await settle();assert.equal(requests.length,3);
+}));
+
+test('preview cache expires prices and never shares them with a new authenticated fetcher',()=>harness(async({vite,render})=>{
+ const {useOfferPreview}=await vite.ssrLoadModule('/src/prototype/offer-preview-client.ts');let state;const requests=[];
+ function Probe(p){state=useOfferPreview(p.gifts,undefined,{locale:'en'},p.fetcher);return null;}
+ const fetcher=async(_,opts)=>{const body=JSON.parse(opts.body);requests.push(body.selection);return json({version:2,...body,products});};
+ const props={gifts:moduleFor('gifts',[{...rule('a'),allowedVariantIds:['as']}]),fetcher};await render(Probe,props);await settle();
+ await render(Probe,{...props,gifts:moduleFor('gifts',[rule('a')])});await settle();assert.deepEqual(requests[1],[{productId:'a',variantIds:['al']}]);assert.equal(state.products[0].variants.length,2);
+ const now=Date.now;try{Date.now=()=>now()+6*60_000;await render(Probe,props);await settle();assert.deepEqual(requests[2],[{productId:'a',variantIds:['as']}]);assert.equal(state.products.length,1,'refreshed data remains usable');}finally{Date.now=now;}
+ await render(Probe,{...props,fetcher:async()=>new Promise(()=>{})});assert.deepEqual(state.products,[],'new session cannot reuse cached prices');
+}));
+
+test('preview refreshes unchanged selections at TTL and recalculates expired variants after a long 429',()=>harness(async({vite,render})=>{
+ const {useOfferPreview}=await vite.ssrLoadModule('/src/prototype/offer-preview-client.ts');let state,offset=0;const requests=[],timers=[];
+ const now=Date.now,timeout=globalThis.setTimeout;Date.now=()=>now()+offset;
+ globalThis.setTimeout=(callback,delay,...args)=>delay>=1000?(timers.push({callback,delay}),{fake:true}):timeout(callback,delay,...args);
+ function Probe(p){state=useOfferPreview(p.gifts,undefined,{locale:'en'},p.fetcher);return null;}
+ const fetcher=async(_,opts)=>{const body=JSON.parse(opts.body);requests.push(body.selection);if(requests.length===3)return json({retryAfter:360},429,{'Retry-After':'360'});return json({version:2,...body,products});};
+ const props={gifts:moduleFor('gifts',[rule('a')]),fetcher};
+ try{
+  await render(Probe,props);await settle();
+  assert.ok(timers.some(t=>t.delay===300000),'successful preview schedules expiration refresh');
+  offset=300001;await act(async()=>{timers.find(t=>t.delay===300000).callback();});await settle();assert.equal(requests.length,2);assert.deepEqual(state.products.map(p=>p.id),['a']);
+  await render(Probe,{...props,gifts:moduleFor('gifts',[rule('a'),rule('b')])});await settle();assert.equal(state.state,'unavailable');assert.deepEqual(requests[2].map(p=>p.productId),['b']);
+  offset+=360001;await act(async()=>{timers.find(t=>t.delay===360000).callback();});await settle();assert.deepEqual(requests[3].map(p=>p.productId),['a','b'],'retry reloads a whose cache expired during cooldown');assert.equal(state.state,'ready');assert.deepEqual(state.products.map(p=>p.id),['a','b']);
+ }finally{Date.now=now;globalThis.setTimeout=timeout;}
+}));
+
+for (const omitRecoveredVariant of [false, true]) test(`preview reloads a cached variant that expires while another variant is loading (server omission: ${omitRecoveredVariant})`,()=>harness(async({vite,render})=>{
+ const {useOfferPreview}=await vite.ssrLoadModule('/src/prototype/offer-preview-client.ts');let state,offset=0,resolve;const requests=[];const now=Date.now;Date.now=()=>now()+offset;
+ function Probe(p){state=useOfferPreview(p.gifts,undefined,{locale:'en'},p.fetcher);return null;}
+ const fetcher=async(_,opts)=>{const body=JSON.parse(opts.body);requests.push(body.selection);if(requests.length===2)return new Promise(r=>resolve=()=>r(json({version:2,...body,products})));return json({version:2,...body,products:requests.length===3 && omitRecoveredVariant ? [] : products});};
+ const props={gifts:moduleFor('gifts',[{...rule('a'),allowedVariantIds:['as']}]),fetcher};
+ try{await render(Probe,props);await settle();offset=299000;await render(Probe,{...props,gifts:moduleFor('gifts',[rule('a')])});assert.deepEqual(requests[1],[{productId:'a',variantIds:['al']}]);offset=301000;await act(async()=>resolve());await settle();assert.deepEqual(requests[2],[{productId:'a',variantIds:['as']}],'expired old variant is loaded immediately');assert.deepEqual(state.products[0].variants.map(v=>v.id).sort(),omitRecoveredVariant?['al']:['al','as']);await settle();assert.equal(requests.length,3,'a truly omitted variant does not cause an immediate retry loop');}finally{Date.now=now;}
 }));

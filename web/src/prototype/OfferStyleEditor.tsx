@@ -2,7 +2,7 @@ import { useId, useState } from 'react';
 import type { OfferDeviceStyle, OfferLayout, OfferModuleKind } from '../../../shared/offer-core.mjs';
 import { campaignText, type CampaignEditorMessageKey } from './campaign-editor-messages';
 import { offerText } from './offer-messages';
-import { offerUiText, offerPriceTitle } from './offer-ui-copy';
+import { offerUiText, offerPriceTitle, offerBadgeRadiusTitle } from './offer-ui-copy';
 import { OfferColorPicker } from './OfferColorPicker';
 import styles from '../pages/quantity-breaks.module.css';
 import local from './offer-style-editor.module.css';
@@ -63,14 +63,17 @@ export function OfferStyleEditor({ value, onChange, locale, kind = 'bundles' }: 
         <button type="button" role="switch" aria-label={text('carousel')} aria-checked={value.layout.mode === 'carousel'} onClick={() => changeLayout({ mode: value.layout.mode === 'carousel' ? 'grid' : 'carousel' })}><span /></button>
       </label>
       <div className={`${styles.styleFieldGrid} ${local.dimensions}`}>
-        {(['columnGapPx', 'rowGapPx'] as const).map((key, i) => <label className={local.field} key={key}>{text(i ? 'rowGap' : 'columnGap')}
-          <input aria-label={text(i ? 'rowGap' : 'columnGap')} type="number" min="0" max="128" value={value.layout[key]} onChange={(event) => changeLayout({ [key]: Number(event.target.value) })} />
+        {(['columnGapPx', 'rowGapPx'] as const).map((key, i) => <label className={local.field} key={key}>{text(i ? 'rowGap' : 'columnGap')} <output>{value.layout[key]}px</output>
+          <input aria-label={text(i ? 'rowGap' : 'columnGap')} type="range" min="0" max="128" value={value.layout[key]} onChange={(event) => changeLayout({ [key]: Number(event.target.value) })} />
         </label>)}
-        {(['sizePx', 'radiusPx'] as const).map((key, i) => <label className={local.field} key={key}>{text(i ? 'radius' : 'imageSize')}
-          <input aria-label={text(i ? 'radius' : 'imageSize')} type="number" min={i ? 0 : 10} max={i ? 64 : 400} value={value.image[key]} onChange={(event) => onChange({ ...value, image: { ...value.image, [key]: Number(event.target.value) } })} />
+        {(['sizePx', 'radiusPx'] as const).map((key, i) => <label className={local.field} key={key}>{text(i ? 'radius' : 'imageSize')} <output>{value.image[key]}px</output>
+          <input aria-label={text(i ? 'radius' : 'imageSize')} type="range" min={i ? 0 : Math.min(10, value.image[key])} max={Math.max(i ? 64 : 400, value.image[key])} value={value.image[key]} onChange={(event) => onChange({ ...value, image: { ...value.image, [key]: Number(event.target.value) } })} />
         </label>)}
-        <label className={local.field}>{label('styleCardRadius')}
-          <input data-offer-card-radius aria-label={label('styleCardRadius')} type="number" min="0" max="64" value={value.card?.radiusPx ?? 8} onChange={event => onChange({ ...value, card: { radiusPx: Number(event.target.value) } })} />
+        <label className={local.field}>{label('styleCardRadius')} <output>{value.card?.radiusPx ?? 8}px</output>
+          <input data-offer-card-radius aria-label={label('styleCardRadius')} type="range" min="0" max={Math.max(64, value.card?.radiusPx ?? 8)} value={value.card?.radiusPx ?? 8} onChange={event => onChange({ ...value, card: { radiusPx: Number(event.target.value) } })} />
+        </label>
+        <label className={local.field}>{offerBadgeRadiusTitle(locale)} <output>{value.badge?.radiusPx ?? 4}px</output>
+          <input data-offer-badge-radius aria-label={offerBadgeRadiusTitle(locale)} type="range" min="0" max={Math.max(64, value.badge?.radiusPx ?? 4)} value={value.badge?.radiusPx ?? 4} onChange={event => onChange({ ...value, badge: { radiusPx: Number(event.target.value) } })} />
         </label>
       </div>
     </fieldset>
@@ -92,7 +95,7 @@ export function OfferStyleEditor({ value, onChange, locale, kind = 'bundles' }: 
         const setFont = (patch: Partial<typeof font>) => onChange({ ...value, typography: { ...value.typography, [key]: { ...font, ...patch } } });
         return <div className={styles.styleTypeRow} data-offer-font={key} key={key}>
           <span>{name}</span>
-          <label>{label('styleSize')}<input aria-label={`${name} size`} type="number" min="1" step="1" value={font.sizePx} onChange={(event) => setFont({ sizePx: Number(event.target.value) })} /></label>
+          <label>{label('styleSize')} <output>{font.sizePx}px</output><input aria-label={`${name} size`} type="range" min="1" max={Math.max(72, font.sizePx)} step="1" value={font.sizePx} onChange={(event) => setFont({ sizePx: Number(event.target.value) })} /></label>
           <label>{label('styleWeight')}<select aria-label={`${name} weight`} value={font.weight} onChange={(event) => setFont({ weight: Number(event.target.value) })}>{[100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
         </div>;
       })}</div>

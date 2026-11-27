@@ -113,7 +113,6 @@ function OfferGroup({
   const cancelReveal = () => clearTimeout(revealTimer.current);
   useEffect(() => cancelReveal, []);
   const [width, setWidth] = useState(0);
-  const [focusedChoice, setFocusedChoice] = useState<string | null>(null);
   const [bounds, setBounds] = useState({ previous: false, next: false });
   const updateBounds = () => {
     const el = track.current;
@@ -189,6 +188,7 @@ function OfferGroup({
     "--offer-section-weight": style.typography?.sectionTitle?.weight ?? 600,
     "--offer-badge-text": style.colors?.badgeText ?? "#ffffff",
     "--offer-badge-background": style.colors?.badgeBackground ?? "#171717",
+    "--offer-badge-radius": `${style.badge?.radiusPx ?? 4}px`,
     "--offer-badge-size": `${style.typography?.badge?.sizePx ?? 11}px`,
     "--offer-badge-weight": style.typography?.badge?.weight ?? 600,
   } as CSSProperties;
@@ -287,17 +287,10 @@ function OfferGroup({
                 data-has-image={card.rule.showImage}
                 data-selectable={bundle ? card.selectable && card.eligible : undefined}
                 data-offer-orientation={columns === 1 ? "horizontal" : "vertical"}
-                data-selection-focused={focusedChoice === card.rule.ruleId}
                 role={cardChoice ? "group" : undefined}
                 aria-label={cardChoice ? card.product?.title ?? text("bundles") : undefined}
-                onFocusCapture={(event) => {
-                  if (cardChoice && (event.target as HTMLElement).matches('input[type="checkbox"]')) setFocusedChoice(card.rule.ruleId);
-                }}
-                onBlurCapture={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusedChoice(null);
-                }}
                 onClick={(event) => {
-                  if (!cardChoice || (event.target as Element).closest("input, select, option, button, label, a")) return;
+                  if (!bundle || (event.target as Element).closest("input, select, option, button, label, a")) return;
                   choose();
                   event.currentTarget.querySelector<HTMLInputElement>('input[type="checkbox"]')?.focus();
                 }}
@@ -322,7 +315,7 @@ function OfferGroup({
                   />
                   {card.ready && <>
                     <span className={styles.price} data-offer-discounted>{formatMinorMoney(card.original - displayedSavings, currencyCode, locale)}</span>
-                    <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>
+                    {displayedSavings > 0 && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
                     {displayedSavings > 0 && <del className={styles.comparePrice}>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
                   </>}
                 </div>}
@@ -330,15 +323,17 @@ function OfferGroup({
                   (card.product?.imageUrl ? (
                     <img className={styles.productImage} src={card.product.imageUrl} alt="" />
                   ) : <div className={styles.imageBlank} aria-hidden="true" />)}
+                <div className={styles.productDescription}>
                 <strong className={styles.productTitle}>
                   {card.product?.title ?? text(preview?.state === "loading" ? "loading" : bundle ? "bundles" : "unavailable")}
                 </strong>
                 {card.rule.label && card.rule.labelPosition === "below_title" && (
                   <span className={styles.inlineBadge}>{card.rule.label}</span>
                 )}
+                </div>
                 {!card.ready ? (
                   <span className={styles.availability} role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
-                ) : !bundle && card.rule.showSavings !== false && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
+                ) : !bundle && displayedSavings > 0 && card.rule.showSavings !== false && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
                 {card.options.length > 0 &&
                   card.selected.map((variant, index) => (
                     <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>
@@ -420,7 +415,7 @@ export function OfferReceipt({
                     .map((v) => group.kind === "gifts" ? v.title : `${v.title} × ${v.quantity}`)
                     .join(" / ")}
                 </span>
-                {(group.kind === "bundles" || card.rule.showSavings !== false) && <strong data-offer-receipt-amount>
+                {(group.kind === "bundles" || (card.savings > 0 && card.rule.showSavings !== false)) && <strong data-offer-receipt-amount>
                   {group.kind === "gifts" ? renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(card.savings, currencyCode, locale) }) : formatMinorMoney(card.original - card.savings, currencyCode, locale)}
                 </strong>}
               </div>

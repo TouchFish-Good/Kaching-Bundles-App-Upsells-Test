@@ -9,7 +9,7 @@ export type OfferRule = {
 };
 export type OfferLayout = { mode: 'grid' | 'carousel'; columns: 1 | 2 | 3; columnGapPx: number; rowGapPx: number; cardLayout?: 'stacked' | 'horizontal' | 'grid' | 'list' };
 export type OfferDeviceStyle = {
-  layout: OfferLayout; card?: { radiusPx: number }; image: { sizePx: number; radiusPx: number };
+  layout: OfferLayout; card?: { radiusPx: number }; badge?: { radiusPx: number }; image: { sizePx: number; radiusPx: number };
   colors?: Record<string, string>; typography?: Record<string, { sizePx: number; weight: number }>;
 };
 export type OfferModuleConfig = {

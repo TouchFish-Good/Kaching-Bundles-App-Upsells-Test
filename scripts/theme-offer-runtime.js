@@ -192,6 +192,7 @@
         const width=block.getBoundingClientRect?.().width || (mediaQuery.matches?332:700);
         for(const [key,value] of Object.entries({background:device.colors?.background || '#ffffff',text:device.colors?.text || '#171717','title-color':device.colors?.title || device.colors?.text || '#171717','section-title-color':device.colors?.sectionTitle || device.colors?.text || '#171717','badge-text':device.colors?.badgeText || '#ffffff','badge-background':device.colors?.badgeBackground || '#171717'}))section.style.setProperty('--qb-offer-'+key,value);
         for(const field of ['price','comparePrice','savings','variant','selectedBorder'])section.style.setProperty('--qb-offer-'+field+'-color',device.colors?.[field] || (field==='comparePrice'?'#777777':device.colors?.text || '#171717'));
+        section.style.setProperty('--qb-offer-badge-radius',`${device.badge?.radiusPx ?? 4}px`);
         section.style.setProperty('--qb-offer-card-radius',`${device.card?.radiusPx ?? 8}px`);
         for(const [key,field,size] of [['title','title',14],['section-title','sectionTitle',16],['badge','badge',11],['price','price',14],['comparePrice','comparePrice',12],['savings','savings',12],['variant','variant',13]]){
           section.style.setProperty('--qb-offer-'+key+'-size',`${device.typography?.[field]?.sizePx || size}px`);
@@ -276,10 +277,8 @@
             };
             toggle.addEventListener('change',()=>changeSelection(toggle.checked));
             toggle.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();changeSelection(!c.included);}});
-            toggle.addEventListener('focus',()=>{card.dataset.selectionFocus='true';});
-            toggle.addEventListener('blur',()=>{delete card.dataset.selectionFocus;});
             card.addEventListener('click',event=>{
-              if(effectiveColumns===1 || event.target.closest?.('select,input,button,label,a'))return;
+              if(event.target.closest?.('select,option,input,button,label,a'))return;
               changeSelection(!c.included);
             });
             selectionLayouts.push(()=>{

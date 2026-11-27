@@ -105,6 +105,8 @@ export function CampaignStyleEditor({ device = 'desktop', value, onChange, autoO
       <label><input type="checkbox" checked={value.variants.showSelectors} onChange={(event) => setVariant({ showSelectors: event.target.checked })} />{label('styleShowSelectors', 'Show variant selectors')}</label>
       <label><input type="checkbox" checked={value.showCartVariantDetails} onChange={(event) => onChange({ ...value, showCartVariantDetails: event.target.checked })} />{visibilityLabel('cart')}</label>
       <label><input type="checkbox" checked={value.showPriceSummary} onChange={(event) => onChange({ ...value, showPriceSummary: event.target.checked })} />{visibilityLabel('summary')}</label>
+      <label className={styles.styleCheck}><input type="checkbox" checked={value.variants.showImageColorValue} onChange={(event) => setVariant({ showImageColorValue: event.target.checked })} />{label('styleShowColorValue', 'Show color value below image')}</label>
+      <label><input type="checkbox" checked={value.showTierSavingsBadge} onChange={(event) => onChange({ ...value, showTierSavingsBadge: event.target.checked })} />{tierSavingsBadgeLabel()}</label>
     </div>
     <div className={styles.styleFieldGrid}>
       <label className={styles.field}>{label('styleVariantDisplay', 'Variant display')}<select value={value.variants.selectorStyle} onChange={(event) => setVariant({ selectorStyle: event.target.value as CampaignWidgetStyleConfig['variants']['selectorStyle'] })}><option value="dropdown">{label('styleDropdown', 'Dropdown')}</option><option value="image">{label('styleImages', 'Original variant images')}</option><option value="text">{label('styleText', 'Text values')}</option></select></label>
@@ -112,7 +114,6 @@ export function CampaignStyleEditor({ device = 'desktop', value, onChange, autoO
       <label className={styles.field}>{label('styleImageSize', 'Image size')} <output>{value.variants.imageSizePx}px</output><input type="range" min="10" max="96" value={value.variants.imageSizePx} onChange={(event) => setVariant({ imageSizePx: Number(event.target.value) })} /></label>
       <label className={styles.field}>{label('styleImageRadius', 'Image radius')} <output>{value.variants.imageRadiusPx}px</output><input type="range" min="0" max="24" value={value.variants.imageRadiusPx} onChange={(event) => setVariant({ imageRadiusPx: Number(event.target.value) })} /></label>
     </div>
-    <label className={styles.styleCheck}><input type="checkbox" checked={value.variants.showImageColorValue} onChange={(event) => setVariant({ showImageColorValue: event.target.checked })} />{label('styleShowColorValue', 'Show color value below image')}</label>
   </fieldset>;
 
   return <div className={styles.campaignStyleEditor} ref={editorRef}>
@@ -134,14 +135,11 @@ export function CampaignStyleEditor({ device = 'desktop', value, onChange, autoO
       <div className={styles.styleFieldGrid}>
         <label className={styles.field}>{label('styleCardRadius', 'Card radius')} <output>{value.card.radiusPx}px</output><input type="range" min="0" max="24" value={value.card.radiusPx} onChange={(event) => setCard({ radiusPx: Number(event.target.value) })} /></label>
         <label className={styles.field}>{label('styleCardSpacing', 'Card spacing')} <output>{value.card.gapPx}px</output><input type="range" min="0" max="32" value={value.card.gapPx} onChange={(event) => setCard({ gapPx: Number(event.target.value) })} /></label>
-      </div>
-      <div className={styles.styleBadgePosition}><span>{label('styleBadgePosition', 'Badge position')}</span><div>
+        <label className={styles.field}>{tierSavingsBadgeRadiusLabel()} <output>{value.card.tierSavingsBadgeRadiusPx}px</output><input type="range" min="0" max="50" value={value.card.tierSavingsBadgeRadiusPx} onChange={(event) => setCard({ tierSavingsBadgeRadiusPx: Number(event.target.value) })} /></label>
+        <div className={styles.styleBadgePosition}><span>{label('styleBadgePosition', 'Badge position')}</span><div>
         <label><input type="radio" name="badge-position" value="corner" checked={value.badgePosition === 'corner'} onChange={() => onChange({ ...value, badgePosition: 'corner' })} />{label('styleBadgeCorner', 'Top right')}</label>
         <label><input type="radio" name="badge-position" value="below_subtitle" checked={value.badgePosition === 'below_subtitle'} onChange={() => onChange({ ...value, badgePosition: 'below_subtitle' })} />{label('styleBadgeBelow', 'Below subtitle')}</label>
       </div></div>
-      <div className={styles.styleSavingsBadgeControl}>
-        <label><input type="checkbox" checked={value.showTierSavingsBadge} onChange={(event) => onChange({ ...value, showTierSavingsBadge: event.target.checked })} />{tierSavingsBadgeLabel()}</label>
-        <label className={styles.field}>{tierSavingsBadgeRadiusLabel()} <output>{value.card.tierSavingsBadgeRadiusPx}px</output><input type="range" min="0" max="50" value={value.card.tierSavingsBadgeRadiusPx} onChange={(event) => setCard({ tierSavingsBadgeRadiusPx: Number(event.target.value) })} /></label>
       </div>
     </fieldset>
 

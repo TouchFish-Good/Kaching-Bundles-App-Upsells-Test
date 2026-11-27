@@ -32,8 +32,8 @@ test('actual container width switches card selection semantics and effective col
  const pending=[];const h=setupOffers({timers:{setTimeout(fn){pending.push(fn);return pending.length;},clearTimeout(){}}});let width=500;h.block.getBoundingClientRect=()=>({width});
  await h.theme.mountBlock(h.block);const c=card(h),grid=c.closest('.qb-offer-grid');assert.equal(grid.dataset.effectiveColumns,'3');assert.equal(c.getAttribute('role'),'group');
  width=90;pending.forEach(fn=>fn());assert.equal(grid.dataset.effectiveColumns,'1');assert.equal(c.getAttribute('role'),null);assert.equal(c.querySelector('.qb-offer-select').dataset.visuallyHidden,'false');
- c.click();assert.equal(c.dataset.included,'false');
- width=500;pending.forEach(fn=>fn());assert.equal(grid.dataset.effectiveColumns,'3');assert.equal(c.getAttribute('role'),'group');c.click();assert.equal(card(h).dataset.included,'true');
+ c.click();assert.equal(card(h).dataset.included,'true');
+ width=500;pending.forEach(fn=>fn());const current=card(h);assert.equal(current.closest('.qb-offer-grid').dataset.effectiveColumns,'3');assert.equal(current.getAttribute('role'),'group');current.click();assert.equal(card(h).dataset.included,'false');
 });
 test('locked card body cannot select and its overlay preserves tier unlocking behavior',async()=>{
  const campaign=offerCampaign();campaign.bundles.items[0].trigger.quantity=5;campaign.tiers.push({tierId:'t6',quantity:6,discountType:'none'});
@@ -46,4 +46,9 @@ test('unpriced multi-column bundle remains unavailable when its card body or key
  for(const node of h.block.querySelectorAll('[data-offer-product="p-c"] [data-offer-variant]'))node.dataset.price='';
  await h.theme.mountBlock(h.block);assert.equal(card(h).querySelector('input').disabled,true);
  card(h).querySelector('.qb-offer-title').click();keyboard(h,card(h).querySelector('input'),'Enter');assert.equal(card(h).dataset.included,'false');
+});
+
+test('single column card toggles title and body while select retains native behavior',async()=>{
+ const campaign=offerCampaign();campaign.bundles.style.desktop.layout.columns=1;const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
+ card(h).querySelector('.qb-offer-title').click();assert.equal(card(h).dataset.included,'true');card(h).querySelector('select').click();assert.equal(card(h).dataset.included,'true');card(h).click();assert.equal(card(h).dataset.included,'false');
 });

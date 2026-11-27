@@ -636,7 +636,7 @@ function validateOfferModule(raw, kind, tiers) {
   }
   if (keys(raw.style, ['desktop','mobile'], `${kind}.style`, errors)) for (const name of ['desktop','mobile']) {
     const style = raw.style[name], path = `${kind}.style.${name}`;
-    if (!keys(style, ['layout','image','colors','typography','card'], path, errors, ['colors','typography','card'])) continue;
+    if (!keys(style, ['layout','image','colors','typography','card','badge'], path, errors, ['colors','typography','card','badge'])) continue;
     if (keys(style.layout, ['mode','columns','columnGapPx','rowGapPx','cardLayout'], `${path}.layout`, errors, ['cardLayout'])) {
       if (!['grid','carousel'].includes(style.layout.mode) || ![1,2,3].includes(style.layout.columns)) errors.push(`${path} invalid layout.`);
       if (style.layout.cardLayout !== undefined && !['stacked','horizontal','grid','list'].includes(style.layout.cardLayout)) errors.push(`${path}.layout.cardLayout is invalid.`);
@@ -646,6 +646,7 @@ function validateOfferModule(raw, kind, tiers) {
       if (!integer(style.image.sizePx, 1, 1024) || !integer(style.image.radiusPx, 0, 1024)) errors.push(`${path} invalid image dimensions.`);
     }
     if (style.card !== undefined && keys(style.card, ['radiusPx'], `${path}.card`, errors) && !integer(style.card.radiusPx, 0, 1024)) errors.push(`${path}.card.radiusPx must be 0–1024px.`);
+    if (style.badge !== undefined && keys(style.badge, ['radiusPx'], `${path}.badge`, errors) && !integer(style.badge.radiusPx, 0, 1024)) errors.push(`${path}.badge.radiusPx must be 0–1024px.`);
     if (style.colors !== undefined) {
       if (!object(style.colors)) errors.push(`${path}.colors must be an object.`);
       else for (const value of Object.values(style.colors)) if (typeof value !== 'string' || !/^#[\da-f]{6}([\da-f]{2})?$/i.test(value)) errors.push(`${path} colors must be #RRGGBB or #RRGGBBAA.`);
@@ -909,6 +910,7 @@ return exports; })();
         const width=block.getBoundingClientRect?.().width || (mediaQuery.matches?332:700);
         for(const [key,value] of Object.entries({background:device.colors?.background || '#ffffff',text:device.colors?.text || '#171717','title-color':device.colors?.title || device.colors?.text || '#171717','section-title-color':device.colors?.sectionTitle || device.colors?.text || '#171717','badge-text':device.colors?.badgeText || '#ffffff','badge-background':device.colors?.badgeBackground || '#171717'}))section.style.setProperty('--qb-offer-'+key,value);
         for(const field of ['price','comparePrice','savings','variant','selectedBorder'])section.style.setProperty('--qb-offer-'+field+'-color',device.colors?.[field] || (field==='comparePrice'?'#777777':device.colors?.text || '#171717'));
+        section.style.setProperty('--qb-offer-badge-radius',`${device.badge?.radiusPx ?? 4}px`);
         section.style.setProperty('--qb-offer-card-radius',`${device.card?.radiusPx ?? 8}px`);
         for(const [key,field,size] of [['title','title',14],['section-title','sectionTitle',16],['badge','badge',11],['price','price',14],['comparePrice','comparePrice',12],['savings','savings',12],['variant','variant',13]]){
           section.style.setProperty('--qb-offer-'+key+'-size',`${device.typography?.[field]?.sizePx || size}px`);
@@ -993,10 +995,8 @@ return exports; })();
             };
             toggle.addEventListener('change',()=>changeSelection(toggle.checked));
             toggle.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();changeSelection(!c.included);}});
-            toggle.addEventListener('focus',()=>{card.dataset.selectionFocus='true';});
-            toggle.addEventListener('blur',()=>{delete card.dataset.selectionFocus;});
             card.addEventListener('click',event=>{
-              if(effectiveColumns===1 || event.target.closest?.('select,input,button,label,a'))return;
+              if(event.target.closest?.('select,option,input,button,label,a'))return;
               changeSelection(!c.included);
             });
             selectionLayouts.push(()=>{
@@ -1381,7 +1381,7 @@ return exports; })();
         const row=element(doc,'div','qb-summary-row qb-offer-receipt');row.dataset.offerRole=line.role;
         row.append(element(doc,'span','',`${line.title} / ${line.variantTitle}${line.role==='gift'?'':` × ${line.quantity}`}`));
         if(line.role!=='gift')row.append(element(doc,'b','',moneyMinor(line.discountedMinor,currency,locale)));
-        else if(line.showSavings!==false)row.append(element(doc,'b','',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(line.priceMinor-line.discountedMinor,currency,locale)})));
+        else if(line.showSavings!==false && line.priceMinor>line.discountedMinor)row.append(element(doc,'b','',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(line.priceMinor-line.discountedMinor,currency,locale)})));
         lineItems.append(row);
       }
       originalAmount.textContent = summaryPricing ? moneyMinor(summaryPricing.original+(accessoryActive?accessory.original:0), currency, locale) : copy('widget.calculated_at_checkout', 'Calculated at checkout');

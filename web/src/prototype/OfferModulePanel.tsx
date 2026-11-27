@@ -293,7 +293,7 @@ export function OfferModulePanel({
                     />
                   </label>
                   )}
-                  {kind === "gifts" && <>
+                  {kind === "gifts" && <div data-offer-gift-display-options>
                   <label className={styles.check}>
                     <input
                       type="checkbox"
@@ -304,11 +304,11 @@ export function OfferModulePanel({
                     />
                     {text("showImage")}
                   </label>
-                  {kind === "gifts" && <label className={styles.check}>
+                  <label className={styles.check}>
                     <input type="checkbox" checked={rule.showSavings !== false} onChange={event => patch(rule.ruleId, { showSavings: event.target.checked })} />
                     {offerRefinementText(locale, 'showSavings')}
-                  </label>}
-                  </>}
+                  </label>
+                  </div>}
                   <label>
                     {text("label")}
                     <input

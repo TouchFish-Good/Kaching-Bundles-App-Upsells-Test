@@ -102,7 +102,7 @@ function validateOfferModule(raw, kind, tiers) {
   }
   if (keys(raw.style, ['desktop','mobile'], `${kind}.style`, errors)) for (const name of ['desktop','mobile']) {
     const style = raw.style[name], path = `${kind}.style.${name}`;
-    if (!keys(style, ['layout','image','colors','typography','card'], path, errors, ['colors','typography','card'])) continue;
+    if (!keys(style, ['layout','image','colors','typography','card','badge'], path, errors, ['colors','typography','card','badge'])) continue;
     if (keys(style.layout, ['mode','columns','columnGapPx','rowGapPx','cardLayout'], `${path}.layout`, errors, ['cardLayout'])) {
       if (!['grid','carousel'].includes(style.layout.mode) || ![1,2,3].includes(style.layout.columns)) errors.push(`${path} invalid layout.`);
       if (style.layout.cardLayout !== undefined && !['stacked','horizontal','grid','list'].includes(style.layout.cardLayout)) errors.push(`${path}.layout.cardLayout is invalid.`);
@@ -112,6 +112,7 @@ function validateOfferModule(raw, kind, tiers) {
       if (!integer(style.image.sizePx, 1, 1024) || !integer(style.image.radiusPx, 0, 1024)) errors.push(`${path} invalid image dimensions.`);
     }
     if (style.card !== undefined && keys(style.card, ['radiusPx'], `${path}.card`, errors) && !integer(style.card.radiusPx, 0, 1024)) errors.push(`${path}.card.radiusPx must be 0–1024px.`);
+    if (style.badge !== undefined && keys(style.badge, ['radiusPx'], `${path}.badge`, errors) && !integer(style.badge.radiusPx, 0, 1024)) errors.push(`${path}.badge.radiusPx must be 0–1024px.`);
     if (style.colors !== undefined) {
       if (!object(style.colors)) errors.push(`${path}.colors must be an object.`);
       else for (const value of Object.values(style.colors)) if (typeof value !== 'string' || !/^#[\da-f]{6}([\da-f]{2})?$/i.test(value)) errors.push(`${path} colors must be #RRGGBB or #RRGGBBAA.`);

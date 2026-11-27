@@ -189,7 +189,7 @@ test('multi-column bundle card toggles with pointer and keyboard but leaves sele
  const props=previewProps(module,'bundles');let selections=0,variantChanges=0;
  function Form(){const[checked,setChecked]=React.useState(false);const selection={...props.selection,select:(_module,_rule,value)=>{selections++;setChecked(value)},selectVariant:()=>{variantChanges++},groups:props.selection.groups.map(group=>({...group,cards:group.cards.map(card=>({...card,checked,included:checked}))}))};return React.createElement(OfferPreview,{...props,selection});}
  await render(Form,{});const card=()=>document.querySelector('article');
- await click(card());assert.equal(card().dataset.included,'true');assert.equal(selections,1);assert.equal(card().dataset.selectionFocused,'true');assert.ok(document.activeElement===card().querySelector('input[type="checkbox"]'));
+ await click(card());assert.equal(card().dataset.included,'true');assert.equal(selections,1);assert.equal(card().hasAttribute('data-selection-focused'),false);assert.ok(document.activeElement===card().querySelector('input[type="checkbox"]'));
  await click(card().querySelector('select'));assert.equal(selections,1);
  await change(card().querySelector('select'),'al');assert.equal(variantChanges,1);assert.equal(selections,1);
  const checkbox=()=>card().querySelector('input[type="checkbox"]');
@@ -220,4 +220,11 @@ test('single-column bundle prices and selectors span the actual styled card, wit
  assert.equal(style(card.querySelector('[data-offer-price-row]')).gridColumn,'1 / -1');
  assert.equal(style(card.querySelector('select').parentElement).gridColumn,'1 / -1');
  assert.equal(style(card.querySelector('[class*="imageBlank"]')).gridRow,'2');
+}));
+
+test('zero savings omit complete Save text in cards and gift receipt while preserving bundle price',()=>harness(async({vite,render,click})=>{
+ const {OfferPreview,OfferReceipt}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
+ for(const kind of ['gifts','bundles']){const module=moduleFor(kind,[rule('a')]);module.style.desktop.layout.columns=1;const props=previewProps(module,kind);const card=props.selection.groups[0].cards[0];card.savings=0;card.potentialSavings=0;let selections=0;props.selection.select=()=>selections++;
+ await render(OfferPreview,{...props,key:kind});assert.equal(document.querySelector('[data-offer-savings]'),null);if(kind==='bundles'){await click(document.querySelector('article'));assert.equal(selections,1);assert.equal(document.querySelector('input').dataset.visuallyHidden,'false');}
+ await render(OfferReceipt,{selection:props.selection,locale:'en',currencyCode:'USD'});assert.doesNotMatch(document.querySelector('[data-offer-receipt]').textContent,/Save/);assert.equal(!!document.querySelector('[data-offer-receipt-amount]'),kind==='bundles');}
 }));

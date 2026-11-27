@@ -123,54 +123,77 @@ export function useOfferPreview(
   const selectionsKey = [...requested].sort(([a], [b]) => a.localeCompare(b))
     .map(([productId, ids]) => [productId, [...ids].sort()] as const);
   const key = demand.length ? JSON.stringify([selectionsKey, context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]) : "";
+  const contextKey = JSON.stringify([context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]);
+  // Deliberately scoped to this mounted editor and authenticated fetcher.
+  const cache = useRef<{ contextKey: string; fetcher: typeof fetch; products: Map<string, { product: OfferPreviewProduct; expiresAt: number }> }>({ contextKey, fetcher, products: new Map() });
+  if (cache.current.contextKey !== contextKey || cache.current.fetcher !== fetcher)
+    cache.current = { contextKey, fetcher, products: new Map() };
+  const visibleProducts = () => selectionsKey.flatMap(([id, ids]) => {
+    const cached = cache.current.products.get(id);
+    if (!cached || cached.expiresAt <= Date.now()) return [];
+    return [{ ...cached.product, variants: cached.product.variants.filter(v => ids.includes(v.id)) }];
+  });
   const sequence = useRef(0);
   const retryUntil = useRef(0);
   const [result, setResult] = useState<{
     key: string;
+    fetcher?: typeof fetch;
     value: OfferPreviewState;
   }>({ key: "", value: { state: "unavailable", products: [] } });
   useEffect(() => {
     if (!key) return;
+    const activeCache = cache.current;
     const controller = new AbortController();
     const revision = `draft-${++sequence.current}`;
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const items = new Map<string, Set<string>>();
-    for (const [productId, ids] of selectionsKey) items.set(productId, new Set(ids));
-    const selections = [...items].flatMap(([productId, ids]) => {
-      const all = [...ids];
-      return Array.from({ length: Math.ceil(all.length / 100) }, (_, i) => ({
-        productId,
-        variantIds: all.slice(i * 100, (i + 1) * 100),
-      }));
-    });
-    const batches: (typeof selections)[] = [];
-    for (const selection of selections) {
-      const last = batches.at(-1);
-      if (
-        !last ||
-        last.length >= 20 ||
-        last.some((s) => s.productId === selection.productId) ||
-        last.reduce((n, s) => n + s.variantIds.length, 0) +
-          selection.variantIds.length >
-          200
-      )
-        batches.push([selection]);
-      else last.push(selection);
-    }
     const run = async () => {
+      if (controller.signal.aborted || cache.current !== activeCache) return;
+      clearTimeout(timer);
       if (Date.now() < retryUntil.current) {
         setResult({
           key,
+          fetcher,
           value: {
             state: "unavailable",
-            products: [],
+            products: visibleProducts(),
             retryAt: retryUntil.current,
           },
         });
         timer = setTimeout(run, retryUntil.current - Date.now());
         return;
       }
-      setResult({ key, value: { state: "loading", products: [] } });
+      for (const [id, entry] of activeCache.products)
+        if (entry.expiresAt <= Date.now()) activeCache.products.delete(id);
+      const cachedAtStart = new Map(activeCache.products);
+      const items = new Map<string, Set<string>>();
+      for (const [productId, ids] of selectionsKey) {
+        const cached = activeCache.products.get(productId);
+        const known = cached && cached.expiresAt > Date.now() ? new Set(cached.product.variants.map(v => v.id)) : new Set<string>();
+        const missing = ids.filter(id => !known.has(id));
+        if (missing.length) items.set(productId, new Set(missing));
+      }
+      const selections = [...items].flatMap(([productId, ids]) => {
+        const all = [...ids];
+        return Array.from({ length: Math.ceil(all.length / 100) }, (_, i) => ({
+          productId,
+          variantIds: all.slice(i * 100, (i + 1) * 100),
+        }));
+      });
+      const batches: (typeof selections)[] = [];
+      for (const selection of selections) {
+        const last = batches.at(-1);
+        if (
+          !last ||
+          last.length >= 20 ||
+          last.some((s) => s.productId === selection.productId) ||
+          last.reduce((n, s) => n + s.variantIds.length, 0) +
+            selection.variantIds.length >
+            200
+        )
+          batches.push([selection]);
+        else last.push(selection);
+      }
+      setResult({ key, fetcher, value: { state: batches.length ? "loading" : "ready", products: visibleProducts() } });
       try {
         const products = new Map<string, OfferPreviewProduct>();
         for (const batch of batches)
@@ -193,20 +216,45 @@ export function useOfferPreview(
                 : product,
             );
           }
-        if (!controller.signal.aborted)
-          setResult({
-            key,
-            value: { state: "ready", products: [...products.values()] },
+        if (!controller.signal.aborted && cache.current === activeCache) {
+          for (const product of products.values()) {
+            const previous = activeCache.products.get(product.id);
+            const old = previous && previous.expiresAt > Date.now() ? previous.product : undefined;
+            const variants = new Map(old?.variants.map(v => [v.id, v]));
+            product.variants.forEach(v => variants.set(v.id, v));
+            activeCache.products.set(product.id, {
+              product: { ...product, available: Boolean(old?.available || product.available), variants: [...variants.values()] },
+              // Extending a product must not extend the life of its old prices.
+              expiresAt: Math.min(old ? previous!.expiresAt : Infinity, Date.now() + 5 * 60_000),
+            });
+          }
+          // Only recover variants known before this request. A genuinely omitted
+          // API variant must not create an unbounded immediate retry loop.
+          const lostCachedVariant = selectionsKey.some(([id, ids]) => {
+            const before = cachedAtStart.get(id);
+            const after = activeCache.products.get(id);
+            const known = new Set(after?.product.variants.map(v => v.id));
+            return before?.product.variants.some(v => ids.includes(v.id) && !known.has(v.id));
           });
+          setResult({ key, fetcher, value: { state: lostCachedVariant ? "loading" : "ready", products: visibleProducts() } });
+          const expiration = Math.min(...selectionsKey.flatMap(([id]) => {
+            const entry = activeCache.products.get(id);
+            return entry ? [entry.expiresAt] : [];
+          }));
+          if (lostCachedVariant) timer = setTimeout(run, 1);
+          else if (Number.isFinite(expiration))
+            timer = setTimeout(run, Math.max(1, expiration - Date.now()));
+        }
       } catch (error) {
         if (controller.signal.aborted) return;
         const seconds =
           error instanceof OfferPreviewError ? error.retryAfter : undefined;
         setResult({
           key,
+          fetcher,
           value: {
             state: "unavailable",
-            products: [],
+            products: visibleProducts(),
             error: String(error),
             retryAt: seconds ? Date.now() + seconds * 1000 : undefined,
           },
@@ -223,7 +271,7 @@ export function useOfferPreview(
       clearTimeout(timer);
     };
   }, [key, fetcher]);
-  return result.key === key
-    ? result.value
-    : { state: key ? "loading" : "unavailable", products: [] };
+  return result.key === key && result.fetcher === fetcher && cache.current.fetcher === fetcher && cache.current.contextKey === contextKey
+    ? { ...result.value, products: key ? visibleProducts() : [] }
+    : { state: key ? "loading" : "unavailable", products: key ? visibleProducts() : [] };
 }

@@ -795,7 +795,7 @@ label:has(:global(input#schedule-never-expires)) input { cursor:pointer; }
   .pagination { justify-content:space-between; padding-inline:10px; }
 }
 
-.tierMarkets { min-width:0; margin-top:16px; padding-top:16px; border-top:1px solid #e3e3e3; color:#333; font-size:13px; }
+.tierMarkets { min-width:0; margin-top:16px; color:#333; font-size:13px; grid-column: 1 / -1; }
 .tierMarketsHeading { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 12px; margin-bottom:8px; }
 .tierMarketsHeading b { font-size:13px; }
 .tierMarketsHeading span,.tierMarketRow span,.tierMarketRow>small { color:#646464; font-size:12px; line-height:1.45; }
@@ -878,7 +878,7 @@ label:has(:global(input#schedule-never-expires)) input { cursor:pointer; }
 .styleLayoutThumbnail[data-layout="grid"] i{height:20px}
 .styleLayoutThumbnail[data-layout="list"] i{height:9px;border:0;background:linear-gradient(#9eacb9,#9eacb9) 16px 4px/55% 2px no-repeat}
 .styleFieldGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;min-width:0}
-.styleBadgePosition{display:grid;gap:7px;margin-top:14px;font-size:12px;font-weight:600}
+.styleBadgePosition{display:grid;gap:7px;font-size:12px;font-weight:600}
 .styleBadgePosition>div{display:flex;flex-wrap:wrap;gap:8px}
 .styleBadgePosition label{display:flex;align-items:center;gap:6px;min-height:32px;padding:4px 9px;border:1px solid #d7d7d7;border-radius:5px;font-weight:500;cursor:pointer}
 .styleBadgePosition label:has(input:checked){ border-color: #000;background: #000000;color: #fff; }
@@ -915,9 +915,8 @@ label:has(:global(input#schedule-never-expires)) input { cursor:pointer; }
 .styleTypeRow input,.styleTypeRow select{width:100%;min-width:0;height:32px;padding:0 7px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#202020}
 .styleTypeRow input[type="number"]::-webkit-inner-spin-button,.styleTypeRow input[type="number"]::-webkit-outer-spin-button{appearance:none;margin:0}
 .styleTypeRow input[type="number"]{appearance:textfield}
-.styleToggleGrid{display:grid;gap:9px;margin-bottom:14px}
+.styleToggleGrid{display:grid;gap:9px;margin-bottom:14px; grid-template-columns: repeat(2, minmax(0, 1fr));}
 .styleToggleGrid label,.styleCheck{display:flex;align-items:center;gap:8px;font-size:14px;color:#252525}
-.styleCheck{margin-top:12px}
 .campaignStyleEditor input[type="range"]{accent-color:#000}
 @media(max-width:600px){.styleColorGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.styleFieldGrid,.styleSavingsBadgeControl,.styleTypeGrid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.styleColorField:nth-child(2n) .styleColorPopover{left:auto;right:0}}
@@ -1264,3 +1263,6 @@ label:has(:global(input#schedule-never-expires)) input { cursor:pointer; }
   background-size: 100%;
 }
 .referenceEditor input[type="checkbox"]:disabled { cursor: not-allowed; }
+
+.campaignNameFields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.campaignNameFields > label{min-width:0}

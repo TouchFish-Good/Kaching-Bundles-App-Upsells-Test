@@ -106,9 +106,9 @@ test('gift savings display defaults on and changes persist without affecting ima
  await render(Form,{}); await click(document.querySelector('[aria-expanded]')); await settle();
  const savings=[...document.querySelectorAll('label')].find(el=>el.textContent==='显示优惠金额')?.querySelector('input');
  const giftFields=[...document.querySelector('[data-offer-panel] fieldset').lastElementChild.children].map(el=>el.textContent.trim());
- assert.deepEqual(giftFields.slice(0,5).map(text=>text.replace(/\s+/g,'')), ['数量','显示图片','显示优惠金额','标签','标签位置边框上（边框正中间）商品标题下面']);
+ assert.deepEqual(giftFields.slice(0,4).map(text=>text.replace(/\s+/g,'')), ['数量','显示图片显示优惠金额','标签','标签位置边框居中商品标签下面']);
  assert.ok(savings); assert.equal(savings.checked,true); await click(savings); assert.equal(current.items[0].showSavings,false); assert.equal(current.items[0].showImage,true);
- assert.ok(document.body.textContent.includes('边框上（边框正中间）'));
+ assert.ok(document.body.textContent.includes('边框居中'));
  assert.ok(!document.body.textContent.includes('所有达标赠品均自动纳入。'));
 }));
 test('offer typography and card radius persist independently for Mobile', () => harness(async ({vite,render,click,change})=>{

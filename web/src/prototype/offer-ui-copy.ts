@@ -30,7 +30,7 @@ export function offerUiText(locale: string, key: keyof typeof copy.en | 'product
 
 const refinementCopy: Record<string, readonly string[]> = {
  en: ['Show savings amount', 'On border (top center)', 'Top right', 'Below product title'],
- 'zh-hans': ['显示优惠金额', '边框上（边框正中间）', '右上角', '商品标题下面'],
+ 'zh-hans': ['显示优惠金额', '边框居中', '右上角', '商品标签下面'],
  'zh-hant': ['顯示優惠金額', '邊框上（邊框正中間）', '右上角', '商品標題下方'],
  fr: ['Afficher le montant économisé', 'Sur la bordure (en haut au centre)', 'En haut à droite', 'Sous le titre du produit'],
  de: ['Ersparnis anzeigen', 'Auf dem Rand (oben mittig)', 'Oben rechts', 'Unter dem Produkttitel'],
@@ -63,4 +63,16 @@ export function offerPriceTitle(locale: string, original = false): string {
  const lower = locale.toLowerCase();
  const language = lower.startsWith('zh-hant') || lower === 'zh-tw' ? 'zh-hant' : lower.startsWith('zh') ? 'zh-hans' : lower.startsWith('pt') ? 'pt-br' : lower.split('-')[0];
  return (priceTitles[language] ?? priceTitles.en)[original ? 1 : 0];
+}
+
+const badgeRadiusTitles: Record<string, string> = {
+ en: 'Badge radius', 'zh-hans': '标签圆角', 'zh-hant': '標籤圓角',
+ fr: 'Arrondi du badge', de: 'Badge-Radius', es: 'Radio de la etiqueta', it: 'Raggio etichetta',
+ nl: 'Labelradius', sv: 'Etikettradie', tr: 'Etiket yarıçapı', 'pt-br': 'Raio da etiqueta',
+ ja: 'ラベルの角丸', id: 'Radius label', ms: 'Jejari label', th: 'รัศมีป้ายกำกับ', vi: 'Bo góc nhãn',
+};
+export function offerBadgeRadiusTitle(locale: string): string {
+ const lower = locale.toLowerCase();
+ const language = lower.startsWith('zh-hant') || lower === 'zh-tw' ? 'zh-hant' : lower.startsWith('zh') ? 'zh-hans' : lower.startsWith('pt') ? 'pt-br' : lower.split('-')[0];
+ return badgeRadiusTitles[language] ?? badgeRadiusTitles.en;
 }

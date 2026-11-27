@@ -1,0 +1,29 @@
+{
+  "targeted": {
+    "tests": 61,
+    "pass": 61,
+    "fail": 0,
+    "failures": []
+  },
+  "shared": {
+    "tests": 40,
+    "pass": 40,
+    "fail": 0,
+    "failures": []
+  },
+  "theme": {
+    "tests": 166,
+    "pass": 165,
+    "fail": 1,
+    "failures": [
+      "unchanged default desktop and mobile configuration renders a usable widget"
+    ]
+  },
+  "build": "passed",
+  "typescript": "passed",
+  "workerBuild": "passed",
+  "workerTypes": "passed",
+  "themeSync": "passed",
+  "fullWeb": "Interrupted by ENOSPC; not verified",
+  "review": "3 TTL issues fixed and reviewed"
+}
