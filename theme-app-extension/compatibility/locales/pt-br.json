@@ -28,7 +28,9 @@
       "offer_next": "Próximo",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Verificar carrinho"
+      "check_cart": "Verificar carrinho",
+      "gift_property_label": "Brinde",
+      "gift_property_value": "Recebido com {product_title}"
     }
   }
 }

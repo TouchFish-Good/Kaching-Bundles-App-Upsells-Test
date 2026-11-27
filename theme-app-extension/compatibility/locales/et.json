@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Kontrolli ostukorvi"
+      "check_cart": "Kontrolli ostukorvi",
+      "gift_property_label": "Kingitus",
+      "gift_property_value": "Saadud tootega {product_title}"
     }
   }
 }

@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Preveri košarico"
+      "check_cart": "Preveri košarico",
+      "gift_property_label": "Darilo",
+      "gift_property_value": "Prejeto ob {product_title}"
     }
   }
 }

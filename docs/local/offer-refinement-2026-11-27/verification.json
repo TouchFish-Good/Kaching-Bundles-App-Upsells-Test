@@ -1,0 +1,71 @@
+{
+  "productionFilesCompared": 725,
+  "productionMismatches": [],
+  "web": {
+    "tests": 413,
+    "passed": 400,
+    "failed": [
+      "server campaign conversion restores missing detailed appearance defaults",
+      "campaign editor separates the internal and checkout discount names and renders coverage detail rows",
+      "duplicate quantities in an unsaved draft keep preview radio IDs unique",
+      "style editor exposes badge placement and separate variant, cart, savings and button controls",
+      "test/feedback-board.test.mjs",
+      "non-English drafts localize established copy and preserve confirmed English offer title sources",
+      "translation preview shows inline cart outcomes without examples or real cart writes",
+      "translation hints only describe conditional copy and cart outcome controls are localized",
+      "editor preview presents desktop and mobile views with a compact product-only mode",
+      "right corner badges stay in the tier header on narrow previews",
+      "shows only the selected variant price in a bundle slot header",
+      "reserves a readable Recommended column instead of shrinking its label",
+      "editor preview presents desktop and mobile views and default tier labels"
+    ],
+    "baselineFailures": [
+      "server campaign conversion restores missing detailed appearance defaults",
+      "campaign editor separates the internal and checkout discount names and renders coverage detail rows",
+      "duplicate quantities in an unsaved draft keep preview radio IDs unique",
+      "style editor exposes badge placement and separate variant, cart, savings and button controls",
+      "test/feedback-board.test.mjs",
+      "non-English drafts localize established copy and preserve confirmed English offer title sources",
+      "translation preview shows inline cart outcomes without examples or real cart writes",
+      "translation hints only describe conditional copy and cart outcome controls are localized",
+      "editor preview presents desktop and mobile views with a compact product-only mode",
+      "right corner badges stay in the tier header on narrow previews",
+      "shows only the selected variant price in a bundle slot header",
+      "reserves a readable Recommended column instead of shrinking its label",
+      "editor preview presents desktop and mobile views and default tier labels"
+    ],
+    "newFailureNames": []
+  },
+  "theme": {
+    "tests": 159,
+    "passed": 158,
+    "knownFailure": "unchanged default desktop and mobile configuration renders a usable widget (10px vs 8px)"
+  },
+  "crossLayer": {
+    "passed": 37,
+    "failed": 0
+  },
+  "visibleGiftProperty": [
+    {
+      "name": "Gift",
+      "value": "Received with Jacket \"A\" <special>",
+      "type": "text",
+      "roleVisibility": "all"
+    }
+  ],
+  "localAddPosts": 1,
+  "deployed": false,
+  "focusedWeb": {
+    "passed": 51,
+    "failed": 0
+  },
+  "focusedTheme": {
+    "passed": 49,
+    "failed": 0
+  },
+  "workerNode": {
+    "passed": 26,
+    "failed": 0
+  },
+  "workerPool": "Blocked by unavailable node:vm in local workerd"
+}

@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "선택",
       "offer_unlock": "{quantity}개로 잠금 해제",
-      "check_cart": "장바구니 확인"
+      "check_cart": "장바구니 확인",
+      "gift_property_label": "사은품",
+      "gift_property_value": "{product_title} 구매 혜택"
     }
   }
 }

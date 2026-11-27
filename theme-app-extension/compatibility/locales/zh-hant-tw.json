@@ -28,7 +28,9 @@
       "offer_next": "下一個",
       "offer_select": "選擇",
       "offer_unlock": "購買 {quantity} 件即可解鎖",
-      "check_cart": "檢查購物車"
+      "check_cart": "檢查購物車",
+      "gift_property_label": "贈品",
+      "gift_property_value": "參與「{product_title}」活動獲得"
     }
   }
 }

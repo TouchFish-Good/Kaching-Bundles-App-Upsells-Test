@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Sprawdź koszyk"
+      "check_cart": "Sprawdź koszyk",
+      "gift_property_label": "Prezent",
+      "gift_property_value": "Otrzymano z {product_title}"
     }
   }
 }

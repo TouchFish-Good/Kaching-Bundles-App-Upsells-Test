@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "कार्ट जाँचें"
+      "check_cart": "कार्ट जाँचें",
+      "gift_property_label": "उपहार",
+      "gift_property_value": "{product_title} के साथ प्राप्त"
     }
   }
 }

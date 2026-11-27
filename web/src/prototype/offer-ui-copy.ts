@@ -27,3 +27,40 @@ export function offerUiText(locale: string, key: keyof typeof copy.en | 'product
   const normalized = (language.startsWith('zh-hant') || language === 'zh-tw' ? 'zh-Hant' : language.startsWith('zh') ? 'zh-Hans' : language.startsWith('pt') ? 'pt-br' : language.split('-')[0]) as keyof typeof copy;
   return (copy[normalized] ?? copy.en)[key];
 }
+
+const refinementCopy: Record<string, readonly string[]> = {
+ en: ['Show savings amount', 'On border (top center)', 'Top right', 'Below product title'],
+ 'zh-hans': ['显示优惠金额', '边框上（边框正中间）', '右上角', '商品标题下面'],
+ 'zh-hant': ['顯示優惠金額', '邊框上（邊框正中間）', '右上角', '商品標題下方'],
+ fr: ['Afficher le montant économisé', 'Sur la bordure (en haut au centre)', 'En haut à droite', 'Sous le titre du produit'],
+ de: ['Ersparnis anzeigen', 'Auf dem Rand (oben mittig)', 'Oben rechts', 'Unter dem Produkttitel'],
+ es: ['Mostrar importe ahorrado', 'En el borde (arriba centrado)', 'Arriba a la derecha', 'Debajo del título del producto'],
+ it: ['Mostra importo risparmiato', 'Sul bordo (in alto al centro)', 'In alto a destra', 'Sotto il titolo del prodotto'],
+ nl: ['Bespaard bedrag tonen', 'Op de rand (boven in het midden)', 'Rechtsboven', 'Onder de producttitel'],
+ sv: ['Visa sparat belopp', 'På kanten (överst i mitten)', 'Överst till höger', 'Under produkttiteln'],
+ tr: ['Tasarruf tutarını göster', 'Kenarlıkta (üst orta)', 'Sağ üst', 'Ürün başlığının altında'],
+ 'pt-br': ['Mostrar valor economizado', 'Na borda (centro superior)', 'Canto superior direito', 'Abaixo do título do produto'],
+ ja: ['割引額を表示', '枠線上（上部中央）', '右上', '商品タイトルの下'],
+ id: ['Tampilkan jumlah penghematan', 'Pada bingkai (atas tengah)', 'Kanan atas', 'Di bawah judul produk'],
+ ms: ['Tunjukkan jumlah penjimatan', 'Pada bingkai (atas tengah)', 'Kanan atas', 'Di bawah tajuk produk'],
+ th: ['แสดงจำนวนเงินที่ประหยัด', 'บนขอบ (ตรงกลางด้านบน)', 'มุมขวาบน', 'ใต้ชื่อสินค้า'],
+ vi: ['Hiển thị số tiền tiết kiệm', 'Trên viền (giữa phía trên)', 'Góc trên bên phải', 'Bên dưới tiêu đề sản phẩm'],
+};
+export function offerRefinementText(locale: string, key: 'showSavings' | 'giftBorder' | 'bundleCorner' | 'belowTitle'): string {
+ const lower = locale.toLowerCase();
+ const language = lower.startsWith('zh-hant') || lower === 'zh-tw' ? 'zh-hant' : lower.startsWith('zh') ? 'zh-hans' : lower.startsWith('pt') ? 'pt-br' : lower.split('-')[0];
+ return (refinementCopy[language] ?? refinementCopy.en)[['showSavings', 'giftBorder', 'bundleCorner', 'belowTitle'].indexOf(key)];
+}
+
+const priceTitles: Record<string, readonly [string, string]> = {
+ en: ['Sale price', 'Original price'], 'zh-hans': ['折扣价', '原价'], 'zh-hant': ['折扣價', '原價'],
+ fr: ['Prix réduit', 'Prix initial'], de: ['Angebotspreis', 'Originalpreis'], es: ['Precio rebajado', 'Precio original'],
+ it: ['Prezzo scontato', 'Prezzo originale'], nl: ['Aanbiedingsprijs', 'Oorspronkelijke prijs'], sv: ['Rabattpris', 'Ordinarie pris'],
+ tr: ['İndirimli fiyat', 'Orijinal fiyat'], 'pt-br': ['Preço promocional', 'Preço original'], ja: ['割引価格', '通常価格'],
+ id: ['Harga diskon', 'Harga asli'], ms: ['Harga diskaun', 'Harga asal'], th: ['ราคาลด', 'ราคาเดิม'], vi: ['Giá giảm', 'Giá gốc'],
+};
+export function offerPriceTitle(locale: string, original = false): string {
+ const lower = locale.toLowerCase();
+ const language = lower.startsWith('zh-hant') || lower === 'zh-tw' ? 'zh-hant' : lower.startsWith('zh') ? 'zh-hans' : lower.startsWith('pt') ? 'pt-br' : lower.split('-')[0];
+ return (priceTitles[language] ?? priceTitles.en)[original ? 1 : 0];
+}

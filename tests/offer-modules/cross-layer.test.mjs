@@ -186,3 +186,19 @@ test('offer presentation survives D1 save/read and public projection without ent
  }});
  const published=await local.response();assert.deepEqual(published.campaign.gifts.style,local.saved.gifts.style);assert.equal(local.saved.gifts.style.desktop.layout.cardLayout,'grid');assert.equal(local.saved.gifts.style.desktop.colors.sectionTitle,'#11223380');assert.equal(JSON.stringify(local.rule).includes('cardLayout'),false);
 });
+
+test('visual gift options persist through D1 and public v2 but never enter Function projection', async () => {
+  const shop = await savedShop({mutate(campaign) {
+    campaign.gifts.items[0].showSavings = false;
+    campaign.gifts.style.desktop.card = {radiusPx: 18};
+    campaign.gifts.style.desktop.colors = {savings:'#123456',selectedBorder:'#00000080'};
+    campaign.gifts.style.mobile.typography = {variant:{sizePx:12,weight:500}};
+  }});
+  const publicData=await shop.response();
+  assert.equal(shop.saved.gifts.items[0].showSavings,false);
+  assert.equal(publicData.campaign.gifts.items[0].showSavings,false);
+  assert.deepEqual(publicData.campaign.gifts.style.desktop.card,{radiusPx:18});
+  assert.deepEqual(publicData.campaign.gifts.style.mobile.typography.variant,{sizePx:12,weight:500});
+  assert.equal(Object.hasOwn(shop.rule.gifts.items[0],'showSavings'),false);
+  assert.equal(Object.hasOwn(shop.rule.gifts,'style'),false);
+});

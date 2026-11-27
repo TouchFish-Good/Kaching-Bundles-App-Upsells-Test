@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Verifică coșul"
+      "check_cart": "Verifică coșul",
+      "gift_property_label": "Cadou",
+      "gift_property_value": "Primit cu {product_title}"
     }
   }
 }

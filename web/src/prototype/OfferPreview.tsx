@@ -172,6 +172,12 @@ function OfferGroup({
     "--offer-row-gap": `${style.layout.rowGapPx}px`,
     "--offer-image-size": `${style.image.sizePx}px`,
     "--offer-image-radius": `${style.image.radiusPx}px`,
+    "--offer-card-radius": `${style.card?.radiusPx ?? 8}px`,
+    "--offer-selected-border": style.colors?.selectedBorder ?? style.colors?.text ?? "#171717",
+    ...Object.fromEntries(["price", "comparePrice", "savings", "variant"].flatMap(key => {
+      const name = key === "comparePrice" ? "compare-price" : key;
+      return [[`--offer-${name}-color`, style.colors?.[key] ?? (key === "comparePrice" ? "#777777" : style.colors?.text ?? "#171717")], [`--offer-${name}-size`, `${style.typography?.[key]?.sizePx ?? (key === "price" ? 14 : key === "variant" ? 13 : 12)}px`], [`--offer-${name}-weight`, style.typography?.[key]?.weight ?? (key === "price" ? 600 : 400)]];
+    })),
     "--offer-background": style.colors?.background ?? "#ffffff",
     "--offer-text": style.colors?.text ?? "#171717",
     "--offer-title-size": `${style.typography?.title?.sizePx ?? 14}px`,
@@ -198,26 +204,6 @@ function OfferGroup({
     >
       <div className={styles.groupHeading}>
         {title && <h3>{title}</h3>}
-        {carousel && (
-          <div className={styles.arrows}>
-            <button
-              type="button"
-              aria-label={`${text("previous")} ${text(group.kind)}`}
-              disabled={!bounds.previous}
-              onClick={() => scroll(-1)}
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              aria-label={`${text("next")} ${text(group.kind)}`}
-              disabled={!bounds.next}
-              onClick={() => scroll(1)}
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        )}
       </div>
       {preview?.state === "loading" && <p role="status">{text("loading")}</p>}
       {preview?.retryAt && (
@@ -226,132 +212,155 @@ function OfferGroup({
           {new Date(preview.retryAt).toLocaleTimeString(locale)}
         </p>
       )}
-      <div
-        ref={track}
-        className={`${styles.cards} ${carousel ? styles.carousel : ""}`}
-        tabIndex={carousel ? 0 : undefined}
-        role={carousel ? "region" : undefined}
-        aria-label={carousel ? title || text(group.kind) : undefined}
-        onScroll={updateBounds}
-        onPointerDown={cancelReveal}
-        onTouchStart={cancelReveal}
-        onWheel={cancelReveal}
-        onFocusCapture={(event) => revealCard(event.target as Element)}
-        onKeyUp={(event) => {
-          if (event.target !== event.currentTarget && ["ArrowLeft", "ArrowRight"].includes(event.key)) scheduleReveal(event.target as Element);
-        }}
-        onKeyDown={(e) => {
-          if (!carousel) return;
-          if (e.target !== e.currentTarget) {
-            if (["ArrowLeft", "ArrowRight"].includes(e.key)) scheduleReveal(e.target as Element);
-            return;
-          }
-          if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-            e.preventDefault();
-            scroll((e.key === "ArrowRight" ? 1 : -1) * (e.currentTarget.ownerDocument.defaultView?.getComputedStyle(e.currentTarget).direction === "rtl" ? -1 : 1));
-          }
-        }}
-      >
-        {group.cards.map((card) => {
-          const unlock = selection.mainQualifies ? offerUnlockTier(
-            card.rule,
-            tiers.filter(
-              (t): t is Tier & { tierId: string } =>
-                typeof t.tierId === "string",
-            ),
-          ) : undefined;
-          const displayedSavings = card.eligible ? card.savings : card.potentialSavings;
-          return (
-            <article
-              key={card.rule.ruleId}
-              className={`${styles.card} ${card.included ? styles.included : ""}`}
-              data-rule-id={card.rule.ruleId}
-              data-included={card.included}
-              data-locked={!card.eligible}
+      <div className={styles.cardList}>
+        {carousel && (
+          <div className={styles.arrows}>
+            <button
+              type="button"
+              aria-label={`${text("previous")} ${text(group.kind)}`}
+              hidden={!bounds.previous}
+              disabled={!bounds.previous}
+              onClick={() => scroll(-1)}
             >
-              {card.rule.label && card.rule.labelPosition === "corner" && (
-                <span className={styles.badge}>{card.rule.label}</span>
-              )}
-              {card.rule.showImage &&
-                (card.product?.imageUrl ? (
-                  <img
-                    className={styles.productImage}
-                    src={card.product.imageUrl}
-                    alt=""
-                  />
-                ) : (
-                  <div className={styles.imageBlank} aria-hidden="true" />
-                ))}
-              {group.kind === "gifts" && <strong className={styles.productTitle}>
-                {card.product?.title ??
-                  text(
-                    preview?.state === "loading" ? "loading" : "unavailable",
-                  )}
-              </strong>}
-              {group.kind === "bundles" && (
-                <label className={styles.check}>
-                  <input
-                    type="checkbox"
-                    aria-label={card.product?.title ?? text("bundles")}
-                    checked={card.checked}
-                    disabled={!card.selectable || !card.eligible}
-                    onChange={(event) => {
-                      if (!card.eligible && unlock) onUnlock(unlock.quantity);
-                      selection.select(group.module, card.rule, event.currentTarget.checked);
-                    }}
-                  />
-                  <strong className={styles.productTitle}>{card.product?.title ?? text("bundles")}</strong>
-                </label>
-              )}
-              {card.rule.label && card.rule.labelPosition === "below_title" && (
-                <span className={styles.inlineBadge}>{card.rule.label}</span>
-              )}
-              {!card.ready ? (
-                <span role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
-              ) : (
-                <>
-                  <span className={styles.price}>
-                    {formatMinorMoney(card.original - displayedSavings, currencyCode, locale)}
-                    {displayedSavings > 0 && <del>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
-                  </span>
-                  <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>
-                  {group.kind === "gifts" && <span>× {card.count}</span>}
-                </>
-              )}
-              {card.options.length > 0 &&
-                card.selected.map((variant, index) => (
-                  <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>
-                    <select
-                      aria-label={`${text(group.kind)} ${card.product?.title} ${renderStorefrontCopy("widget.choose_option", translations)} ${index + 1}`}
-                      disabled={!card.eligible}
-                      value={variant?.id ?? ""}
-                      onChange={(e) =>
-                        selection.selectVariant(
-                          group.kind as OfferModuleKind,
-                          card.rule.ruleId,
-                          index,
-                          e.target.value,
-                        )
-                      }
-                    >
-                      {!variant && <option value="" disabled>{text("unavailable")}</option>}
-                      {card.options.map((v) => (
-                        <option key={v.id} value={v.id}>
-                          {v.options?.map(o => o.value).join(" / ") || v.title || v.id}
-                        </option>
-                      ))}
-                    </select>
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              aria-label={`${text("next")} ${text(group.kind)}`}
+              hidden={!bounds.next}
+              disabled={!bounds.next}
+              onClick={() => scroll(1)}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+        <div
+          ref={track}
+          className={`${styles.cards} ${carousel ? styles.carousel : ""}`}
+          tabIndex={carousel ? 0 : undefined}
+          role={carousel ? "region" : undefined}
+          aria-label={carousel ? title || text(group.kind) : undefined}
+          onScroll={updateBounds}
+          onPointerDown={cancelReveal}
+          onTouchStart={cancelReveal}
+          onWheel={cancelReveal}
+          onFocusCapture={(event) => revealCard(event.target as Element)}
+          onKeyUp={(event) => {
+            if (event.target !== event.currentTarget && ["ArrowLeft", "ArrowRight"].includes(event.key)) scheduleReveal(event.target as Element);
+          }}
+          onKeyDown={(e) => {
+            if (!carousel) return;
+            if (e.target !== e.currentTarget) {
+              if (["ArrowLeft", "ArrowRight"].includes(e.key)) scheduleReveal(e.target as Element);
+              return;
+            }
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              e.preventDefault();
+              scroll((e.key === "ArrowRight" ? 1 : -1) * (e.currentTarget.ownerDocument.defaultView?.getComputedStyle(e.currentTarget).direction === "rtl" ? -1 : 1));
+            }
+          }}
+        >
+          {group.cards.map((card) => {
+            const unlock = selection.mainQualifies ? offerUnlockTier(
+              card.rule,
+              tiers.filter(
+                (t): t is Tier & { tierId: string } =>
+                  typeof t.tierId === "string",
+              ),
+            ) : undefined;
+            const displayedSavings = card.eligible ? card.savings : card.potentialSavings;
+            return (
+              <article
+                key={card.rule.ruleId}
+                className={`${styles.card} ${card.included ? styles.included : ""}`}
+                data-rule-id={card.rule.ruleId}
+                data-included={card.included}
+                data-locked={!card.eligible}
+              >
+                {card.rule.label && card.rule.labelPosition === "corner" && (
+                  <span className={styles.badge}>{card.rule.label}</span>
+                )}
+                {card.rule.showImage &&
+                  (card.product?.imageUrl ? (
+                    <img
+                      className={styles.productImage}
+                      src={card.product.imageUrl}
+                      alt=""
+                    />
+                  ) : (
+                    <div className={styles.imageBlank} aria-hidden="true" />
+                  ))}
+                {group.kind === "gifts" && <strong className={styles.productTitle}>
+                  {card.product?.title ??
+                    text(
+                      preview?.state === "loading" ? "loading" : "unavailable",
+                    )}
+                </strong>}
+                {group.kind === "bundles" && (
+                  <label className={styles.check}>
+                    <input
+                      type="checkbox"
+                      aria-label={card.product?.title ?? text("bundles")}
+                      checked={card.checked}
+                      disabled={!card.selectable || !card.eligible}
+                      onChange={(event) => {
+                        if (!card.eligible && unlock) onUnlock(unlock.quantity);
+                        selection.select(group.module, card.rule, event.currentTarget.checked);
+                      }}
+                    />
+                    <strong className={styles.productTitle}>{card.product?.title ?? text("bundles")}</strong>
                   </label>
-                ))}
+                )}
+                {card.rule.label && card.rule.labelPosition === "below_title" && (
+                  <span className={styles.inlineBadge}>{card.rule.label}</span>
+                )}
+                {!card.ready ? (
+                  <span role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
+                ) : (
+                  <>
+                    {group.kind === "bundles" && <span className={styles.price}>
+                      {formatMinorMoney(card.original - displayedSavings, currencyCode, locale)}
+                      {displayedSavings > 0 && <del>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
+                    </span>}
+                    {(group.kind === "bundles" || card.rule.showSavings !== false) && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
+                  </>
+                )}
+                {card.options.length > 0 &&
+                  card.selected.map((variant, index) => (
+                    <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>
+                      <select
+                        aria-label={`${text(group.kind)} ${card.product?.title} ${renderStorefrontCopy("widget.choose_option", translations)} ${index + 1}`}
+                        disabled={!card.eligible}
+                        value={variant?.id ?? ""}
+                        onChange={(e) =>
+                          selection.selectVariant(
+                            group.kind as OfferModuleKind,
+                            card.rule.ruleId,
+                            index,
+                            e.target.value,
+                          )
+                        }
+                      >
+                        {!variant && <option value="" disabled>{text("unavailable")}</option>}
+                        {card.options.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.options?.map(o => o.value).join(" / ") || v.title || v.id}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ))}
 
-              {!card.eligible && <button type="button" className={styles.lockOverlay} data-offer-lock disabled={!unlock} aria-label={`${text("locked")} ${card.product?.title ?? text(group.kind)}`} onClick={() => {
-                if (!unlock) return;
-                onUnlock(unlock.quantity);
-                if (group.kind === "bundles") selection.select(group.module, card.rule, true);
-              }}><svg width="42" height="56" viewBox="0 0 48 56" aria-hidden="true"><path d="M12 23V15a12 12 0 0 1 24 0v8" fill="none" stroke="currentColor" strokeWidth="5" /><path d="M7 22h34a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4Zm17 9a4 4 0 0 0-2 7.46V44a2 2 0 0 0 4 0v-5.54A4 4 0 0 0 24 31Z" fill="currentColor" fillRule="evenodd" /></svg><span>{renderStorefrontCopy("widget.offer_locked", translations)}</span></button>}
-            </article>
-          );
-        })}
+                {!card.eligible && <button type="button" className={styles.lockOverlay} data-offer-lock disabled={!unlock} aria-label={`${text("locked")} ${card.product?.title ?? text(group.kind)}`} onClick={() => {
+                  if (!unlock) return;
+                  onUnlock(unlock.quantity);
+                  if (group.kind === "bundles") selection.select(group.module, card.rule, true);
+                }}><svg width="42" height="56" viewBox="0 0 48 56" aria-hidden="true"><path d="M12 23V15a12 12 0 0 1 24 0v8" fill="none" stroke="currentColor" strokeWidth="5" /><path d="M7 22h34a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4Zm17 9a4 4 0 0 0-2 7.46V44a2 2 0 0 0 4 0v-5.54A4 4 0 0 0 24 31Z" fill="currentColor" fillRule="evenodd" /></svg><span>{renderStorefrontCopy("widget.offer_locked", translations)}</span></button>}
+              </article>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -361,10 +370,12 @@ export function OfferReceipt({
   selection,
   locale,
   currencyCode,
+  translations = {},
 }: {
   selection: OfferSelection;
   locale: string;
   currencyCode: string;
+  translations?: StorefrontTranslations;
 }) {
   if (
     !selection.groups.some((group) => group.cards.some((card) => card.included))
@@ -393,16 +404,12 @@ export function OfferReceipt({
                 <span>
                   {offerText(locale, group.kind)} · {card.product?.title} ·{" "}
                   {[...variants.values()]
-                    .map((v) => `${v.title} × ${v.quantity}`)
+                    .map((v) => group.kind === "gifts" ? v.title : `${v.title} × ${v.quantity}`)
                     .join(" / ")}
                 </span>
-                <strong>
-                  {formatMinorMoney(
-                    card.original - card.savings,
-                    currencyCode,
-                    locale,
-                  )}
-                </strong>
+                {(group.kind === "bundles" || card.rule.showSavings !== false) && <strong data-offer-receipt-amount>
+                  {group.kind === "gifts" ? renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(card.savings, currencyCode, locale) }) : formatMinorMoney(card.original - card.savings, currencyCode, locale)}
+                </strong>}
               </div>
             );
           }),

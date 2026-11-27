@@ -13,6 +13,7 @@ import { OfferVariantPicker } from "./OfferVariantPicker";
 import { OfferTriggerEditor } from "./OfferTriggerEditor";
 import { OfferStyleEditor } from "./OfferStyleEditor";
 import { offerText } from "./offer-messages";
+import { offerRefinementText } from "./offer-ui-copy";
 import { formatMoneyInput, parseMoney } from "./money";
 import { campaignText } from "./campaign-editor-messages";
 import type { MarketsResponse } from "./market-config";
@@ -206,7 +207,7 @@ export function OfferModulePanel({
         </button>
         {expanded && tab === "style" && <div className={shared.styleDeviceToggle} role="group" aria-label={`${title} ${text("style")}`}>
           <button type="button" aria-pressed={device === "desktop"} onClick={() => setDevice("desktop")}>PC</button>
-          <button type="button" aria-pressed={device === "mobile"} onClick={() => setDevice("mobile")}>{text("mobile")}</button>
+          <button type="button" aria-pressed={device === "mobile"} onClick={() => setDevice("mobile")}>Mobile</button>
         </div>}
         <Toggle
           label={title}
@@ -226,9 +227,7 @@ export function OfferModulePanel({
             }}>{ct(name)}</button>)}
           </div>
           {tab === "settings" && <div role="tabpanel" id={`offer-${kind}-settings`} aria-labelledby={`offer-${kind}-settings-tab`}>
-          {kind === "gifts" ? (
-            <p>{text("allEligible")}</p>
-          ) : (
+          {kind === "bundles" && (
             <label>
               {text("selection")}
               <select
@@ -294,6 +293,49 @@ export function OfferModulePanel({
                     />
                   </label>
                   )}
+                  {kind === "gifts" && <>
+                  <label className={styles.check}>
+                    <input
+                      type="checkbox"
+                      checked={rule.showImage}
+                      onChange={(e) =>
+                        patch(rule.ruleId, { showImage: e.target.checked })
+                      }
+                    />
+                    {text("showImage")}
+                  </label>
+                  {kind === "gifts" && <label className={styles.check}>
+                    <input type="checkbox" checked={rule.showSavings !== false} onChange={event => patch(rule.ruleId, { showSavings: event.target.checked })} />
+                    {offerRefinementText(locale, 'showSavings')}
+                  </label>}
+                  </>}
+                  <label>
+                    {text("label")}
+                    <input
+                      value={rule.label}
+                      onChange={(e) =>
+                        patch(rule.ruleId, { label: e.target.value })
+                      }
+                    />
+                  </label>
+                  <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}>
+                    <span>{text("labelPosition")}</span><div>
+                      {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-${rule.ruleId}-badge-position`} value={position} checked={rule.labelPosition === position} onChange={() => patch(rule.ruleId, {labelPosition: position})} />{offerRefinementText(locale, position === "below_title" ? "belowTitle" : kind === "gifts" ? "giftBorder" : "bundleCorner")}</label>)}
+                    </div>
+                  </div>
+                  <OfferTriggerEditor value={rule.trigger} onChange={trigger => patch(rule.ruleId, {trigger})} tiers={tiers} locale={locale} />
+                  {kind === "bundles" && <>
+                  <label className={styles.check}>
+                    <input
+                      type="checkbox"
+                      checked={rule.showImage}
+                      onChange={(e) =>
+                        patch(rule.ruleId, { showImage: e.target.checked })
+                      }
+                    />
+                    {text("showImage")}
+                  </label>
+                  </>}
                   {kind === "bundles" && (
                     <>
                       <label>
@@ -349,8 +391,8 @@ export function OfferModulePanel({
                       </label>
                     </>
                   )}
-                  {kind === "bundles" && rule.discountType !== "percentage" && <div className={styles.marketAmounts}>
-                    <strong>{ct("marketAmounts")}</strong><p>{ct("marketConversion")}</p>
+                  {kind === "bundles" && rule.discountType !== "percentage" && <div className={shared.tierMarkets}>
+                    <div className={shared.tierMarketsHeading}><b>{ct("marketAmounts")}</b><span>{ct("marketConversion")}</span></div>
                     {(!markets || markets.state === "loading") && <p role="status">{ct("loadingMarkets")}</p>}
                     {markets?.state === "error" && <p role="alert">{ct("marketUnavailable")} <button type="button" onClick={onRetryMarkets}>{text("retry")}</button></p>}
                     {markets?.state === "ready" && !markets.data?.markets.length && <p>{ct("noMarkets")}</p>}
@@ -358,8 +400,8 @@ export function OfferModulePanel({
                       const override = rule.marketOverrides?.[market.id] ?? { mode: "auto_convert" as const };
                       const key = `${rule.ruleId}:market:${market.id}`;
                       const supported = market.enabled && market.specifiedAmountSupported && !!market.currencyCode;
-                      return <div key={market.id} data-offer-market={market.id} className={styles.marketRow}>
-                        <strong>{market.name}</strong><span>{market.currencyCode ?? (market.regionCurrencyCodes.join(" / ") || ct("currencyUnavailable"))}{market.enabled ? "" : ` · ${ct("disabled")}`}</span>
+                      return <div key={market.id} data-offer-market={market.id} className={shared.tierMarketRow}>
+                        <div><strong>{market.name}</strong><span>{market.currencyCode ?? (market.regionCurrencyCodes.join(" / ") || ct("currencyUnavailable"))}{market.enabled ? "" : ` · ${ct("disabled")}`}</span></div>
                         <label>{ct("amountMode")}<select value={override.mode} disabled={!supported} onChange={event => {
                           if (event.target.value === "auto_convert") {
                             patch(rule.ruleId, { marketOverrides: { ...rule.marketOverrides, [market.id]: { mode: "auto_convert" } } });
@@ -378,31 +420,6 @@ export function OfferModulePanel({
                       </div>;
                     })}
                   </div>}
-                  <OfferTriggerEditor value={rule.trigger} onChange={trigger => patch(rule.ruleId, {trigger})} tiers={tiers} locale={locale} />
-                  <label>
-                    {text("label")}
-                    <input
-                      value={rule.label}
-                      onChange={(e) =>
-                        patch(rule.ruleId, { label: e.target.value })
-                      }
-                    />
-                  </label>
-                  <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}>
-                    <span>{text("labelPosition")}</span><div>
-                      {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-${rule.ruleId}-badge-position`} value={position} checked={rule.labelPosition === position} onChange={() => patch(rule.ruleId, {labelPosition: position})} />{text(position)}</label>)}
-                    </div>
-                  </div>
-                  <label className={styles.check}>
-                    <input
-                      type="checkbox"
-                      checked={rule.showImage}
-                      onChange={(e) =>
-                        patch(rule.ruleId, { showImage: e.target.checked })
-                      }
-                    />
-                    {text("showImage")}
-                  </label>
                 </div>
               </fieldset>
             );
@@ -410,6 +427,7 @@ export function OfferModulePanel({
           </div>}
           {tab === "style" && <div role="tabpanel" id={`offer-${kind}-style`} aria-labelledby={`offer-${kind}-style-tab`}>
             <OfferStyleEditor
+              kind={kind}
               locale={locale}
               value={value.style[device]}
               onChange={(s) =>

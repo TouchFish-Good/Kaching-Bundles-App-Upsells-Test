@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Έλεγχος καλαθιού"
+      "check_cart": "Έλεγχος καλαθιού",
+      "gift_property_label": "Δώρο",
+      "gift_property_value": "Λήφθηκε με {product_title}"
     }
   }
 }

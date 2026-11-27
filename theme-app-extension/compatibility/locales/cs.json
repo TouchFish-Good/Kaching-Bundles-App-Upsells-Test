@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Zkontrolovat košík"
+      "check_cart": "Zkontrolovat košík",
+      "gift_property_label": "Dárek",
+      "gift_property_value": "Získáno s {product_title}"
     }
   }
 }

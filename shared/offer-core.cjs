@@ -61,7 +61,7 @@ function validateOfferModule(raw, kind, tiers) {
     const ruleIds = new Set(), orders = new Set(), currencies = new Map();
     for (const [index, rule] of raw.items.entries()) {
       const path = `${kind}.items[${index}]`;
-      if (!keys(rule, ['ruleId','displayOrder','productId','allowedVariantIds','quantity','label','labelPosition','showImage','discountType','discountValue','marketOverrides','trigger'], path, errors, ['marketOverrides'])) continue;
+      if (!keys(rule, ['ruleId','displayOrder','productId','allowedVariantIds','quantity','label','labelPosition','showImage','showSavings','discountType','discountValue','marketOverrides','trigger'], path, errors, ['marketOverrides','showSavings'])) continue;
       if (!id(rule.ruleId) || ruleIds.has(rule.ruleId)) errors.push(`${path}.ruleId must be unique and nonempty.`);
       else ruleIds.add(rule.ruleId);
       if (!integer(rule.displayOrder) || orders.has(rule.displayOrder)) errors.push(`${path}.displayOrder must be a unique safe nonnegative integer.`);
@@ -71,6 +71,7 @@ function validateOfferModule(raw, kind, tiers) {
       if (!integer(rule.quantity, 1)) errors.push(`${path}.quantity must be a positive safe integer.`);
       if (typeof rule.label !== 'string') errors.push(`${path}.label must be text.`);
       if (!['corner','below_title'].includes(rule.labelPosition)) errors.push(`${path}.labelPosition is invalid.`);
+      if (rule.showSavings !== undefined && typeof rule.showSavings !== 'boolean') errors.push(`${path}.showSavings must be boolean.`);
       if (typeof rule.showImage !== 'boolean') errors.push(`${path}.showImage must be boolean.`);
       if (!['fixed_amount','fixed_price','percentage'].includes(rule.discountType) || !integer(rule.discountValue) || (rule.discountType === 'percentage' && rule.discountValue > 10000)) errors.push(`${path} has an invalid discount.`);
       if (kind === 'gifts' && (rule.discountType !== 'fixed_price' || rule.discountValue !== 0)) errors.push(`${path} gifts must be free (fixed_price 0).`);
@@ -101,7 +102,7 @@ function validateOfferModule(raw, kind, tiers) {
   }
   if (keys(raw.style, ['desktop','mobile'], `${kind}.style`, errors)) for (const name of ['desktop','mobile']) {
     const style = raw.style[name], path = `${kind}.style.${name}`;
-    if (!keys(style, ['layout','image','colors','typography'], path, errors, ['colors','typography'])) continue;
+    if (!keys(style, ['layout','image','colors','typography','card'], path, errors, ['colors','typography','card'])) continue;
     if (keys(style.layout, ['mode','columns','columnGapPx','rowGapPx','cardLayout'], `${path}.layout`, errors, ['cardLayout'])) {
       if (!['grid','carousel'].includes(style.layout.mode) || ![1,2,3].includes(style.layout.columns)) errors.push(`${path} invalid layout.`);
       if (style.layout.cardLayout !== undefined && !['stacked','horizontal','grid','list'].includes(style.layout.cardLayout)) errors.push(`${path}.layout.cardLayout is invalid.`);
@@ -110,6 +111,7 @@ function validateOfferModule(raw, kind, tiers) {
     if (keys(style.image, ['sizePx','radiusPx'], `${path}.image`, errors)) {
       if (!integer(style.image.sizePx, 1, 1024) || !integer(style.image.radiusPx, 0, 1024)) errors.push(`${path} invalid image dimensions.`);
     }
+    if (style.card !== undefined && keys(style.card, ['radiusPx'], `${path}.card`, errors) && !integer(style.card.radiusPx, 0, 1024)) errors.push(`${path}.card.radiusPx must be 0–1024px.`);
     if (style.colors !== undefined) {
       if (!object(style.colors)) errors.push(`${path}.colors must be an object.`);
       else for (const value of Object.values(style.colors)) if (typeof value !== 'string' || !/^#[\da-f]{6}([\da-f]{2})?$/i.test(value)) errors.push(`${path} colors must be #RRGGBB or #RRGGBBAA.`);

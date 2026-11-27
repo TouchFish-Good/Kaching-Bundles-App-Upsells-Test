@@ -28,7 +28,9 @@
       "offer_next": "次へ",
       "offer_select": "選択",
       "offer_unlock": "{quantity} 点でアンロック",
-      "check_cart": "カートを確認"
+      "check_cart": "カートを確認",
+      "gift_property_label": "ギフト",
+      "gift_property_value": "「{product_title}」の特典"
     }
   }
 }

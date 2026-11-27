@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Kontroller handlekurv"
+      "check_cart": "Kontroller handlekurv",
+      "gift_property_label": "Gave",
+      "gift_property_value": "Mottatt med {product_title}"
     }
   }
 }

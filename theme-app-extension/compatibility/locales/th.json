@@ -28,7 +28,9 @@
       "offer_next": "ถัดไป",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "ตรวจสอบตะกร้า"
+      "check_cart": "ตรวจสอบตะกร้า",
+      "gift_property_label": "ของขวัญ",
+      "gift_property_value": "ได้รับพร้อม {product_title}"
     }
   }
 }

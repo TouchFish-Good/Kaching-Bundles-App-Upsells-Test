@@ -28,7 +28,9 @@
       "offer_next": "Suivant",
       "offer_select": "Sélectionner",
       "offer_unlock": "Débloquer avec {quantity} articles",
-      "check_cart": "Vérifier le panier"
+      "check_cart": "Vérifier le panier",
+      "gift_property_label": "Cadeau",
+      "gift_property_value": "Offert avec {product_title}"
     }
   }
 }

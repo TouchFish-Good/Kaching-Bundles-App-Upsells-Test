@@ -385,7 +385,7 @@ export function StorefrontWidget({ device, accent, locale, config, notify, tiers
             const itemDiscounted = calculatePreviewPricing([itemBasePrice], previewTier.status === 'unavailable' ? undefined : previewTier.tier).discounted * count;
             return <div key={variant.id}><span>{itemName}{itemSoldOut ? ` (${copy('widget.sold_out')})` : ''} × {count}</span><b><strong className={styles.summarySalePrice}>{moneyFor(itemDiscounted)}</strong> {showOriginalPrices && itemDiscounted < itemOriginal && <del className={styles.summaryOriginalPrice}>{moneyFor(itemOriginal)}</del>}</b></div>;
           })}
-            {showCartVariantDetails && <OfferReceipt selection={offers} locale={locale} currencyCode={previewPricing?.currencyCode ?? 'USD'} />}
+            {showCartVariantDetails && <OfferReceipt selection={offers} translations={translations} locale={locale} currencyCode={previewPricing?.currencyCode ?? 'USD'} />}
             {missingSelection && <p className={styles.stockError} role="alert">{copy("widget.no_stock")}</p>}
             {showPriceSummary && !stockIssue && <><div className={styles.totalRow}><span>{copy("widget.original")}</span><b>{(combinedSafe ? moneyFor(combinedOriginal) : '…')}</b></div><div className={styles.savingsRow}><span>{copy("widget.savings")}</span><b>-{(combinedSafe ? moneyFor(combinedOriginal - combinedTotal) : '…')}</b></div></>}
             {showPriceSummary && !stockIssue && <div className={styles.grandTotal}><span>{copy("widget.total")}</span><b>{(combinedSafe ? moneyFor(combinedTotal) : '…')}</b></div>}

@@ -28,7 +28,9 @@
       "offer_next": "Sonraki",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Sepeti kontrol et"
+      "check_cart": "Sepeti kontrol et",
+      "gift_property_label": "Hediye",
+      "gift_property_value": "{product_title} ile alındı"
     }
   }
 }

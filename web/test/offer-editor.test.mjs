@@ -904,7 +904,8 @@ test("shopper preview uses storefront option copy and lists gifts plus selected 
     assert.doesNotMatch(gift.textContent, /Allowed variants/);
     const receipt = document.querySelector("[data-offer-receipt]");
     assert.ok(receipt);
-    assert.match(receipt.textContent, /Gifts.*Product a.*s.*1/);
+    assert.match(receipt.textContent, /Gifts.*Product a.*s/);
+    assert.doesNotMatch(receipt.firstElementChild.textContent, /×/);
     assert.match(receipt.textContent, /Bundled products.*Product b.*s.*1/);
   }));
 test("campaign editor device controls preserve selected bundles and variants", () =>

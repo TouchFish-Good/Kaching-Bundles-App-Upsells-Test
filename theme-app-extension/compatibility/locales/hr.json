@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Provjeri košaricu"
+      "check_cart": "Provjeri košaricu",
+      "gift_property_label": "Poklon",
+      "gift_property_value": "Primljeno uz {product_title}"
     }
   }
 }

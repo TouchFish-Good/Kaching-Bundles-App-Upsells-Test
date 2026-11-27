@@ -28,7 +28,9 @@
       "offer_next": "Volgende",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Winkelwagen controleren"
+      "check_cart": "Winkelwagen controleren",
+      "gift_property_label": "Cadeau",
+      "gift_property_value": "Ontvangen bij {product_title}"
     }
   }
 }

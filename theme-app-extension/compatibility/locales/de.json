@@ -28,7 +28,9 @@
       "offer_next": "Weiter",
       "offer_select": "Auswählen",
       "offer_unlock": "Mit {quantity} Artikeln freischalten",
-      "check_cart": "Warenkorb prüfen"
+      "check_cart": "Warenkorb prüfen",
+      "gift_property_label": "Geschenk",
+      "gift_property_value": "Erhalten mit {product_title}"
     }
   }
 }

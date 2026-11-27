@@ -28,7 +28,9 @@
       "offer_next": "下一个",
       "offer_select": "选择",
       "offer_unlock": "购买 {quantity} 件即可解锁",
-      "check_cart": "检查购物车"
+      "check_cart": "检查购物车",
+      "gift_property_label": "赠品",
+      "gift_property_value": "参与「{product_title}」活动获得"
     }
   }
 }

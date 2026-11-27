@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Kosár ellenőrzése"
+      "check_cart": "Kosár ellenőrzése",
+      "gift_property_label": "Ajándék",
+      "gift_property_value": "A(z) {product_title} termékhez kapott ajándék"
     }
   }
 }

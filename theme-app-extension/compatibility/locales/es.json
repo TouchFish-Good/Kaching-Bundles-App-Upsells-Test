@@ -28,7 +28,9 @@
       "offer_next": "Siguiente",
       "offer_select": "Seleccionar",
       "offer_unlock": "Desbloquear con {quantity} artículos",
-      "check_cart": "Comprobar carrito"
+      "check_cart": "Comprobar carrito",
+      "gift_property_label": "Regalo",
+      "gift_property_value": "Recibido con {product_title}"
     }
   }
 }

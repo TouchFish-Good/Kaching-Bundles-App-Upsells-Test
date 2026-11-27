@@ -28,7 +28,9 @@
       "offer_next": "Successivo",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Controlla il carrello"
+      "check_cart": "Controlla il carrello",
+      "gift_property_label": "Omaggio",
+      "gift_property_value": "Ricevuto con {product_title}"
     }
   }
 }

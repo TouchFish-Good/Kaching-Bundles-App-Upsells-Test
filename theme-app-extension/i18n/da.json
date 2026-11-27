@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Kontrollér kurv"
+      "check_cart": "Kontrollér kurv",
+      "gift_property_label": "Gave",
+      "gift_property_value": "Modtaget med {product_title}"
     }
   }
 }

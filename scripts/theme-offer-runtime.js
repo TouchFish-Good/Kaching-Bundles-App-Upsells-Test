@@ -45,6 +45,11 @@
       if (!offerId(item.id) || !offerId(item.productId) || !['main','gift','bundle'].includes(item.role) || !Number.isSafeInteger(item.quantity) || item.quantity <= 0 || (item.role !== 'main' && (!offerId(item.ruleId) || item.productId === context.productId))) throw Error('Invalid composite item');
       const data = { _qb_protocol:'gift-bundles-v1', _qb_campaign:context.campaignId, _qb_role:item.role, ...(item.role !== 'main' ? {_qb_rule:item.ruleId} : {}), _qb_source_product:context.productId, _qb_context:context.context };
       const properties = propertyNames.filter(name => name in data).map(name => ({name,value:data[name],type:'text',roleVisibility:'none'}));
+      if (item.role === 'gift' && context.giftProperty) {
+        const {name,value}=context.giftProperty;
+        if(typeof name!=='string' || !name.trim() || name.startsWith('_qb_') || typeof value!=='string' || !value.trim())throw Error('Invalid gift property');
+        properties.push({name,value,type:'text',roleVisibility:'all'});
+      }
       const line = { id:item.id,quantity:item.quantity,properties,productId:item.productId,productHandle:item.handle || '' };
       const key = cartIdentity(line), prior = grouped.get(key);
       if (prior) { prior.quantity += item.quantity; if (!Number.isSafeInteger(prior.quantity)) throw Error('Unsafe quantity'); }
@@ -186,9 +191,11 @@
         grid.dataset.cardLayout=device.layout.cardLayout || (device.layout.columns===1?'stacked':device.layout.columns===2?'grid':'horizontal');
         const width=block.getBoundingClientRect?.().width || (mediaQuery.matches?332:700);
         for(const [key,value] of Object.entries({background:device.colors?.background || '#ffffff',text:device.colors?.text || '#171717','title-color':device.colors?.title || device.colors?.text || '#171717','section-title-color':device.colors?.sectionTitle || device.colors?.text || '#171717','badge-text':device.colors?.badgeText || '#ffffff','badge-background':device.colors?.badgeBackground || '#171717'}))section.style.setProperty('--qb-offer-'+key,value);
-        for(const [key,field,size] of [['title','title',14],['section-title','sectionTitle',16],['badge','badge',11]]){
+        for(const field of ['price','comparePrice','savings','variant','selectedBorder'])section.style.setProperty('--qb-offer-'+field+'-color',device.colors?.[field] || (field==='comparePrice'?'#777777':device.colors?.text || '#171717'));
+        section.style.setProperty('--qb-offer-card-radius',`${device.card?.radiusPx ?? 8}px`);
+        for(const [key,field,size] of [['title','title',14],['section-title','sectionTitle',16],['badge','badge',11],['price','price',14],['comparePrice','comparePrice',12],['savings','savings',12],['variant','variant',13]]){
           section.style.setProperty('--qb-offer-'+key+'-size',`${device.typography?.[field]?.sizePx || size}px`);
-          section.style.setProperty('--qb-offer-'+key+'-weight',String(device.typography?.[field]?.weight || 600));
+          section.style.setProperty('--qb-offer-'+key+'-weight',String(device.typography?.[field]?.weight || (['comparePrice','savings','variant'].includes(field)?400:600)));
         }
         const layout=['stacked','list'].includes(device.layout.cardLayout)?{...device.layout,columns:1}:device.layout;
         grid.style.setProperty('--qb-offer-columns',String(OfferCore.effectiveOfferColumns(width,layout)));
@@ -263,7 +270,13 @@
           if(rule.label && rule.labelPosition==='below_title')card.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
           if(!c.ready)card.append(element(doc,'span','qb-offer-state',copy('widget.offer_unavailable','Unavailable')));
           if(c.ready){
-            const prices=element(doc,'div','qb-offer-prices');prices.append(element(doc,'b','',moneyMinor(c.original-c.displaySavings,currency,locale)));if(c.displaySavings>0){prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));prices.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));}card.append(prices);
+            if(kind==='bundles') {
+              const prices=element(doc,'div','qb-offer-prices');
+              prices.append(element(doc,'b','',moneyMinor(c.original-c.displaySavings,currency,locale)));
+              if(c.displaySavings>0)prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));
+              card.append(prices);
+            }
+            if(c.displaySavings>0 && (kind==='bundles' || rule.showSavings!==false))card.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));
           }
           if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.disabled=!c.eligible;select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});card.append(select);});
           if(!c.eligible){
@@ -282,7 +295,7 @@
         const carousel=device.layout.mode==='carousel';
         const navButtons=[];
         const rtl=()=>scope.getComputedStyle?.(grid).direction==='rtl';
-        const updateBounds=()=>{const position=rtl()?-grid.scrollLeft:grid.scrollLeft;navButtons.forEach((button,index)=>{button.disabled=index===0 ? !(position>1) : !(position+grid.clientWidth<grid.scrollWidth-1);});};
+        const updateBounds=()=>{const position=rtl()?-grid.scrollLeft:grid.scrollLeft;navButtons.forEach((button,index)=>{button.disabled=index===0 ? !(position>1) : !(position+grid.clientWidth<grid.scrollWidth-1);button.hidden=button.disabled;});};
         const measureLayout=()=>{
           const badgeHeight=Math.max(0,...Array.from(grid.querySelectorAll('.qb-offer-label'),badge=>badge.getBoundingClientRect?.().height || 0));
           if(badgeHeight)grid.style.setProperty('--qb-offer-badge-clearance',`${Math.ceil(badgeHeight/2)+2}px`);
@@ -305,8 +318,10 @@
         for(const name of ['pointerdown','touchstart','wheel'])grid.addEventListener(name,cancelReveal,{passive:true});
         grid.addEventListener('focusin',event=>reveal(event.target));
         grid.addEventListener('scroll',updateBounds);
-        if(carousel){const nav=element(doc,'div','qb-offer-nav');for(const [label,direction] of [[copy('widget.offer_previous','Previous'),-1],[copy('widget.offer_next','Next'),1]]){const b=element(doc,'button','',label);b.type='button';b.disabled=true;b.addEventListener('click',()=>grid.scrollBy?.({left:direction*(rtl()?-1:1)*Math.max(220,grid.clientWidth || width),behavior:'smooth'}));nav.append(b);navButtons.push(b);}section.append(nav);}
-        section.append(grid);container.append(section);grid.scrollLeft=scrollPositions.get(kind) || 0;measureLayout();
+        const list=element(doc,'div','qb-offer-list');
+        list.append(grid);
+        if(carousel){const nav=element(doc,'div','qb-offer-nav');for(const [label,direction] of [[copy('widget.offer_previous','Previous'),-1],[copy('widget.offer_next','Next'),1]]){const b=element(doc,'button','',label);b.type='button';b.disabled=true;b.hidden=true;b.setAttribute('aria-label',label);b.textContent=direction<0?'‹':'›';b.addEventListener('click',()=>grid.scrollBy?.({left:direction*(rtl()?-1:1)*Math.max(220,grid.clientWidth || width),behavior:'smooth'}));nav.append(b);navButtons.push(b);}list.append(nav);}
+        section.append(list);container.append(section);grid.scrollLeft=scrollPositions.get(kind) || 0;measureLayout();
         // Initial render can precede mounting the offers container. Recheck
         // actual geometry after mount, then track resizing and badge wrapping.
         const layoutTimer=setTimeout(measureLayout,0);disposeLayout.push(()=>clearTimeout(layoutTimer));
@@ -316,7 +331,7 @@
       const included=allCards.filter(c=>c.included);
       const original=included.reduce((n,c)=>n+c.original,0),savings=included.reduce((n,c)=>n+c.savings,0),count=included.reduce((n,c)=>n+c.count,0);
       const safe=[original,savings,count,original-savings].every(safeAmount);
-      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
+      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,showSavings:c.rule.showSavings!==false,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
       if(!safe){invalidate();container.append(element(doc,'p','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));}
       if(focusedRule)for(const input of container.querySelectorAll('[data-offer-select],[data-offer-slot]'))if(input.closest('[data-offer-rule]')?.dataset.offerRule===focusedRule && (focusedSlot===undefined ? input.hasAttribute('data-offer-select') : input.dataset.offerSlot===focusedSlot))input.focus({preventScroll:true});
       return quote;

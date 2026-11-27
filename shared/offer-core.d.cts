@@ -3,13 +3,13 @@ export type OfferMarketOverride = { mode: 'auto_convert' } | { mode: 'specified_
 export type OfferTrigger = { type: 'tiers'; tierIds: string[] } | { type: 'quantity'; operator: 'gt' | 'gte' | 'eq'; quantity: number };
 export type OfferRule = {
   ruleId: string; displayOrder: number; productId: string; allowedVariantIds: string[]; quantity: number;
-  label: string; labelPosition: 'corner' | 'below_title'; showImage: boolean;
+  label: string; labelPosition: 'corner' | 'below_title'; showImage: boolean; showSavings?: boolean;
   discountType: 'fixed_amount' | 'fixed_price' | 'percentage'; discountValue: number;
   marketOverrides?: Record<string, OfferMarketOverride>; trigger: OfferTrigger;
 };
 export type OfferLayout = { mode: 'grid' | 'carousel'; columns: 1 | 2 | 3; columnGapPx: number; rowGapPx: number; cardLayout?: 'stacked' | 'horizontal' | 'grid' | 'list' };
 export type OfferDeviceStyle = {
-  layout: OfferLayout; image: { sizePx: number; radiusPx: number };
+  layout: OfferLayout; card?: { radiusPx: number }; image: { sizePx: number; radiusPx: number };
   colors?: Record<string, string>; typography?: Record<string, { sizePx: number; weight: number }>;
 };
 export type OfferModuleConfig = {
@@ -19,7 +19,7 @@ export type OfferModuleConfig = {
 };
 export type OfferTier = { tierId: string; quantity: number; displayOrder?: number };
 export type OfferMainProduct = { productId: string; quantity: number };
-export type OfferFunctionRule = Omit<OfferRule, 'label' | 'labelPosition' | 'showImage' | 'marketOverrides'> & { marketOverrides?: Record<string, { mode: 'auto_convert' } | { mode: 'specified_amount'; currencyCode: string; currencyDecimals: number; amountMinor: number }> };
+export type OfferFunctionRule = Omit<OfferRule, 'label' | 'labelPosition' | 'showImage' | 'showSavings' | 'marketOverrides'> & { marketOverrides?: Record<string, { mode: 'auto_convert' } | { mode: 'specified_amount'; currencyCode: string; currencyDecimals: number; amountMinor: number }> };
 export type OfferFunctionModule = Omit<OfferModuleConfig, 'style' | 'items'> & { items: OfferFunctionRule[] };
 export function defaultOfferModule(kind: OfferModuleKind): OfferModuleConfig;
 export function normalizeOfferModules<T extends { gifts?: OfferModuleConfig; bundles?: OfferModuleConfig }>(campaign: T): T;

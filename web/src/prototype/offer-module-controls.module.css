@@ -3,7 +3,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
   padding: 3px;
-  margin-top: 12px;
+  margin-bottom: 12px;
   border: 1px solid var(--border, #e6e6e6);
   border-radius: 12px;
   min-width: 0;

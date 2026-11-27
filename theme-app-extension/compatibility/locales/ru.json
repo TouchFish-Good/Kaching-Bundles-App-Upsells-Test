@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Проверить корзину"
+      "check_cart": "Проверить корзину",
+      "gift_property_label": "Подарок",
+      "gift_property_value": "Получен с {product_title}"
     }
   }
 }

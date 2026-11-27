@@ -28,7 +28,9 @@
       "offer_next": "Next",
       "offer_select": "Select",
       "offer_unlock": "Unlock with {quantity} items",
-      "check_cart": "Patikrinti krepšelį"
+      "check_cart": "Patikrinti krepšelį",
+      "gift_property_label": "Dovana",
+      "gift_property_value": "Gauta su {product_title}"
     }
   }
 }
