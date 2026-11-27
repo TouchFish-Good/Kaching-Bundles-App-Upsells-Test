@@ -399,7 +399,7 @@
 .group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .productImage,
 .group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .imageBlank { grid-row: 2; }
 .group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .productTitle { grid-row: 2; }
-.group[data-offer-kind="bundles"] .card[data-offer-orientation="horizontal"] > .variantDropdown { grid-column: 1 / -1; }
+
 .card[data-offer-orientation="horizontal"][data-has-image="false"] { grid-template-columns: minmax(0, 1fr); }
 .card[data-offer-orientation="horizontal"][data-has-image="false"] > :not(.badge):not(.lockOverlay) { grid-column: 1; }
 .card[data-offer-orientation="vertical"] { align-items: center; text-align: center; }
@@ -433,3 +433,12 @@
 .group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .productDescription { order: 2; }
 
 .card[data-offer-orientation="horizontal"][data-has-image="false"] > .productDescription { grid-column: 1; }
+
+/* Single-column prices align independently from the image/content body. */
+.card[data-offer-orientation="horizontal"] .bundlePriceRow[data-has-savings="false"] .price { margin-inline-start: auto; }
+.card[data-offer-orientation="horizontal"] .bundlePriceRow[data-has-savings="true"] .savings { margin-inline-start: auto; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] > .productDescription { display: contents; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] .productDescription > .productTitle { order: 2; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] .productDescription > .inlineBadge { order: 3; align-self: center; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] .productDescription > .availability { order: 4; }
+.group[data-offer-kind="bundles"] .card[data-offer-orientation="vertical"] .productDescription > .variantDropdown { order: 6; width: 100%; }

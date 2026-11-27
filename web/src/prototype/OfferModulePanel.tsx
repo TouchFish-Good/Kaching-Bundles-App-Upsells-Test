@@ -244,6 +244,13 @@ export function OfferModulePanel({
               </select>
             </label>
           )}
+          <div data-offer-module-display={kind}>
+            <label className={styles.check}><input type="checkbox" checked={value.display?.showImage ?? true} onChange={event => onChange({ ...value, display: { labelPosition: "corner", ...value.display, showImage: event.target.checked } })} />{text("showImage")}</label>
+            {kind === "gifts" && <label className={styles.check}><input type="checkbox" checked={value.display?.showSavings !== false} onChange={event => onChange({ ...value, display: { showImage: true, labelPosition: "corner", ...value.display, showSavings: event.target.checked } })} />{offerRefinementText(locale, "showSavings")}</label>}
+            <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}><span>{text("labelPosition")}</span><div>
+              {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-badge-position`} checked={(value.display?.labelPosition ?? "corner") === position} onChange={() => onChange({ ...value, display: { showImage: true, ...value.display, labelPosition: position } })} />{offerRefinementText(locale, position === "below_title" ? "belowTitle" : kind === "gifts" ? "giftBorder" : "bundleCorner")}</label>)}
+            </div></div>
+          </div>
           <CampaignProductPicker
             fetcher={fetcher}
             selectedIds={ids}
@@ -293,22 +300,6 @@ export function OfferModulePanel({
                     />
                   </label>
                   )}
-                  {kind === "gifts" && <div data-offer-gift-display-options>
-                  <label className={styles.check}>
-                    <input
-                      type="checkbox"
-                      checked={rule.showImage}
-                      onChange={(e) =>
-                        patch(rule.ruleId, { showImage: e.target.checked })
-                      }
-                    />
-                    {text("showImage")}
-                  </label>
-                  <label className={styles.check}>
-                    <input type="checkbox" checked={rule.showSavings !== false} onChange={event => patch(rule.ruleId, { showSavings: event.target.checked })} />
-                    {offerRefinementText(locale, 'showSavings')}
-                  </label>
-                  </div>}
                   <label>
                     {text("label")}
                     <input
@@ -318,24 +309,7 @@ export function OfferModulePanel({
                       }
                     />
                   </label>
-                  <div className={`${shared.styleBadgePosition} ${styles.badgePositions}`}>
-                    <span>{text("labelPosition")}</span><div>
-                      {(["corner", "below_title"] as const).map(position => <label key={position}><input type="radio" name={`${kind}-${rule.ruleId}-badge-position`} value={position} checked={rule.labelPosition === position} onChange={() => patch(rule.ruleId, {labelPosition: position})} />{offerRefinementText(locale, position === "below_title" ? "belowTitle" : kind === "gifts" ? "giftBorder" : "bundleCorner")}</label>)}
-                    </div>
-                  </div>
                   <OfferTriggerEditor value={rule.trigger} onChange={trigger => patch(rule.ruleId, {trigger})} tiers={tiers} locale={locale} />
-                  {kind === "bundles" && <>
-                  <label className={styles.check}>
-                    <input
-                      type="checkbox"
-                      checked={rule.showImage}
-                      onChange={(e) =>
-                        patch(rule.ruleId, { showImage: e.target.checked })
-                      }
-                    />
-                    {text("showImage")}
-                  </label>
-                  </>}
                   {kind === "bundles" && (
                     <>
                       <label>

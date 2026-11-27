@@ -15,7 +15,7 @@ import { resolveStorefrontMarketId } from '../services/storefront-market';
 import { hasEnabledOffers, offerConfigDigest, offerSelections, validOfferSelection, type OfferSelection } from '../services/offer-config';
 import { supportedOfferFunction } from '../services/discounts';
 import { OFFER_INDEX_NAMESPACE, OFFER_INDEX_KEY } from '../services/offer-index';
-import { resolveOfferPreview } from '../services/offer-preview';
+import { resolveQueuedOfferPreview } from '../services/offer-preview';
 import { requireShoplineSession } from '../auth/session';
 import { requireSubscriptionAccess } from './subscription-access';
 
@@ -139,7 +139,7 @@ export function registerStorefrontRoutes(app: App): void {
       return c.json({ campaign: { ...publicCampaign(preferred[0]), ...(marketId ? { marketId } : {}), widgetTitle: copy['widget.title']?.trim() ?? '', copy } });
     } catch { return c.json({ error: 'Campaign data is unavailable.' }, 503); }
   });
-  app.post('/api/quantity-breaks/offer-preview', bodyLimit({ maxSize: 64 * 1024 }), async c => {
+  for (const path of ['/api/quantity-breaks/offer-preview', '/api/quantity-breaks/gifts/preview', '/api/quantity-breaks/bundles/preview']) app.post(path, bodyLimit({ maxSize: 64 * 1024 }), async c => {
     c.header('Cache-Control', 'no-store');
     const session = await requireShoplineSession(c.req.raw, c.env);
     if (session instanceof Response) return session;
@@ -152,7 +152,7 @@ export function registerStorefrontRoutes(app: App): void {
     if (!body || !validOfferSelection(body.selection) || typeof body.revision !== 'string' || !body.revision || body.revision.length > 128 || [body.marketId, body.currencyCode, body.countryCode, body.locale].some(value => value !== undefined && (typeof value !== 'string' || value.length > 128))) return c.json({ error: 'Invalid preview payload.' }, 400);
     const locale = normalizeStorefrontLocale(body.locale) ?? 'en';
     try {
-      const result = await resolveOfferPreview(session, body.selection, body);
+      const result = await resolveQueuedOfferPreview(session, body.selection, body, c.req.raw.signal);
       if (result.retryAfter) c.header('Retry-After', String(result.retryAfter));
       return c.json({ version: 2, revision: body.revision, locale, marketId: body.marketId ?? null, currencyCode: body.currencyCode ?? null, ...result }, result.retryAfter ? 429 : 200);
     } catch { return c.json({ error: 'Preview Product/variant identity is unavailable.' }, 422); }

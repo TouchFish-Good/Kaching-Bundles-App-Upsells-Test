@@ -314,3 +314,12 @@
 
 .quantity-breaks-app-block .qb-offer-carousel { scrollbar-width: none; }
 .quantity-breaks-app-block .qb-offer-carousel::-webkit-scrollbar { display: none; }
+
+.quantity-breaks-app-block .qb-offer-grid[data-effective-columns="1"] .qb-offer-topline[data-has-savings="true"] .qb-offer-prices b { margin-inline-end: auto; }
+.quantity-breaks-app-block .qb-offer-grid[data-effective-columns="1"] .qb-offer-topline[data-has-savings="false"] .qb-offer-prices { justify-content: flex-end; }
+
+.quantity-breaks-app-block .qb-offer-grid:not([data-effective-columns="1"]) .qb-offer-card[data-offer-role="bundle"] { display: grid; grid-template-columns: minmax(0, 1fr); }
+.quantity-breaks-app-block .qb-offer-grid:not([data-effective-columns="1"]) .qb-offer-product,
+.quantity-breaks-app-block .qb-offer-grid:not([data-effective-columns="1"]) .qb-offer-description { display: contents; }
+.quantity-breaks-app-block .qb-offer-grid:not([data-effective-columns="1"]) .qb-offer-product > .qb-offer-image { order: 0; }
+.quantity-breaks-app-block .qb-offer-grid:not([data-effective-columns="1"]) .qb-offer-description > :not(.qb-offer-variant) { order: 0; }

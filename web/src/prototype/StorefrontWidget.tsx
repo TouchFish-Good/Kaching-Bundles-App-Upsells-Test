@@ -12,7 +12,7 @@ import { renderStorefrontCopy, type StorefrontCopyKey, type StorefrontTranslatio
 import type { CampaignWidgetStyleConfig } from './widget-config';
 import styles from "../pages/quantity-breaks.module.css";
 import type { OfferModuleConfig } from '../../../shared/offer-core.mjs';
-import type { OfferPreviewState } from './offer-preview-client';
+import type { OfferPreviewState, OfferModulePreviewState } from './offer-preview-client';
 import { useOfferSelection } from './offer-selection';
 import { OfferPreview, OfferReceipt } from './OfferPreview';
 
@@ -60,7 +60,7 @@ const cartFeedbackKeys = { success: 'widget.cart_success', failure: 'widget.cart
 type WidgetProps = {
   gifts?: OfferModuleConfig;
   bundles?: OfferModuleConfig;
-  offerPreview?: OfferPreviewState;
+  offerPreview?: OfferPreviewState | OfferModulePreviewState;
   device: "desktop" | "mobile";
   accent: string;
   locale: string;

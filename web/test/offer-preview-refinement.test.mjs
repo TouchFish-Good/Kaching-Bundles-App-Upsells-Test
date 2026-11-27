@@ -152,7 +152,7 @@ function previewProps(module,kind){return {device:'desktop',locale:'en',translat
 test('gift savings-only presentation honors switch and omits card and receipt quantities',()=>harness(async({vite,render})=>{
  const{OfferPreview:StorefrontWidget,OfferReceipt}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');const gifts=moduleFor('gifts',[{...rule('a'),quantity:2}]);const props={...previewProps(gifts,'gifts')};
  await render(StorefrontWidget,props);const card=()=>document.querySelector('[data-rule-id="a"]');assert.ok(card().querySelector('[class*="price"]')===null,'gifts must hide prices');assert.ok(card().querySelector('del')===null);assert.match(card().querySelector('[data-offer-savings]').textContent,/20.00/);assert.doesNotMatch(card().textContent,/×/);await render(OfferReceipt,{selection:props.selection,locale:'en',currencyCode:'USD'});assert.doesNotMatch(document.querySelector('[data-offer-receipt]').textContent,/×/);assert.match(document.querySelector('[data-offer-receipt-amount]').textContent,/20.00/);
- await render(StorefrontWidget,previewProps({...gifts,items:gifts.items.map(r=>({...r,showSavings:false}))},'gifts'));assert.equal(card().querySelector('[data-offer-savings]'),null);
+ await render(StorefrontWidget,previewProps({...gifts,display:{...gifts.display,showSavings:false},items:gifts.items.map(r=>({...r,showSavings:false}))},'gifts'));assert.equal(card().querySelector('[data-offer-savings]'),null);
 }));
 test('device-specific price and selected border values reach preview',()=>harness(async({vite,render})=>{
  const{OfferPreview:StorefrontWidget,OfferReceipt}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');const bundles=moduleFor('bundles',[rule('a')]);bundles.style.desktop={...bundles.style.desktop,card:{radiusPx:19},colors:{price:'#112233',comparePrice:'#223344',savings:'#334455',variant:'#445566',selectedBorder:'#556677'},typography:{price:{sizePx:21,weight:700},variant:{sizePx:17,weight:500}}};await render(StorefrontWidget,{...previewProps(bundles,'bundles')});const group=document.querySelector('[data-offer-kind="bundles"]');for(const[name,value]of Object.entries({'card-radius':'19px','price-color':'#112233','compare-price-color':'#223344','savings-color':'#334455','variant-color':'#445566','selected-border':'#556677','price-size':'21px','price-weight':'700','variant-size':'17px'}))assert.equal(group.style.getPropertyValue('--offer-'+name),value,name);
@@ -208,7 +208,7 @@ test('multi-column simulated choices retain selection feedback without quote and
  for(const mode of [{locked:true},{disabled:true}]){await render(Form,{...mode,key:JSON.stringify(mode)});await click(document.querySelector('article'));assert.equal(selections,1);assert.equal(document.querySelector('article input').disabled,true);}
 }));
 
-test('single-column bundle prices and selectors span the actual styled card, with image confined to its title row',()=>harness(async({vite,render})=>{
+test('single-column bundle keeps selectors with title opposite image',()=>harness(async({vite,render})=>{
  const {OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
  const classes=(await vite.ssrLoadModule('/src/prototype/offers.module.css')).default;
  const css=await readFile(new URL('../src/prototype/offers.module.css',import.meta.url),'utf8');
@@ -218,7 +218,7 @@ test('single-column bundle prices and selectors span the actual styled card, wit
  await render(OfferPreview,previewProps(module,'bundles'));
  const card=document.querySelector('article'),style=element=>window.getComputedStyle(element);
  assert.equal(style(card.querySelector('[data-offer-price-row]')).gridColumn,'1 / -1');
- assert.equal(style(card.querySelector('select').parentElement).gridColumn,'1 / -1');
+ assert.ok(card.querySelector('[class*="productDescription"]').contains(card.querySelector('select')));
  assert.equal(style(card.querySelector('[class*="imageBlank"]')).gridRow,'2');
 }));
 
@@ -227,4 +227,20 @@ test('zero savings omit complete Save text in cards and gift receipt while prese
  for(const kind of ['gifts','bundles']){const module=moduleFor(kind,[rule('a')]);module.style.desktop.layout.columns=1;const props=previewProps(module,kind);const card=props.selection.groups[0].cards[0];card.savings=0;card.potentialSavings=0;let selections=0;props.selection.select=()=>selections++;
  await render(OfferPreview,{...props,key:kind});assert.equal(document.querySelector('[data-offer-savings]'),null);if(kind==='bundles'){await click(document.querySelector('article'));assert.equal(selections,1);assert.equal(document.querySelector('input').dataset.visuallyHidden,'false');}
  await render(OfferReceipt,{selection:props.selection,locale:'en',currencyCode:'USD'});assert.doesNotMatch(document.querySelector('[data-offer-receipt]').textContent,/Save/);assert.equal(!!document.querySelector('[data-offer-receipt-amount]'),kind==='bundles');}
+}));
+
+test('module display overrides legacy flags and variant image falls back to product image',()=>harness(async({vite,render})=>{const {OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');const module=moduleFor('gifts',[{...rule('a'),showImage:false}]);module.display={showImage:true,labelPosition:'below_title',showSavings:false};const props=previewProps(module,'gifts'),card=props.selection.groups[0].cards[0];card.product={...card.product,imageUrl:'/product.png'};card.selected=[{...card.selected[0],imageUrl:'/variant.png'}];await render(OfferPreview,props);assert.equal(document.querySelector('article img').getAttribute('src'),'/variant.png');assert.equal(document.querySelector('[data-offer-savings]'),null);assert.ok(document.querySelector('[class*="productDescription"] [class*="inlineBadge"]'));card.selected=[{...card.selected[0],imageUrl:null}];await render(OfferPreview,{...props});assert.equal(document.querySelector('article img').getAttribute('src'),'/product.png');module.display.showImage=false;await render(OfferPreview,{...props});assert.equal(document.querySelector('article img'),null);}));
+
+test('editing one offer card skips React render of unchanged cards and keeps latest selection callback',()=>harness(async({vite,render,click})=>{
+ const {OfferPreview}=await vite.ssrLoadModule('/src/prototype/OfferPreview.tsx');
+ const module=moduleFor('bundles',[rule('a'),rule('b')]);module.style.desktop.layout.columns=1;
+ const props=previewProps(module,'bundles');let titleReads=0,oldCalls=0,newCalls=0;
+ const tracked=props.selection.groups[0].cards[0],snapshot={...tracked.product};
+ tracked.product={...snapshot,toJSON:()=>snapshot,get title(){titleReads++;return snapshot.title;}};
+ props.selection.select=()=>oldCalls++;
+ await render(OfferPreview,props);const before=titleReads;
+ const nextModule={...module,items:module.items.map(r=>r.ruleId==='b'?{...r,label:'Changed'}:r)};
+ const nextSelection={...props.selection,select:()=>newCalls++,groups:[{kind:'bundles',module:nextModule,cards:props.selection.groups[0].cards.map(c=>c.rule.ruleId==='b'?{...c,rule:nextModule.items[1]}:c)}]};
+ await render(OfferPreview,{...props,selection:nextSelection});assert.equal(titleReads,before,'unchanged card component must not execute again');
+ await click(document.querySelector('[data-rule-id="a"]'));assert.equal(newCalls,1);assert.equal(oldCalls,0,'memo must dispatch through current callback');
 }));

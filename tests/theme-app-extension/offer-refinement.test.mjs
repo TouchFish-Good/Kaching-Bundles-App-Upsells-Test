@@ -12,7 +12,7 @@ test('gift cards show only savings and hide gift quantities in the receipt', asy
   assert.doesNotMatch(receipt.textContent,/×|\$0\.00/);assert.match(receipt.textContent,/Save \$20\.00/);
 });
 test('gift savings can be hidden without removing the qualifying free gift',async()=>{
-  const campaign=offerCampaign();campaign.gifts.items[0].showSavings=false;
+  const campaign=offerCampaign();campaign.gifts.display.showSavings=false;
   const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
   const card=h.block.querySelector('[data-offer-rule="a"]');
   assert.equal(card.dataset.included,'true');assert.ok(!card.querySelector('.qb-offer-savings'));

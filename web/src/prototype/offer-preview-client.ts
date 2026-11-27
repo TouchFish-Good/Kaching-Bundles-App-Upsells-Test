@@ -33,7 +33,9 @@ export type OfferPreviewState = {
   retryAt?: number;
   error?: string;
 };
+export type OfferModulePreviewState = { gifts: OfferPreviewState; bundles: OfferPreviewState };
 export type OfferPreviewContext = {
+  sessionKey?: string;
   marketId?: string;
   currencyCode?: string;
   countryCode?: string;
@@ -47,14 +49,51 @@ export class OfferPreviewError extends Error {
     super(message);
   }
 }
+// Only scheduling metadata is shared; authenticated prices remain hook-local.
+const previewQueues = new WeakMap<typeof fetch, Map<string, { tail: Promise<unknown>; retryUntil: number }>>();
+function previewQueue(fetcher: typeof fetch, sessionKey = "") {
+  let sessions = previewQueues.get(fetcher);
+  if (!sessions) previewQueues.set(fetcher, sessions = new Map());
+  let queue = sessions.get(sessionKey);
+  if (!queue) sessions.set(sessionKey, queue = { tail: Promise.resolve(), retryUntil: 0 });
+  return queue;
+}
+function abortableDelay(delay: number, signal?: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    const abort = () => { clearTimeout(timer); reject(new DOMException("Aborted", "AbortError")); };
+    const timer = setTimeout(() => { signal?.removeEventListener("abort", abort); resolve(); }, delay);
+    if (signal?.aborted) abort(); else signal?.addEventListener("abort", abort, { once: true });
+  });
+}
 export async function loadOfferPreview(
+  selection: Array<{ productId: string; variantIds: string[] }>, revision: string,
+  context: OfferPreviewContext, fetcher: typeof fetch, signal?: AbortSignal,
+  kind?: "gifts" | "bundles",
+): Promise<OfferPreviewProduct[]> {
+  if (!kind) return requestOfferPreview(selection, revision, context, fetcher, signal);
+  const queue = previewQueue(fetcher, context.sessionKey);
+  const run = queue.tail.catch(() => {}).then(async () => {
+    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    while (queue.retryUntil > Date.now()) await abortableDelay(queue.retryUntil - Date.now(), signal);
+    try { return await requestOfferPreview(selection, revision, context, fetcher, signal, kind); }
+    catch (error) {
+      if (error instanceof OfferPreviewError && error.retryAfter)
+        queue.retryUntil = Math.max(queue.retryUntil, Date.now() + error.retryAfter * 1000);
+      throw error;
+    }
+  });
+  queue.tail = run.catch(() => {});
+  return run;
+}
+async function requestOfferPreview(
   selection: Array<{ productId: string; variantIds: string[] }>,
   revision: string,
   context: OfferPreviewContext,
   fetcher: typeof fetch,
   signal?: AbortSignal,
+  kind?: "gifts" | "bundles",
 ): Promise<OfferPreviewProduct[]> {
-  const response = await fetcher("/api/quantity-breaks/offer-preview", {
+  const response = await fetcher(kind ? `/api/quantity-breaks/${kind}/preview` : "/api/quantity-breaks/offer-preview", {
     method: "POST",
     credentials: "same-origin",
     signal,
@@ -110,6 +149,7 @@ export function useOfferPreview(
   bundles: OfferModuleConfig | undefined,
   context: OfferPreviewContext,
   fetcher: typeof fetch,
+  kind?: "gifts" | "bundles",
 ): OfferPreviewState {
   const demand = [gifts, bundles]
     .filter((m) => m?.enabled)
@@ -122,8 +162,8 @@ export function useOfferPreview(
   }
   const selectionsKey = [...requested].sort(([a], [b]) => a.localeCompare(b))
     .map(([productId, ids]) => [productId, [...ids].sort()] as const);
-  const key = demand.length ? JSON.stringify([selectionsKey, context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]) : "";
-  const contextKey = JSON.stringify([context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]);
+  const key = demand.length ? JSON.stringify([selectionsKey, context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", context.sessionKey ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]) : "";
+  const contextKey = JSON.stringify([context.marketId ?? "", context.currencyCode ?? "", context.countryCode ?? "", context.sessionKey ?? "", normalizeStorefrontLocale(context.locale) ?? "en"]);
   // Deliberately scoped to this mounted editor and authenticated fetcher.
   const cache = useRef<{ contextKey: string; fetcher: typeof fetch; products: Map<string, { product: OfferPreviewProduct; expiresAt: number }> }>({ contextKey, fetcher, products: new Map() });
   if (cache.current.contextKey !== contextKey || cache.current.fetcher !== fetcher)
@@ -131,6 +171,7 @@ export function useOfferPreview(
   const visibleProducts = () => selectionsKey.flatMap(([id, ids]) => {
     const cached = cache.current.products.get(id);
     if (!cached || cached.expiresAt <= Date.now()) return [];
+    if (cached.product.variants.every(v => ids.includes(v.id))) return [cached.product];
     return [{ ...cached.product, variants: cached.product.variants.filter(v => ids.includes(v.id)) }];
   });
   const sequence = useRef(0);
@@ -203,6 +244,7 @@ export function useOfferPreview(
             context,
             fetcher,
             controller.signal,
+            kind,
           )) {
             const old = products.get(product.id);
             products.set(
@@ -265,13 +307,18 @@ export function useOfferPreview(
         }
       }
     };
-    void run();
+    if (kind) timer = setTimeout(run, 300);
+    else void run();
     return () => {
       controller.abort();
       clearTimeout(timer);
     };
-  }, [key, fetcher]);
+  }, [key, fetcher, kind]);
   return result.key === key && result.fetcher === fetcher && cache.current.fetcher === fetcher && cache.current.contextKey === contextKey
     ? { ...result.value, products: key ? visibleProducts() : [] }
     : { state: key ? "loading" : "unavailable", products: key ? visibleProducts() : [] };
+}
+
+export function useOfferModulePreview(kind: "gifts" | "bundles", module: OfferModuleConfig | undefined, context: OfferPreviewContext, fetcher: typeof fetch): OfferPreviewState {
+  return useOfferPreview(kind === "gifts" ? module : undefined, kind === "bundles" ? module : undefined, context, fetcher, kind);
 }

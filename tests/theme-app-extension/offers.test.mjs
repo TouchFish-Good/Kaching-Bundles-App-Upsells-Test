@@ -375,12 +375,12 @@ test('native module typography colors badges and layout remain independent from 
  style.layout.cardLayout='list';style.layout.mode='carousel';
  style.typography={sectionTitle:{sizePx:21,weight:700},title:{sizePx:18,weight:500},badge:{sizePx:13,weight:800}};
  style.colors={sectionTitle:'#112233',title:'#223344',text:'#334455',background:'#ddeeff',badgeText:'#ffffff',badgeBackground:'#556677'};
- campaign.bundles.items[0].label='Recommended';campaign.bundles.items[1].label='Save more';campaign.bundles.items[1].labelPosition='below_title';
+ campaign.bundles.items[0].label='Recommended';campaign.bundles.items[1].label='Save more';campaign.bundles.display={...campaign.bundles.display,labelPosition:'below_title'};
  const h=setupOffers({campaign});await h.theme.mountBlock(h.block);
  const section=h.block.querySelector('[data-offer-module="bundles"]'),grid=section?.querySelector('.qb-offer-grid');
  assert.ok(grid);assert.equal(grid.dataset.cardLayout,'list');assert.ok(grid.classList.contains('qb-offer-carousel'));assert.equal(grid.style.getPropertyValue('--qb-offer-columns'),'1');
  for(const [name,value] of [['section-title-size','21px'],['section-title-weight','700'],['title-size','18px'],['title-weight','500'],['badge-size','13px'],['badge-weight','800'],['section-title-color','#112233'],['title-color','#223344'],['text','#334455'],['background','#ddeeff'],['badge-text','#ffffff'],['badge-background','#556677']])assert.equal(section.style.getPropertyValue('--qb-offer-'+name),value,name);
- assert.ok(section.querySelector('.qb-offer-label.qb-badge'));assert.ok(section.querySelector('.qb-offer-label-below.qb-badge'));
+ assert.equal(section.querySelectorAll('.qb-offer-label-below.qb-badge').length,2);
  const below=section.querySelector('[data-offer-rule="d"]');assert.ok(below.textContent.indexOf('Save more')>below.textContent.indexOf('Product d'));
  h.resize();assert.equal(h.block.querySelector('[data-offer-module="bundles"] .qb-offer-grid').dataset.cardLayout,'stacked');
 });

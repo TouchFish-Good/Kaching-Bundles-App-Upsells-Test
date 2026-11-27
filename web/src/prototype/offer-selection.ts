@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   offerEligible,
   offerDiscountMinor,
@@ -13,6 +13,7 @@ import type { Tier } from "./model";
 import { minorUnits } from "./money";
 import type {
   OfferPreviewState,
+  OfferModulePreviewState,
   OfferPreviewVariant,
 } from "./offer-preview-client";
 // Only the simulated preview's expanded per-unit controls are bounded. Preserve
@@ -57,7 +58,7 @@ export function useOfferSelection({
 }: {
   gifts?: OfferModuleConfig;
   bundles?: OfferModuleConfig;
-  preview?: OfferPreviewState;
+  preview?: OfferPreviewState | OfferModulePreviewState;
   tiers: Tier[];
   mainProductId?: string;
   mainQuantity: number;
@@ -84,9 +85,10 @@ export function useOfferSelection({
       kind,
       module,
       cards: module.items.map((rule) => {
+        const modulePreview = preview && "gifts" in preview ? preview[kind] : preview;
         const product =
-          preview?.state === "ready"
-            ? preview.products.find(
+          modulePreview
+            ? modulePreview.products.find(
                 (p) => p.id === rule.productId && p.identityVerified === true,
               )
             : undefined;
@@ -200,6 +202,24 @@ export function useOfferSelection({
     Number.isSafeInteger(savings) &&
     Number.isSafeInteger(quantity) &&
     Number.isSafeInteger(original - savings);
+  const select = useCallback((module: OfferModuleConfig, rule: OfferRule, checked: boolean) =>
+      setChoices((current) =>
+        !checked
+          ? current.filter((id) => id !== rule.ruleId)
+          : module.selectionMode === "single"
+            ? [rule.ruleId]
+            : [...current.filter((id) => id !== rule.ruleId), rule.ruleId],
+      ), []);
+  const selectVariant = useCallback((
+      kind: OfferModuleKind,
+      id: string,
+      index: number,
+      variantId: string,
+    ) =>
+      setVariants((current) => ({
+        ...current,
+        [`${kind}:${id}:${index}`]: variantId,
+      })), []);
   return {
     groups,
     mainQualifies,
@@ -210,24 +230,8 @@ export function useOfferSelection({
     lines: safe ? included.flatMap((c) => c.selected.map((v) => v!.id)) : [],
     safe,
     quoteReady,
-    select: (module: OfferModuleConfig, rule: OfferRule, checked: boolean) =>
-      setChoices((current) =>
-        !checked
-          ? current.filter((id) => id !== rule.ruleId)
-          : module.selectionMode === "single"
-            ? [rule.ruleId]
-            : [...current.filter((id) => id !== rule.ruleId), rule.ruleId],
-      ),
-    selectVariant: (
-      kind: OfferModuleKind,
-      id: string,
-      index: number,
-      variantId: string,
-    ) =>
-      setVariants((current) => ({
-        ...current,
-        [`${kind}:${id}:${index}`]: variantId,
-      })),
+    select,
+    selectVariant,
   };
 }
 export type OfferSelection = ReturnType<typeof useOfferSelection>;

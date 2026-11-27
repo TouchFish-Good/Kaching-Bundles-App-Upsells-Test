@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { memo, useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   effectiveOfferColumns,
@@ -7,7 +7,7 @@ import {
 import type { OfferModuleKind } from "../../../shared/offer-core.mjs";
 import type { Tier } from "./model";
 import type { OfferSelection } from "./offer-selection";
-import type { OfferPreviewState } from "./offer-preview-client";
+import type { OfferPreviewState, OfferModulePreviewState } from "./offer-preview-client";
 import {
   renderStorefrontCopy,
   type StorefrontTranslations,
@@ -33,7 +33,7 @@ export function OfferPreview({
   device: "desktop" | "mobile";
   locale: string;
   translations: StorefrontTranslations;
-  preview?: OfferPreviewState;
+  preview?: OfferPreviewState | OfferModulePreviewState;
   tiers: Tier[];
   onUnlock: (quantity: number) => void;
   mainTotal: number;
@@ -51,7 +51,7 @@ export function OfferPreview({
             device,
             locale,
             translations,
-            preview,
+            preview: preview && "gifts" in preview ? preview[group.kind] : preview,
             tiers,
             onUnlock,
             currencyCode,
@@ -107,6 +107,12 @@ function OfferGroup({
   onUnlock: (quantity: number) => void;
   currencyCode: string;
 }) {
+  const latest = useRef({selection, onUnlock});
+  latest.current = {selection, onUnlock};
+  const select = useCallback<OfferSelection["select"]>((...args) => latest.current.selection.select(...args), []);
+  const selectVariant = useCallback<OfferSelection["selectVariant"]>((...args) => latest.current.selection.selectVariant(...args), []);
+  const unlockLatest = useCallback((quantity: number) => latest.current.onUnlock(quantity), []);
+  const cardSelection = {mainQualifies: selection.mainQualifies, select, selectVariant};
   const root = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const revealTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -263,6 +269,33 @@ function OfferGroup({
           }}
         >
           {group.cards.map((card) => {
+            const renderKey = JSON.stringify({card, module: {...group.module, items: undefined}, kind: group.kind, mainQualifies: selection.mainQualifies, columns, tiers, locale, translations, currencyCode, previewState: !card.ready || !card.product ? preview?.state : undefined});
+            return <OfferCard key={card.rule.ruleId} {...{renderKey, card, group, selection: cardSelection, columns, text, tiers, locale, translations, currencyCode, preview, onUnlock: unlockLatest}} />;
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type OfferCardProps = {
+  renderKey: string;
+  card: OfferSelection["groups"][number]["cards"][number];
+  group: Pick<OfferSelection["groups"][number], "kind" | "module">;
+  selection: Pick<OfferSelection, "mainQualifies" | "select" | "selectVariant">;
+  columns: number;
+  text: (key: Parameters<typeof offerText>[1]) => string;
+  tiers: Tier[];
+  locale: string;
+  translations: StorefrontTranslations;
+  currencyCode: string;
+  preview?: OfferPreviewState;
+  onUnlock: (quantity: number) => void;
+};
+// Compare the displayed data rather than container identity: editing one rule or
+// refreshing another module must not rerender an unchanged card. Action bridges
+// above always dispatch through the latest selection and unlock handlers.
+const OfferCard = memo(function OfferCard({card, group, selection, columns, text, tiers, locale, translations, currencyCode, preview, onUnlock}: OfferCardProps) {
             const unlock = selection.mainQualifies ? offerUnlockTier(
               card.rule,
               tiers.filter(
@@ -271,12 +304,16 @@ function OfferGroup({
               ),
             ) : undefined;
             const displayedSavings = card.eligible ? card.savings : card.potentialSavings;
+            const showImage = group.module.display?.showImage ?? card.rule.showImage;
+            const labelPosition = group.module.display?.labelPosition ?? card.rule.labelPosition;
+            const showSavings = group.module.display?.showSavings ?? card.rule.showSavings;
+            const image = card.selected[0]?.imageUrl || card.product?.imageUrl;
             const bundle = group.kind === "bundles";
             const cardChoice = bundle && columns > 1;
             const choose = () => {
               if (card.selectable && card.eligible) selection.select(group.module, card.rule, !card.checked);
             };
-            return (
+  return (
               <article
                 key={card.rule.ruleId}
                 className={`${styles.card} ${(bundle ? card.checked : card.included) ? styles.included : ""}`}
@@ -284,7 +321,7 @@ function OfferGroup({
                 data-included={card.included}
                 data-locked={!card.eligible}
                 data-checked={bundle ? card.checked : undefined}
-                data-has-image={card.rule.showImage}
+                data-has-image={showImage}
                 data-selectable={bundle ? card.selectable && card.eligible : undefined}
                 data-offer-orientation={columns === 1 ? "horizontal" : "vertical"}
                 role={cardChoice ? "group" : undefined}
@@ -295,10 +332,10 @@ function OfferGroup({
                   event.currentTarget.querySelector<HTMLInputElement>('input[type="checkbox"]')?.focus();
                 }}
               >
-                {card.rule.label && card.rule.labelPosition === "corner" && (
+                {card.rule.label && labelPosition === "corner" && (
                   <span className={styles.badge}>{card.rule.label}</span>
                 )}
-                {bundle && <div className={styles.bundlePriceRow} data-offer-price-row>
+                {bundle && <div className={styles.bundlePriceRow} data-offer-price-row data-has-savings={displayedSavings > 0}>
                   <input
                     className={styles.bundleChoice}
                     data-visually-hidden={cardChoice}
@@ -319,21 +356,20 @@ function OfferGroup({
                     {displayedSavings > 0 && <del className={styles.comparePrice}>{formatMinorMoney(card.original, currencyCode, locale)}</del>}
                   </>}
                 </div>}
-                {card.rule.showImage &&
-                  (card.product?.imageUrl ? (
-                    <img className={styles.productImage} src={card.product.imageUrl} alt="" />
+                {showImage &&
+                  (image ? (
+                    <img className={styles.productImage} src={image} alt="" />
                   ) : <div className={styles.imageBlank} aria-hidden="true" />)}
                 <div className={styles.productDescription}>
                 <strong className={styles.productTitle}>
                   {card.product?.title ?? text(preview?.state === "loading" ? "loading" : bundle ? "bundles" : "unavailable")}
                 </strong>
-                {card.rule.label && card.rule.labelPosition === "below_title" && (
+                {card.rule.label && labelPosition === "below_title" && (
                   <span className={styles.inlineBadge}>{card.rule.label}</span>
                 )}
-                </div>
                 {!card.ready ? (
                   <span className={styles.availability} role="status">{preview?.state === "loading" ? text("loading") : preview?.state === "unavailable" ? offerUiText(locale, "failed") : card.product?.unavailableReason?.startsWith("unsupported_") || card.product?.reason === "unsupported_market" ? offerUiText(locale, "unsupportedMarket") : card.selected.some(v => v?.availability === "unknown") ? offerUiText(locale, "unknownStock") : offerUiText(locale, "unknownPrice")}</span>
-                ) : !bundle && displayedSavings > 0 && card.rule.showSavings !== false && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
+                ) : !bundle && displayedSavings > 0 && showSavings !== false && <span data-offer-savings className={styles.savings}>{renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(displayedSavings, currencyCode, locale) })}</span>}
                 {card.options.length > 0 &&
                   card.selected.map((variant, index) => (
                     <label key={index} className={`${tierStyles.dropdownLine} ${styles.variantDropdown}`}>
@@ -360,6 +396,7 @@ function OfferGroup({
                     </label>
                   ))}
 
+                </div>
                 {!card.eligible && <button type="button" className={styles.lockOverlay} data-offer-lock disabled={!unlock} aria-label={`${text("locked")} ${card.product?.title ?? text(group.kind)}`} onClick={() => {
                   if (!unlock) return;
                   onUnlock(unlock.quantity);
@@ -367,12 +404,7 @@ function OfferGroup({
                 }}><svg width="42" height="56" viewBox="0 0 48 56" aria-hidden="true"><path d="M12 23V15a12 12 0 0 1 24 0v8" fill="none" stroke="currentColor" strokeWidth="5" /><path d="M7 22h34a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4Zm17 9a4 4 0 0 0-2 7.46V44a2 2 0 0 0 4 0v-5.54A4 4 0 0 0 24 31Z" fill="currentColor" fillRule="evenodd" /></svg><span>{renderStorefrontCopy("widget.offer_locked", translations)}</span></button>}
               </article>
             );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
+}, (before, after) => before.renderKey === after.renderKey);
 
 export function OfferReceipt({
   selection,
@@ -415,7 +447,7 @@ export function OfferReceipt({
                     .map((v) => group.kind === "gifts" ? v.title : `${v.title} × ${v.quantity}`)
                     .join(" / ")}
                 </span>
-                {(group.kind === "bundles" || (card.savings > 0 && card.rule.showSavings !== false)) && <strong data-offer-receipt-amount>
+                {(group.kind === "bundles" || (card.savings > 0 && (group.module.display?.showSavings ?? card.rule.showSavings) !== false)) && <strong data-offer-receipt-amount>
                   {group.kind === "gifts" ? renderStorefrontCopy("widget.tier_savings_badge", translations, { saving_amount: formatMinorMoney(card.savings, currencyCode, locale) }) : formatMinorMoney(card.original - card.savings, currencyCode, locale)}
                 </strong>}
               </div>

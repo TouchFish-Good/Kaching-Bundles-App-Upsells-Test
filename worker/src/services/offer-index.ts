@@ -15,7 +15,7 @@ const object = (value: unknown): value is Record<string, unknown> => value !== n
 export class OfferIndexError extends Error { constructor(message: string, readonly retryAfter?: number) { super(message); } }
 async function request(session: AuthContext, path: string, init: RequestInit = {}): Promise<unknown> {
   if (!/^[a-z0-9][a-z0-9-]{0,127}$/i.test(session.handle) || !session.accessToken) throw new OfferIndexError('Authenticated shop required.');
-  const response = await fetch(`https://${session.handle}.myshopline.com/admin/openapi/v20260901${path}`, { ...init, headers: shoplineAdminHeaders(session.accessToken), signal: AbortSignal.timeout(8_000) });
+  const response = await fetch(`https://${session.handle}.myshopline.com/admin/openapi/v20260901${path}`, { ...init, headers: shoplineAdminHeaders(session.accessToken), signal: init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(8_000)]) : AbortSignal.timeout(8_000) });
   if (!response.ok) {
     throw new OfferIndexError(`Offer catalog Admin request returned ${response.status}.`, response.status === 429 ? shoplineAdminRetryAfter(response.headers.get('Retry-After')) : undefined);
   }
@@ -28,13 +28,14 @@ type VerifiedOfferRef = OfferProductRef & {
   title: string; imageUrl: string | null; optionNames: string[];
   variants: Array<{ id: string; title: string; imageUrl: string | null; options: Array<{ name: string; value: string }> }>;
 };
-export async function verifiedOfferReferences(session: AuthContext, selections: OfferSelection[]): Promise<VerifiedOfferRef[]> {
+export async function verifiedOfferReferences(session: AuthContext, selections: OfferSelection[], signal?: AbortSignal): Promise<VerifiedOfferRef[]> {
   const refs = new Map<string, VerifiedOfferRef>();
   for (let start = 0; start < selections.length; start += 50) {
+    signal?.throwIfAborted();
     const batch = selections.slice(start, start + 50);
     if (batch.some(item => !/^[A-Za-z0-9_-]{1,128}$/.test(item.productId))) throw new OfferIndexError('Invalid Product identity.');
     const query = new URLSearchParams({ ids: batch.map(item => item.productId).join(','), limit: String(batch.length), fields: 'id,handle,title,image,options,variants' });
-    const raw = await request(session, `/products/products.json?${query}`);
+    const raw = await request(session, `/products/products.json?${query}`, { signal });
     const products = object(raw) ? raw.products : undefined;
     if (!Array.isArray(products) || products.length !== batch.length) throw new OfferIndexError('Configured Product identity is unverified.');
     for (const product of products) {

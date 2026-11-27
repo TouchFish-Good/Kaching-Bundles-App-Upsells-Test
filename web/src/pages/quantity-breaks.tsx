@@ -518,7 +518,7 @@ export default function QuantityBreaksPrototype() {
       {!isHome && hasPageLoadError && <div role="alert"><p>{startupLoadError(i18n.language)}</p><Button onClick={retryStartupRegion}>{t('retry')}</Button></div>}
       {!hasPageLoadError && identityReady && <>
         {page === 'editor' && (editorHasSnapshot || campaignStatus === 'ready') && (!location.campaignId || editing
-          ? <CampaignEditor key={`${shop?.storeId ?? "unverified"}:${location.campaignId ?? "new"}`} campaign={editing} campaigns={campaigns} onCancel={() => navigate("dashboard")} onSave={saveCampaign} notify={notify} fetcher={fetcher} languageControl={languageControl} />
+          ? <CampaignEditor previewSessionKey={shop?.storeId} key={`${shop?.storeId ?? "unverified"}:${location.campaignId ?? "new"}`} campaign={editing} campaigns={campaigns} onCancel={() => navigate("dashboard")} onSave={saveCampaign} notify={notify} fetcher={fetcher} languageControl={languageControl} />
           : <div role="alert"><h1>{wt('campaignNotFound')}</h1><Button onClick={() => navigate("dashboard")}>{wt('backToCampaigns')}</Button></div>)}
         {campaignStatus === 'ready' && page === 'detail' && (detailCampaign
           ? <CampaignDetail campaign={detailCampaign} onEdit={() => openEditor(detailCampaign)} onBack={() => navigate('dashboard')} />

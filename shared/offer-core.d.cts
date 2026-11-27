@@ -14,13 +14,14 @@ export type OfferDeviceStyle = {
 };
 export type OfferModuleConfig = {
   version: 1; enabled: boolean; selectionMode: 'all_eligible' | 'single' | 'multiple';
+  display?: { showImage: boolean; labelPosition: 'corner' | 'below_title'; showSavings?: boolean };
   quantityMode: 'fixed'; quotaScope: 'main_product'; items: OfferRule[];
   style: { desktop: OfferDeviceStyle; mobile: OfferDeviceStyle };
 };
 export type OfferTier = { tierId: string; quantity: number; displayOrder?: number };
 export type OfferMainProduct = { productId: string; quantity: number };
 export type OfferFunctionRule = Omit<OfferRule, 'label' | 'labelPosition' | 'showImage' | 'showSavings' | 'marketOverrides'> & { marketOverrides?: Record<string, { mode: 'auto_convert' } | { mode: 'specified_amount'; currencyCode: string; currencyDecimals: number; amountMinor: number }> };
-export type OfferFunctionModule = Omit<OfferModuleConfig, 'style' | 'items'> & { items: OfferFunctionRule[] };
+export type OfferFunctionModule = Omit<OfferModuleConfig, 'style' | 'items' | 'display'> & { items: OfferFunctionRule[] };
 export function defaultOfferModule(kind: OfferModuleKind): OfferModuleConfig;
 export function normalizeOfferModules<T extends { gifts?: OfferModuleConfig; bundles?: OfferModuleConfig }>(campaign: T): T;
 export function normalizeOfferModule(raw: unknown, kind: OfferModuleKind): OfferModuleConfig;

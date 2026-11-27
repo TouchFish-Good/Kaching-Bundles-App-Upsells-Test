@@ -93,8 +93,8 @@ export async function assertPublishedCollectionScopeUnchanged(session: AuthConte
   return current;
 }
 
-export async function fetchShopCurrency(session: AuthContext): Promise<string> {
-  const body = await (await request(session, '/currency/currencies.json')).json() as { currencies?: Array<{ currency?: unknown; enabled?: unknown }> };
+export async function fetchShopCurrency(session: AuthContext, signal?: AbortSignal): Promise<string> {
+  const body = await (await request(session, '/currency/currencies.json', { signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(8_000)]) : undefined })).json() as { currencies?: Array<{ currency?: unknown; enabled?: unknown }> };
   const currencies = (body.currencies ?? []).filter((item): item is { currency: string; enabled: true } => item?.enabled === true && typeof item.currency === 'string' && /^[A-Z]{3}$/.test(item.currency));
   if (currencies.length !== 1) throw new Error('SHOPLINE settlement currency cannot be determined uniquely.');
   return currencies[0].currency;

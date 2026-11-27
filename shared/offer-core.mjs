@@ -17,13 +17,15 @@ function device(columns) {
 }
 function defaultOfferModule(kind) {
   if (!['gifts', 'bundles'].includes(kind)) throw new Error('Unknown offer module kind.');
-  return { version: 1, enabled: false, selectionMode: kind === 'gifts' ? 'all_eligible' : 'single', quantityMode: 'fixed', quotaScope: 'main_product', items: [], style: { desktop: device(3), mobile: device(1) } };
+  return { version: 1, enabled: false, selectionMode: kind === 'gifts' ? 'all_eligible' : 'single', quantityMode: 'fixed', quotaScope: 'main_product', display: { showImage: true, labelPosition: 'corner', ...(kind === 'gifts' ? { showSavings: true } : {}) }, items: [], style: { desktop: device(3), mobile: device(1) } };
 }
 function normalizeOfferModule(raw, kind) {
   const defaults = defaultOfferModule(kind);
   if (raw === undefined) return defaults;
   if (!object(raw)) throw new Error(`${kind} must be an object.`);
   const candidate = { ...defaults, ...clone(raw) };
+  // Historical modules retain their rule display fallback until edited.
+  if (raw.display === undefined) delete candidate.display;
   if (raw.style !== undefined && !object(raw.style)) throw new Error(`${kind}.style must be an object.`);
   candidate.style = { ...defaults.style, ...candidate.style };
   for (const name of ['desktop', 'mobile']) {
@@ -50,7 +52,12 @@ function validateOfferModule(raw, kind, tiers) {
   const errors = [];
   if (raw === undefined) return errors;
   if (!['gifts', 'bundles'].includes(kind)) return ['Unknown offer module kind.'];
-  if (!keys(raw, ['version','enabled','selectionMode','quantityMode','quotaScope','items','style'], kind, errors)) return errors;
+  if (!keys(raw, ['version','enabled','selectionMode','quantityMode','quotaScope','items','style','display'], kind, errors, ['display'])) return errors;
+  if (raw.display !== undefined && keys(raw.display, ['showImage','labelPosition','showSavings'], `${kind}.display`, errors, ['showSavings'])) {
+    if (typeof raw.display.showImage !== 'boolean') errors.push(`${kind}.display.showImage must be boolean.`);
+    if (!['corner','below_title'].includes(raw.display.labelPosition)) errors.push(`${kind}.display.labelPosition is invalid.`);
+    if (raw.display.showSavings !== undefined && typeof raw.display.showSavings !== 'boolean') errors.push(`${kind}.display.showSavings must be boolean.`);
+  }
   if (raw.version !== 1) errors.push(`${kind}.version must be 1.`);
   if (typeof raw.enabled !== 'boolean') errors.push(`${kind}.enabled must be boolean.`);
   if (!(kind === 'gifts' ? ['all_eligible'] : ['single','multiple']).includes(raw.selectionMode)) errors.push(`${kind}.selectionMode is invalid.`);

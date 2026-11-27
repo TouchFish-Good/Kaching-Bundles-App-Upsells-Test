@@ -21,12 +21,14 @@ function money(raw: unknown, currencyCode: string): Price | null {
 }
 
 type PriceContext = { currency?: string; reason?: OfferUnavailableReason; retryAfter?: number };
-async function resolvePriceContext(session: AuthContext, context: Context): Promise<PriceContext> {
+async function resolvePriceContext(session: AuthContext, context: Context, signal?: AbortSignal): Promise<PriceContext> {
   if (!context.marketId) return { reason: 'unsupported_market' };
   try {
-    const currency = await fetchShopCurrency(session); trustedCurrencyDecimals(currency);
+    signal?.throwIfAborted();
+    const currency = await fetchShopCurrency(session, signal); trustedCurrencyDecimals(currency);
+    signal?.throwIfAborted();
     if (context.currencyCode !== currency) return { reason: 'unsupported_currency' };
-    const response = await fetch(`https://${session.handle}.myshopline.com/admin/openapi/v20260901/markets.json?limit=100`, { headers: shoplineAdminHeaders(session.accessToken), signal: AbortSignal.timeout(8_000) });
+    const response = await fetch(`https://${session.handle}.myshopline.com/admin/openapi/v20260901/markets.json?limit=100`, { headers: shoplineAdminHeaders(session.accessToken), signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(8_000)]) : AbortSignal.timeout(8_000) });
     if (response.status === 429) { await response.body?.cancel(); return { reason: 'rate_limited', retryAfter: shoplineAdminRetryAfter(response.headers.get('Retry-After')) }; }
     if (!response.ok) { await response.body?.cancel(); return { reason: 'price_context_unavailable' }; }
     const payload: unknown = await response.json();
@@ -43,17 +45,44 @@ async function resolvePriceContext(session: AuthContext, context: Context): Prom
   }
 }
 
-export async function resolveOfferPreview(session: AuthContext, selections: OfferSelection[], context: Context): Promise<{ products: OfferPreviewProduct[]; retryAfter?: number }> {
+// Both module endpoints share a per-authenticated-store queue; this contains no prices.
+const sessionPreviewQueues = new Map<string, { tail: Promise<unknown>; retryUntil: number }>();
+export async function resolveQueuedOfferPreview(session: AuthContext, selections: OfferSelection[], context: Context, signal?: AbortSignal): Promise<{ products: OfferPreviewProduct[]; retryAfter?: number }> {
+  const key = `${session.handle}:${session.accessToken}`;
+  let queue = sessionPreviewQueues.get(key);
+  if (!queue) sessionPreviewQueues.set(key, queue = { tail: Promise.resolve(), retryUntil: 0 });
+  const current = queue;
+  const run = current.tail.catch(() => {}).then(async () => {
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    if (current.retryUntil > Date.now()) return { products: [], retryAfter: Math.max(1, Math.ceil((current.retryUntil - Date.now()) / 1000)) };
+    const result = await resolveOfferPreview(session, selections, context, signal);
+    if (result.retryAfter) current.retryUntil = Date.now() + result.retryAfter * 1000;
+    return result;
+  });
+  const tail = run.catch(() => {});
+  current.tail = tail;
+  void tail.finally(() => {
+    if (current.tail !== tail) return;
+    const cleanup = () => { if (current.tail === tail) sessionPreviewQueues.delete(key); };
+    if (current.retryUntil > Date.now()) setTimeout(cleanup, current.retryUntil - Date.now()); else cleanup();
+  });
+  return run;
+}
+
+export async function resolveOfferPreview(session: AuthContext, selections: OfferSelection[], context: Context, signal?: AbortSignal): Promise<{ products: OfferPreviewProduct[]; retryAfter?: number }> {
+  signal?.throwIfAborted();
   let refs: Awaited<ReturnType<typeof verifiedOfferReferences>>;
-  try { refs = await verifiedOfferReferences(session, selections); }
+  try { refs = await verifiedOfferReferences(session, selections, signal); }
   catch (failure) {
     if (failure instanceof OfferIndexError && failure.retryAfter) return { products: [], retryAfter: failure.retryAfter };
     throw failure;
   }
   const products: OfferPreviewProduct[] = refs.map(ref => ({ id: ref.id, title: ref.title, handle: ref.handle, imageUrl: ref.imageUrl, optionNames: ref.optionNames, identityVerified: true, available: false, availability: 'unknown', variants: ref.variants.map(variant => ({ ...variant, available: false, availability: 'unknown', price: null, unavailableReason: 'availability_unknown' })) }));
-  const pricing = await resolvePriceContext(session, context);
+  signal?.throwIfAborted();
+  const pricing = await resolvePriceContext(session, context, signal);
+  signal?.throwIfAborted();
   let retry = pricing.retryAfter;
-  const variantDeadline = AbortSignal.timeout(8_000);
+  const variantDeadline = signal ? AbortSignal.any([signal, AbortSignal.timeout(8_000)]) : AbortSignal.timeout(8_000);
   // Unsupported pricing never prevents an exact availability query. A rate limit does stop further requests.
   const queue = products.flatMap(product => product.variants.map(variant => ({ product, variant })));
   let next = 0;

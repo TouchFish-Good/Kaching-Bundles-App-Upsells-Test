@@ -37,10 +37,11 @@ import { editorSaveBarText } from './editor-save-bar-messages';
 import styles from "../pages/quantity-breaks.module.css";
 import { defaultOfferModule, validateOfferModule } from '../../../shared/offer-core.mjs';
 import { OfferModulePanel } from './OfferModulePanel';
-import { useOfferPreview } from './offer-preview-client';
+import { useOfferModulePreview } from './offer-preview-client';
 
 type Props = {
   fetcher: typeof fetch;
+  previewSessionKey?: string;
   campaign: Campaign | null;
   campaigns: Campaign[];
   onCancel: () => void;
@@ -103,7 +104,7 @@ function SortableTierRow({ tier, children, onKeyboardMove, label, hint }: { tier
   </div>;
 }
 
-export function CampaignEditor({ campaign, campaigns, onCancel, onSave, notify, fetcher, languageControl }: Props) {
+export function CampaignEditor({ campaign, campaigns, onCancel, onSave, notify, fetcher, languageControl, previewSessionKey }: Props) {
   const { t, i18n } = useTranslation();
   const app = useAppBridge();
   const ct = (key: CampaignEditorMessageKey, params: Record<string, string | number> = {}) => campaignText(i18n.language ?? 'en', key, params);
@@ -185,7 +186,10 @@ export function CampaignEditor({ campaign, campaigns, onCancel, onSave, notify, 
   const previewMarket = markets.data?.markets.find((market) => market.id === previewMarketId);
   const previewCountry = previewCountryChoice?.marketId === previewMarketId && previewMarket?.regionCodes.includes(previewCountryChoice.code) ? previewCountryChoice.code : previewMarket?.regionCodes[0] ?? '';
   const previewLocale = normalizeStorefrontLocale(previewMarket?.defaultLocale) ?? 'en';
-  const offerPreview = useOfferPreview(gifts, bundles, {marketId: previewMarketId, currencyCode: previewMarket?.currencyCode ?? undefined, countryCode: previewCountry, locale: previewLocale}, fetcher);
+  const offerPreviewContext = {sessionKey: previewSessionKey, marketId: previewMarketId, currencyCode: previewMarket?.currencyCode ?? undefined, countryCode: previewCountry, locale: previewLocale};
+  const giftPreview = useOfferModulePreview("gifts", gifts, offerPreviewContext, fetcher);
+  const bundlePreview = useOfferModulePreview("bundles", bundles, offerPreviewContext, fetcher);
+  const offerPreview = { gifts: giftPreview, bundles: bundlePreview };
   const offerValidation = giftDraftError || bundleDraftError || [...validateOfferModule(gifts, 'gifts', tiers), ...validateOfferModule(bundles, 'bundles', tiers)][0] || '';
 
   useEffect(() => {

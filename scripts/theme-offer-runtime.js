@@ -248,23 +248,25 @@
         }
         for(const c of cards) {
           const {rule,choice}=c;
+          const display=module.display || {};
+          const showImage=display.showImage ?? rule.showImage, labelPosition=display.labelPosition ?? rule.labelPosition;
           const card=element(doc,'article','qb-offer-card');card.dataset.offerRule=rule.ruleId;card.dataset.offerRole=kind==='gifts'?'gift':'bundle';card.dataset.included=String(c.included);
           card.dataset.locked=String(!c.eligible);
-          if(rule.label && rule.labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
-          const image=c.selected.find(v=>v?.image)?.image || c.product?.image;
+          if(rule.label && labelPosition==='corner')card.append(element(doc,'span','qb-badge qb-offer-label',rule.label));
+          const image=c.selected[0]?.image || c.product?.image;
           const content=element(doc,'div',kind==='gifts'?'qb-offer-content':'qb-offer-product');
           const description=kind==='gifts'?content:element(doc,'div','qb-offer-description');
           const imageParent=kind==='gifts'?card:content;
-          card.dataset.hasImage=String(!!(rule.showImage && image));
-          if(rule.showImage && image){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';imageParent.append(img);}
+          card.dataset.hasImage=String(!!(showImage && image));
+          if(showImage && image){const img=element(doc,'img','qb-offer-image');img.src=image;img.alt='';imageParent.append(img);}
           const productTitle=element(doc,'strong','qb-offer-title',c.product?.title || copy('widget.offer_unavailable','Unavailable'));
           description.append(productTitle);
-          if(rule.label && rule.labelPosition==='below_title')description.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
+          if(rule.label && labelPosition==='below_title')description.append(element(doc,'span','qb-badge qb-offer-label-below',rule.label));
           if(kind==='bundles')content.append(description);
           const tier=c.unlockTier;
           let topLine;
           if(kind==='bundles') {
-            topLine=element(doc,'div','qb-offer-topline');
+            topLine=element(doc,'div','qb-offer-topline');topLine.dataset.hasSavings=String(c.displaySavings>0);
             const label=element(doc,'label','qb-offer-select');
             const toggle=element(doc,'input');toggle.type='checkbox';toggle.dataset.offerSelect='';toggle.checked=c.included;
             toggle.setAttribute('aria-label',c.product?.title || copy('widget.offer_select','Select'));
@@ -300,9 +302,9 @@
                 prices.append(element(doc,'del','',moneyMinor(c.original,currency,locale)));
               }
               topLine.append(prices);
-            } else if(c.displaySavings>0 && rule.showSavings!==false)content.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));
+            } else if(c.displaySavings>0 && (display.showSavings ?? rule.showSavings)!==false)content.append(element(doc,'span','qb-offer-savings',copy('widget.tier_savings_badge','Save {saving_amount}',{saving_amount:moneyMinor(c.displaySavings,currency,locale)})));
           }
-          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.disabled=!c.eligible;select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});(kind==='gifts'?content:card).append(select);});
+          if(c.selected.length && c.options.length)c.selected.forEach((v,i)=>{const select=element(doc,'select','qb-select qb-offer-variant');select.dataset.offerSlot=String(i);select.disabled=!c.eligible;select.setAttribute('aria-label',`${copy('widget.choose_option','Choose an option')} ${i+1}`);if(!v){const placeholder=element(doc,'option','',copy('widget.choose_option','Choose an option'));placeholder.value='';select.append(placeholder);}for(const option of c.options){const node=element(doc,'option','',option.title);node.value=option.id;node.selected=v?.id===option.id;node.disabled=!sellable(option);select.append(node);}select.addEventListener('change',()=>{choice.slots[i]=select.value;rerender();});description.append(select);});
           if(!c.eligible){
             const locked=copy('widget.offer_locked','Locked');
             const overlay=element(doc,'button','qb-offer-lock');overlay.type='button';overlay.disabled=!tier;
@@ -360,7 +362,7 @@
       const included=allCards.filter(c=>c.included);
       const original=included.reduce((n,c)=>n+c.original,0),savings=included.reduce((n,c)=>n+c.savings,0),count=included.reduce((n,c)=>n+c.count,0);
       const safe=[original,savings,count,original-savings].every(safeAmount);
-      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,showSavings:c.rule.showSavings!==false,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
+      quote={original:safe?original:0,savings:safe?savings:0,discounted:safe?original-savings:0,quantity:safe?count:0,safe,lines:safe?included.flatMap(c=>c.selected.map((v,i)=>({id:v.id,quantity:1,role:c.kind==='gifts'?'gift':'bundle',ruleId:c.rule.ruleId,showSavings:(c.module.display?.showSavings ?? c.rule.showSavings)!==false,productId:c.rule.productId,handle:c.product.handle,title:c.product.title,variantTitle:v.title,priceMinor:v.priceMinor,discountedMinor:v.priceMinor-(i<OfferCore.offerQuota(c.rule,campaign.tiers,mainProducts(quantity))?OfferCore.offerDiscountMinor(v.priceMinor,c.rule,campaign.marketId?c.rule.marketOverrides?.[campaign.marketId]:undefined):0)}))):[]};
       if(!safe){invalidate();container.append(element(doc,'p','qb-offer-unavailable',copy('widget.offer_unavailable','Unavailable')));}
       if(focusedRule)for(const input of container.querySelectorAll('[data-offer-select],[data-offer-slot]'))if(input.closest('[data-offer-rule]')?.dataset.offerRule===focusedRule && (focusedSlot===undefined ? input.hasAttribute('data-offer-select') : input.dataset.offerSlot===focusedSlot))input.focus({preventScroll:true});
       return quote;

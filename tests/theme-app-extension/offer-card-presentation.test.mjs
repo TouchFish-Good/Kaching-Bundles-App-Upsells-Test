@@ -36,7 +36,7 @@ test('image-less selected offers use their own product image and respect hidden-
     assert.equal(h.block.querySelector(`[data-offer-rule="${id}"] img`)?.getAttribute('src'), `https://cdn.example.com/${id}-product.jpg`);
   }
   const campaign = offerCampaign();
-  campaign.gifts.items[0].showImage = false;
+  campaign.gifts.display.showImage = false;
   const hidden = setupOffers({ campaign });
   hidden.block.querySelector('[data-offer-product="p-a"]').dataset.image = 'https://cdn.example.com/product.jpg';
   hidden.block.querySelector('[data-offer-variant="v-a"]').dataset.image = 'https://cdn.example.com/variant.jpg';

@@ -95,7 +95,7 @@ export function OfferStyleEditor({ value, onChange, locale, kind = 'bundles' }: 
         const setFont = (patch: Partial<typeof font>) => onChange({ ...value, typography: { ...value.typography, [key]: { ...font, ...patch } } });
         return <div className={styles.styleTypeRow} data-offer-font={key} key={key}>
           <span>{name}</span>
-          <label>{label('styleSize')} <output>{font.sizePx}px</output><input aria-label={`${name} size`} type="range" min="1" max={Math.max(72, font.sizePx)} step="1" value={font.sizePx} onChange={(event) => setFont({ sizePx: Number(event.target.value) })} /></label>
+          <label>{label('styleSize')} <output>{font.sizePx}px</output><input aria-label={`${name} size`} type="number" min="1" max={Math.max(72, font.sizePx)} step="1" value={font.sizePx} onChange={(event) => setFont({ sizePx: Number(event.target.value) })} /></label>
           <label>{label('styleWeight')}<select aria-label={`${name} weight`} value={font.weight} onChange={(event) => setFont({ weight: Number(event.target.value) })}>{[100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => <option key={n} value={n}>{n}</option>)}</select></label>
         </div>;
       })}</div>

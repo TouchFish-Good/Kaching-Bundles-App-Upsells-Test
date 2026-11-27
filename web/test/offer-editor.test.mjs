@@ -938,7 +938,7 @@ test("campaign editor device controls preserve selected bundles and variants", (
           missingIds: [],
           nextPageInfo: null,
         });
-      if (String(url).includes("offer-preview"))
+      if (/offer-preview|\/(gifts|bundles)\/preview/.test(String(url)))
         return json({ version: 2, ...JSON.parse(opts.body), products });
       if (String(url).includes("market-prices"))
         return json({
@@ -967,7 +967,7 @@ test("campaign editor device controls preserve selected bundles and variants", (
       onSave: async () => {},
       onCancel: () => {},
     });
-    await settle();
+    await act(() => new Promise((resolve) => setTimeout(resolve, 350)));
     await settle();
     await click(
       document.querySelector(
@@ -1217,7 +1217,7 @@ test('offer refinement: trigger presets show live tiers and save real tier IDs',
 test('offer refinement: thumbnails and color-popover opacity persist independently from typography',()=>harness(async({vite,render,click,change})=>{
  const {OfferStyleEditor}=await vite.ssrLoadModule('/src/prototype/OfferStyleEditor.tsx');let current=defaultOfferModule('gifts').style.desktop;
  function Form(){const[value,setValue]=React.useState(current);current=value;return React.createElement(OfferStyleEditor,{value,onChange:setValue,locale:'en'});}
- await render(Form,{});const grid=document.querySelector('input[value="grid"]');assert.ok(grid);await click(grid);assert.equal(current.layout.cardLayout,'grid');assert.equal(current.layout.columns,2);await click(document.querySelector('[role="switch"]'));assert.equal(current.layout.mode,'carousel');assert.equal(current.layout.cardLayout,'grid');const color=document.querySelector('summary[aria-label="Section title color"]');assert.ok(color);await click(color);const alpha=document.querySelector('input[aria-label="Section title opacity"]');assert.ok(alpha);await change(alpha,'50');assert.match(current.colors.sectionTitle,/80$/i);assert.ok(alpha.closest('details'));assert.equal(document.querySelectorAll('[data-offer-font] input[type="range"]').length,6);
+ await render(Form,{});const grid=document.querySelector('input[value="grid"]');assert.ok(grid);await click(grid);assert.equal(current.layout.cardLayout,'grid');assert.equal(current.layout.columns,2);await click(document.querySelector('[role="switch"]'));assert.equal(current.layout.mode,'carousel');assert.equal(current.layout.cardLayout,'grid');const color=document.querySelector('summary[aria-label="Section title color"]');assert.ok(color);await click(color);const alpha=document.querySelector('input[aria-label="Section title opacity"]');assert.ok(alpha);await change(alpha,'50');assert.match(current.colors.sectionTitle,/80$/i);assert.ok(alpha.closest('details'));assert.equal(document.querySelectorAll('[data-offer-font] input[type="number"]').length,6);
 }));
 test('offer refinement: unpriced known variants allow simulated checkbox choice without valid quote',()=>harness(async({vite,render,click})=>{
  const {StorefrontWidget}=await vite.ssrLoadModule('/src/prototype/StorefrontWidget.tsx');await render(StorefrontWidget,{...base,bundles:moduleFor('bundles',[rule('a')]),offerPreview:{state:'ready',products:[{...products[0],available:false,reason:'unsupported_market',variants:products[0].variants.map(v=>({...v,available:true,availability:'available',price:null}))}]}});const card=()=>document.querySelector('[data-rule-id="a"]'),input=()=>card().querySelector('input[type="checkbox"]');assert.equal(input().disabled,false);await click(input());assert.equal(input().checked,true);assert.equal(card().dataset.included,'false');assert.match(document.querySelector('[data-offer-summary]').textContent,/unavailable/i);await click(input());assert.equal(input().checked,false);
